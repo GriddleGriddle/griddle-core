@@ -20,6 +20,9 @@
   },
   "dependencies": {
     "react": "~0.13.1",
-    "flux": "~2.0.1"
+    "flux": "~2.0.1",
+    "eventemitter3": "~0.1.6",
+    "object-assign": "~2.0.0",
+    "lodash": "~3.5.0"
   }
 }
