@@ -1,10 +1,11 @@
 var React = require('react');
 var DataStore = require('../stores/data-store');
 var LocalActions = require('../actions/local-action-creators'); 
+var FakeData = require('../fake/fake-data');
 var _ = require('lodash');
 
 function getStateFromStore(){
-  return {data: DataStore.getData() }
+  return {data: DataStore.getVisibleData() }
 }
 
 module.exports = React.createClass({
@@ -20,6 +21,7 @@ module.exports = React.createClass({
 
     return (
       <div>
+      <input type="text" onChange={this.handleFilter} />
         <table>
           {rows}
         </table>
@@ -28,18 +30,11 @@ module.exports = React.createClass({
       </div>
     );
   },
+  handleFilter: function(e){
+    LocalActions.filterData(e.target.value);
+  },
   handleClick: function(){
-    LocalActions.loadData([
-      {"name": "Luke Skywalker", 
-      "occupation": "Jedi", 
-      "hometown": "Tatooine"},
-      {"name": "Chewbacca", 
-      "occupation": "Wookie", 
-      "hometown": "Kashyyk"},
-      {"name": "Palpatine", 
-      "occupation": "Emperor", 
-      "hometown": "Naboo"}
-    ]);
+    LocalActions.loadData(FakeData);
   },
   dataChange: function(){
     this.setState(getStateFromStore())
