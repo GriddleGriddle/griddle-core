@@ -3,6 +3,7 @@ var AppDispatcher = require('../dispatcher/app-dispatcher');
 var assign = require('object-assign'); 
 var EventEmitter = require('eventemitter3').EventEmitter;
 var _state = {
+  hasFilter: false,
   data: [],
   visibleData: [],
   pageProperties: { current: 0, max: 0 }
@@ -27,8 +28,14 @@ var DataStore = assign({}, EventEmitter.prototype, {
     return _state.data;
   },
 
+  //this determines whether the data array or visible data array should be used
+  showVisibleData: function(){
+    if(_state.hasFilter === true){
+      return true;
+    }
+  },
   getVisibleData: function(){
-    return _state.visibleData.length > 0 ? _state.visibleData : _state.data;
+    return this.showVisibleData() ? _state.visibleData : _state.data;
   }
 });
 
@@ -41,8 +48,12 @@ AppDispatcher.register(function(action){
     case "GRIDDLE_FILTERED":
       _state.visibleData = action.data;
       _state.pageProperties.current = 0;
+      _state.hasFilter = true; 
       DataStore.emitChange(); 
       break;
+    case "GRIDDLE_FILTER_REMOVED":
+      _state.hasFilter = false;
+      DataStore.emitChange();
     default:
   }
 

@@ -1,5 +1,6 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var DataStore = require('../stores/data-store');
+var DataHelper = require('../helpers/data-helper');
 
 module.exports ={
   loadData: function(data){
@@ -13,16 +14,16 @@ module.exports ={
   filterData: function(filter){
     var data = DataStore.getAllData(); 
 
-    var filtered = _.filter(data, function(record){
-      var items = _.values(record);
-      for(var i = 0; i < items.length; i++){
-         if ((items[i]||"").toString().toLowerCase().indexOf(filter.toLowerCase()) >= 0){
-          return true;
-         }
+    if(filter === ""){
+      var action = {
+        actionType: "GRIDDLE_FILTER_REMOVED"
       }
 
-      return false;      
-    });
+      AppDispatcher.dispatch(action);
+      return;
+    }
+
+    var filtered = DataHelper.filterAllData(filter, data); 
 
     var action = {
       actionType: "GRIDDLE_FILTERED",
