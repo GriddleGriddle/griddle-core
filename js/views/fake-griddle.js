@@ -24,10 +24,18 @@ module.exports = React.createClass({
       </tr>
     });
 
+    var tableWrapperStyle = {
+      "top": this.state.yScrollPosition + "px",
+      "left": this.state.xScrollPosition + "px",
+      "height":"400px",
+      "width":"200px",
+      "overflow": "scroll"
+    };
+
     return (
       <div>
       <input type="text" onChange={this.handleFilter} />
-        <div ref="scrollable" onScroll={this.gridScroll} style={{"height":"400px", "overflowY": "scroll"}}>
+        <div ref="scrollable" onScroll={this.gridScroll} style={tableWrapperStyle}>
           <table>
             {rows}
           </table>
