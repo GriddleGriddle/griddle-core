@@ -5,9 +5,7 @@ var EventEmitter = require('eventemitter3').EventEmitter;
 
 var _state = {
   xScrollPosition: 0,
-  yScrollPosition: 0,
-  syncYScrollPosition: true,
-  syncXScrollPosition: false
+  yScrollPosition: 0
 };
 
 var ScrollStore = assign({}, EventEmitter.prototype, {
