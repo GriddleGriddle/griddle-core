@@ -31,5 +31,12 @@ module.exports ={
     };
 
     AppDispatcher.dispatch(action); 
-  }
+  },
+  setPageSize: function(pageSize){
+    var action = {
+      actionType: "GRIDDLE_SET_PAGE_SIZE",
+      pageSize: pageSize
+    }
+  },
+  
 }

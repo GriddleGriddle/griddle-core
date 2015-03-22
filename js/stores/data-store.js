@@ -6,8 +6,11 @@ var _state = {
   hasFilter: false,
   data: [],
   visibleData: [],
-  pageProperties: { current: 0, max: 0 }
+  pageProperties: { current: 0, max: 0, pageSize: 5}
 };
+
+
+
 
 
 var DataStore = assign({}, EventEmitter.prototype, {
@@ -28,12 +31,19 @@ var DataStore = assign({}, EventEmitter.prototype, {
     return _state.data;
   },
 
+  setCurrentPage: function(pageNumber){
+    if(pageNumber > 0 && pageNumber <= _state.pageProperties.maxPage){
+      _state.pageProperties.currentPage = pageNumber;
+    }
+  },
+
   //this determines whether the data array or visible data array should be used
   showVisibleData: function(){
     if(_state.hasFilter === true){
       return true;
     }
   },
+  
   getVisibleData: function(){
     return this.showVisibleData() ? _state.visibleData : _state.data;
   }
@@ -54,9 +64,19 @@ AppDispatcher.register(function(action){
     case "GRIDDLE_FILTER_REMOVED":
       _state.hasFilter = false;
       DataStore.emitChange();
+    case "GRIDDLE_SET_PAGE_SIZE":
+      _state.pageProperties.pageSize = action.pageSize;    
+      DataStore.emitChange(); 
+    case "GRIDDLE_NEXT_PAGE":
+      DataStore.setCurrentPage(action.page++);
+      DataStore.emitChange();
+    case "GRIDDLE_PREVIOUS_PAGE":
+      DataStore.setCurrentPage(action.page--);
+      DataStore.emitChange();
     default:
   }
 
 });
+
 
 module.exports = DataStore; 
