@@ -1,6 +1,5 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
-var DataStore = require('../stores/data-store');
-var DataHelper = require('../helpers/data-helper');
+var DataStore = require('../stores/local-data-store');
 
 module.exports ={
   loadData: function(data){
@@ -12,8 +11,6 @@ module.exports ={
     AppDispatcher.dispatch(action); 
   },
   filterData: function(filter){
-    var data = DataStore.getAllData(); 
-
     if(filter === ""){
       var action = {
         actionType: "GRIDDLE_FILTER_REMOVED"
@@ -23,11 +20,9 @@ module.exports ={
       return;
     }
 
-    var filtered = DataHelper.filterAllData(filter, data); 
-
     var action = {
       actionType: "GRIDDLE_FILTERED",
-      data: filtered
+      filter: filter
     };
 
     AppDispatcher.dispatch(action); 
@@ -38,5 +33,16 @@ module.exports ={
       pageSize: pageSize
     }
   },
-  
+  sort: function(column){
+    var action = {
+      actionType: "GRIDDLE_SORT", 
+      sortColumns: [column]
+    };
+  },
+  addSortColumn: function(column){
+    var action = {
+      actionType: "GRIDDLE_ADD_SORT_COLUMN",
+      sortColumn: column
+    }
+  }
 }

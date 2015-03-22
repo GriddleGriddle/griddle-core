@@ -1,5 +1,5 @@
 var React = require('react');
-var DataStore = require('../stores/data-store');
+var DataStore = require('../stores/local-data-store');
 var LocalActions = require('../actions/local-action-creators'); 
 var FakeData = require('../fake/fake-data');
 var _ = require('lodash');

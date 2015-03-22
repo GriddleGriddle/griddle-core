@@ -13,8 +13,21 @@ var DataHelper = {
     });
   },
 
-  filterByOneColumn: function(filter, data){
+  filterByOneColumn: function(filter, data, column){
     //TODO:
+  },
+
+  sort: function(sortColumns, data, ascending){
+    if (sortColumns.length < 1) { return data }; 
+
+    var returnData = _.sortByAll(data, sortColumns);
+
+    return ascending ? returnData : reverseSort(returnData); 
+  }, 
+
+  reverseSort: function(data){
+    //abstracting this here for a future date.
+    data.reverse();
   }
 }
 
