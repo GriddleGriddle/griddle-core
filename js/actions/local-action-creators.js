@@ -1,10 +1,10 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
-var DataStore = require('../stores/local-data-store');
+var Constants = require('../constants/constants');
 
 module.exports ={
   loadData: function(data){
     var action = {
-      actionType: "GRIDDLE_LOADED_DATA",
+      actionType: Constants.GRIDDLE_LOADED_DATA,
       data: data
     }
 
@@ -13,7 +13,7 @@ module.exports ={
   filterData: function(filter){
     if(filter === ""){
       var action = {
-        actionType: "GRIDDLE_FILTER_REMOVED"
+        actionType: Constants.GRIDDLE_FILTER_REMOVED
       }
 
       AppDispatcher.dispatch(action);
@@ -21,7 +21,7 @@ module.exports ={
     }
 
     var action = {
-      actionType: "GRIDDLE_FILTERED",
+      actionType: Constants.GRIDDLE_FILTERED,
       filter: filter
     };
 
@@ -29,19 +29,19 @@ module.exports ={
   },
   setPageSize: function(pageSize){
     var action = {
-      actionType: "GRIDDLE_SET_PAGE_SIZE",
+      actionType: Constants.GRIDDLE_SET_PAGE_SIZE,
       pageSize: pageSize
     }
   },
   sort: function(column){
     var action = {
-      actionType: "GRIDDLE_SORT", 
+      actionType: Constants.GRIDDLE_SORT, 
       sortColumns: [column]
     };
   },
   addSortColumn: function(column){
     var action = {
-      actionType: "GRIDDLE_ADD_SORT_COLUMN",
+      actionType: Constants.GRIDDLE_ADD_SORT_COLUMN,
       sortColumn: column
     }
   }

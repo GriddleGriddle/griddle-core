@@ -3,6 +3,7 @@ var AppDispatcher = require('../dispatcher/app-dispatcher');
 var DataHelper = require('../helpers/data-helper'); 
 var assign = require('object-assign'); 
 var EventEmitter = require('eventemitter3').EventEmitter;
+var Constants = require('../constants/constants');
 var _state = {
   hasFilter: false,
   hasSort: false,
@@ -58,11 +59,11 @@ var DataStore = assign({}, EventEmitter.prototype, {
 
 AppDispatcher.register(function(action){
   switch(action.actionType){
-    case "GRIDDLE_LOADED_DATA":
+    case Constants.GRIDDLE_LOADED_DATA:
       _state.data = action.data;
       DataStore.emitChange(); 
       break;
-    case "GRIDDLE_FILTERED":
+    case Constants.GRIDDLE_FILTERED:
       _state.pageProperties.current = 0;
       _state.hasFilter = true; 
       _state.visibleData = DataHelper.sort(
@@ -71,11 +72,11 @@ AppDispatcher.register(function(action){
         _state.sortProperties.sortAscending);
       DataStore.emitChange(); 
       break;
-    case "GRIDDLE_FILTER_REMOVED":
+    case Constants.GRIDDLE_FILTER_REMOVED:
       _state.hasFilter = false;
       DataStore.emitChange();
       break;
-    case "GRIDDLE_SET_PAGE_SIZE":
+    case Constants.GRIDDLE_SET_PAGE_SIZE:
       _state.pageProperties.pageSize = action.pageSize;    
       DataStore.emitChange(); 
       break;
@@ -83,11 +84,11 @@ AppDispatcher.register(function(action){
       DataStore.setCurrentPage(action.page++);
       DataStore.emitChange();
       break;
-    case "GRIDDLE_PREVIOUS_PAGE":
+    case Constants.GRIDDLE_PREVIOUS_PAGE:
       DataStore.setCurrentPage(action.page--);
       DataStore.emitChange();
       break;
-    case "GRIDDLE_SORT":
+    case Constants.GRIDDLE_SORT:
       _state.sortProperties.sortColumns = action.sortColumns;
       _state.sortAscending = action.sortAscending||_state.sortProperties.defaultSortAscending;
 
@@ -98,7 +99,7 @@ AppDispatcher.register(function(action){
       );
       DataStore.emitChange();
       break;
-    case "GRIDDLE_ADD_SORT_COLUMN":
+    case Constants.GRIDDLE_ADD_SORT_COLUMN:
       _state.sortProperties.sortColumns.push(action.sortColumn);
       _state.visibleData = DataHelper.sort(
         _state.sortProperties.sortColumns,
@@ -106,7 +107,7 @@ AppDispatcher.register(function(action){
         _state.sortAscending
       );
       break; 
-    case "GRIDDLE_SORT_ORDER_CHANGE":
+    case Constants.GRIDDLE_SORT_ORDER_CHANGE:
       _state.sortAscending = !_state.sortAscending; 
       _state.visibleData = DataHelper.reverseSort(DataStore.getVisibleData()); 
       DataStore.emitChange(); 
