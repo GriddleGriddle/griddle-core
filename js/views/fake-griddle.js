@@ -28,7 +28,7 @@ module.exports = React.createClass({
       "top": this.state.yScrollPosition + "px",
       "left": this.state.xScrollPosition + "px",
       "height":"400px",
-      "width":"200px",
+      "width":"900px",
       "overflow": "scroll"
     };
 

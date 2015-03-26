@@ -1,9 +1,9 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
-
-var DataHelper = require('../helpers/data-helper'); 
 var assign = require('object-assign'); 
-var EventEmitter = require('eventemitter3').EventEmitter;
+var DataHelper = require('../helpers/data-helper'); 
+var StoreBoilerplate = require('./store-boilerplate'); 
 var Constants = require('../constants/constants');
+
 var _state = {
   hasFilter: false,
   hasSort: false,
@@ -16,22 +16,7 @@ var _state = {
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
 
-var DataStore = assign({}, EventEmitter.prototype, {
-  //boilerplate
-  emitChange: function(){
-    this.emit('change'); 
-  },
-
-  //boilerplate
-  addChangeListener: function(callback){
-    this.on('change', callback);
-  },
-
-  //boilerplate
-  removeChangeListener: function(callback){
-    this.removeListener('change', callback);
-  }, 
-
+var DataStore = assign({}, StoreBoilerplate, {
   //gets the original, full data-set
   getAllData: function(){
     return _state.data;

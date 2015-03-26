@@ -1,6 +1,6 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var assign = require('object-assign');
-var EventEmitter = require('eventemitter3').EventEmitter;
+var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 
 var _state = {
@@ -8,7 +8,7 @@ var _state = {
   yScrollPosition: 0
 };
 
-var ScrollStore = assign({}, EventEmitter.prototype, {
+var ScrollStore = assign({}, StoreBoilerplate, {
 
   emitChange: function(){
     this.emit('change');
