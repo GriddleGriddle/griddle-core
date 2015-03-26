@@ -9,19 +9,6 @@ var _state = {
 };
 
 var ScrollStore = assign({}, StoreBoilerplate, {
-
-  emitChange: function(){
-    this.emit('change');
-  },
-
-  addChangeListener: function(callback){
-    this.on('change', callback);
-  },
-
-  removeChangeListener: function(callback){
-    this.removeListener('change', callback);
-  },
-
   getXScrollPosition: function(){
     return _state.xScrollPosition;
   },
