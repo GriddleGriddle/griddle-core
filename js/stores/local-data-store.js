@@ -11,7 +11,8 @@ var _state = {
   data: [],
   //this is the filtered / sorted data (not paged!)
   visibleData: [],
-  pageProperties: { current: 0, max: 0, pageSize: 5},
+
+  pageProperties: { current: 1, max: 0, pageSize: 5},
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
@@ -37,15 +38,28 @@ var DataStore = assign({}, StoreBoilerplate, {
   },
 
   //this gets the full sorted and filtered dataset
-  getVisibleData: function(){
+  getAllVisibleData: function(){
     return this.showVisibleData() ? _state.visibleData : _state.data;
-  }
+  },
+
+  getRangeOfVisibleResults: function(start, end){
+    debugger;
+    return _.at(this.getAllVisibleData(), _.range((start), end));
+  },
+
+  getCurrentPage: function(){
+    var initialIndex = (_state.pageProperties.current -1) * _state.pageProperties.pageSize;
+    return this.getRangeOfVisibleResults(initialIndex, 
+      initialIndex + _state.pageProperties.pageSize);
+ } 
 });
 
 AppDispatcher.register(function(action){
   switch(action.actionType){
     case Constants.GRIDDLE_LOADED_DATA:
       _state.data = action.data;
+      var calc = _state.data.length / _state.pageProperties.pageSize
+      _state.pageProperties.max = calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTERED:
@@ -65,13 +79,17 @@ AppDispatcher.register(function(action){
       _state.pageProperties.pageSize = action.pageSize;    
       DataStore.emitChange(); 
       break;
-    case "GRIDDLE_NEXT_PAGE":
-      DataStore.setCurrentPage(action.page++);
-      DataStore.emitChange();
+    case Constants.GRIDDLE_NEXT_PAGE:
+      if(_state.pageProperties.current < _state.pageProperties.max){
+        _state.pageProperties.current++;
+        DataStore.emitChange();
+      }
       break;
     case Constants.GRIDDLE_PREVIOUS_PAGE:
-      DataStore.setCurrentPage(action.page--);
-      DataStore.emitChange();
+      if(_state.pageProperties.current > 1){
+        _state.pageProperties.current--;
+        DataStore.emitChange();
+      }
       break;
     case Constants.GRIDDLE_SORT:
       _state.sortProperties.sortColumns = action.sortColumns;

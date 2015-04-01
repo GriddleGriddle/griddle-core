@@ -8,7 +8,7 @@ var _ = require('lodash');
 
 function getStateFromStore(){
   return {
-    data: DataStore.getVisibleData(),
+    data: DataStore.getCurrentPage(),
     xScrollPosition: ScrollStore.getXScrollPosition(),
     yScrollPosition: ScrollStore.getYScrollPosition()
   };
@@ -41,15 +41,19 @@ module.exports = React.createClass({
           </table>
         </div>
 
-        <button type="button" onClick={this.handleClick}>Load</button>
+        <button type="button" onClick={this.handlePrevious}>Previous</button>
+        <button type="button" onClick={this.handleNext}>Next</button>
       </div>
     );
   },
   handleFilter: function(e){
     LocalActions.filterData(e.target.value);
   },
-  handleClick: function(){
-    LocalActions.loadData(FakeData);
+  handleNext: function(e){
+    LocalActions.loadNext();
+  },
+  handlePrevious: function(e){ 
+    LocalActions.loadPrevious();
   },
   dataChange: function(){
     this.setState(getStateFromStore())
@@ -80,6 +84,7 @@ module.exports = React.createClass({
     // Register scroll listener and fire off initial scroll change.
     ScrollStore.addChangeListener(this.scrollChange);
     this.scrollChange();
+    LocalActions.loadData(FakeData);
   },
   componentWillUnmount: function(){
     DataStore.removeChangeListener(this.dataChange);

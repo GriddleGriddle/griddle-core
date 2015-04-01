@@ -44,5 +44,20 @@ module.exports ={
       actionType: Constants.GRIDDLE_ADD_SORT_COLUMN,
       sortColumn: column
     }
+  },
+  loadNext: function(){
+    var action = {
+      actionType: Constants.GRIDDLE_NEXT_PAGE
+    };
+
+    AppDispatcher.dispatch(action);
+  },
+
+  loadPrevious: function(){
+    var action = {
+      actionType: Constants.GRIDDLE_PREVIOUS_PAGE
+    };
+
+    AppDispatcher.dispatch(action);
   }
 }
