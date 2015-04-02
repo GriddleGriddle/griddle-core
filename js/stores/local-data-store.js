@@ -64,7 +64,6 @@ AppDispatcher.register(function(action){
     case Constants.GRIDDLE_FILTERED:
       _state.pageProperties.current = 0;
       _state.hasFilter = true; 
-      debugger;
       _state.visibleData = DataHelper.sort(
         _state.sortProperties.sortColumns,
         DataHelper.filterAllData(action.filter, _state.data),
