@@ -12,7 +12,7 @@ var _state = {
   //this is the filtered / sorted data (not paged!)
   visibleData: [],
 
-  pageProperties: { current: 1, max: 0, pageSize: 5},
+  pageProperties: { current: 0, max: 0, pageSize: 5},
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
@@ -43,12 +43,11 @@ var DataStore = assign({}, StoreBoilerplate, {
   },
 
   getRangeOfVisibleResults: function(start, end){
-    debugger;
     return _.at(this.getAllVisibleData(), _.range((start), end));
   },
 
   getCurrentPage: function(){
-    var initialIndex = (_state.pageProperties.current -1) * _state.pageProperties.pageSize;
+    var initialIndex = _state.pageProperties.current * _state.pageProperties.pageSize;
     return this.getRangeOfVisibleResults(initialIndex, 
       initialIndex + _state.pageProperties.pageSize);
  } 
@@ -65,6 +64,7 @@ AppDispatcher.register(function(action){
     case Constants.GRIDDLE_FILTERED:
       _state.pageProperties.current = 0;
       _state.hasFilter = true; 
+      debugger;
       _state.visibleData = DataHelper.sort(
         _state.sortProperties.sortColumns,
         DataHelper.filterAllData(action.filter, _state.data),
@@ -86,7 +86,7 @@ AppDispatcher.register(function(action){
       }
       break;
     case Constants.GRIDDLE_PREVIOUS_PAGE:
-      if(_state.pageProperties.current > 1){
+      if(_state.pageProperties.current > 0){
         _state.pageProperties.current--;
         DataStore.emitChange();
       }
