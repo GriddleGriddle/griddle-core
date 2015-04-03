@@ -12,7 +12,7 @@ var _state = {
   //this is the filtered / sorted data (not paged!)
   visibleData: [],
 
-  pageProperties: { current: 0, max: 0, pageSize: 5},
+  pageProperties: { current: 0, maxPage: 0, pageSize: 5},
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
@@ -50,7 +50,11 @@ var DataStore = assign({}, StoreBoilerplate, {
     var initialIndex = _state.pageProperties.current * _state.pageProperties.pageSize;
     return this.getRangeOfVisibleResults(initialIndex, 
       initialIndex + _state.pageProperties.pageSize);
- } 
+ },
+
+ getPageCount: function(){
+    return _state.pageProperties.maxPage; 
+ }
 });
 
 AppDispatcher.register(function(action){
@@ -58,7 +62,7 @@ AppDispatcher.register(function(action){
     case Constants.GRIDDLE_LOADED_DATA:
       _state.data = action.data;
       var calc = _state.data.length / _state.pageProperties.pageSize
-      _state.pageProperties.max = calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
+      _state.pageProperties.maxPage = calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTERED:
@@ -78,8 +82,14 @@ AppDispatcher.register(function(action){
       _state.pageProperties.pageSize = action.pageSize;    
       DataStore.emitChange(); 
       break;
+    case Constants.GRIDDLE_GET_PAGE:
+      if (action.pageNumber >= 0 && action.pageNumber <= _state.pageProperties.maxPage){
+        _state.pageProperties.current = action.pageNumber; 
+        DataStore.emitChange(); 
+      }
+      break;
     case Constants.GRIDDLE_NEXT_PAGE:
-      if(_state.pageProperties.current < _state.pageProperties.max){
+      if(_state.pageProperties.current < _state.pageProperties.maxPage){
         _state.pageProperties.current++;
         DataStore.emitChange();
       }

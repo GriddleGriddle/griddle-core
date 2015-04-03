@@ -59,5 +59,14 @@ module.exports ={
     };
 
     AppDispatcher.dispatch(action);
+  },
+
+  loadPage: function(number){
+    var action = { 
+      actionType: Constants.GRIDDLE_GET_PAGE,
+      pageNumber: number
+    }
+
+    AppDispatcher.dispatch(action);
   }
 }

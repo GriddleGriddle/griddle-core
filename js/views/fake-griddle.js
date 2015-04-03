@@ -10,9 +10,30 @@ function getStateFromStore(){
   return {
     data: DataStore.getCurrentPage(),
     xScrollPosition: ScrollStore.getXScrollPosition(),
-    yScrollPosition: ScrollStore.getYScrollPosition()
+    yScrollPosition: ScrollStore.getYScrollPosition(),
+    maxPages: DataStore.getPageCount()
   };
 }
+
+var PageSelect = React.createClass({
+  propTypes: {
+    maxPages: React.PropTypes.number.isRequired
+  },
+
+  handleSelect: function(e){
+    LocalActions.loadPage(parseInt(e.target.value));
+  },
+
+  render: function(){
+    var options = _.map(_.range(this.props.maxPages), function(i){
+      return <option value={i}>{i}</option>;
+    });
+
+    return <select onChange={this.handleSelect}>
+      {options}
+    </select>
+  }
+});
 
 module.exports = React.createClass({
   render: function(){
@@ -31,7 +52,7 @@ module.exports = React.createClass({
       "width":"900px",
       "overflow": "scroll"
     };
-
+    
     return (
       <div>
       <input type="text" onChange={this.handleFilter} />
@@ -42,6 +63,7 @@ module.exports = React.createClass({
         </div>
 
         <button type="button" onClick={this.handlePrevious}>Previous</button>
+        <PageSelect maxPages={this.state.maxPages} />
         <button type="button" onClick={this.handleNext}>Next</button>
       </div>
     );
