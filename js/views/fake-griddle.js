@@ -8,36 +8,36 @@ var _ = require('lodash');
 
 function getStateFromStore(){
   return {
-    data: DataStore.getCurrentPage(),
+    dataState: DataStore.getState(),
     xScrollPosition: ScrollStore.getXScrollPosition(),
     yScrollPosition: ScrollStore.getYScrollPosition(),
-    maxPages: DataStore.getPageCount()
+    pageProperties: DataStore.getPageProperties(),
+
   };
 }
 
 var PageSelect = React.createClass({
   propTypes: {
-    maxPages: React.PropTypes.number.isRequired
+    pageProperties: React.PropTypes.object.isRequired
   },
 
   handleSelect: function(e){
-    LocalActions.loadPage(parseInt(e.target.value));
+    LocalActions.loadPage(parseInt(e.target.value - 1));
   },
 
   render: function(){
-    var options = _.map(_.range(this.props.maxPages), function(i){
-      return <option value={i}>{i}</option>;
+    var options = _.map(_.range(this.props.pageProperties.maxPage), function(i){
+      return <option value={i + 1}>{i + 1}</option>;
     });
-
-    return <select onChange={this.handleSelect}>
+    return <select value={this.props.pageProperties.currentPage + 1} onChange={this.handleSelect}>
       {options}
     </select>
   }
 });
 
-module.exports = React.createClass({
+var FakeGriddle = React.createClass({
   render: function(){
-    var rows = _.map(this.state.data, function(item){
+    var rows = _.map(this.state.dataState.currentDataPage, function(item){
       return <tr>
       {_.map(_.keys(item), function(key){
         return <td>{item[key]}</td>
@@ -52,10 +52,11 @@ module.exports = React.createClass({
       "width":"900px",
       "overflow": "scroll"
     };
-    
+
     return (
       <div>
       <input type="text" onChange={this.handleFilter} />
+      <input type="text" onChange={this.handleUpdatePageSize} />
         <div ref="scrollable" onScroll={this.gridScroll} style={tableWrapperStyle}>
           <table>
             {rows}
@@ -63,23 +64,32 @@ module.exports = React.createClass({
         </div>
 
         <button type="button" onClick={this.handlePrevious}>Previous</button>
-        <PageSelect maxPages={this.state.maxPages} />
+        <PageSelect pageProperties={this.state.pageProperties} />
         <button type="button" onClick={this.handleNext}>Next</button>
       </div>
     );
   },
+
   handleFilter: function(e){
     LocalActions.filterData(e.target.value);
   },
+
+  handleUpdatePageSize: function(e){
+    LocalActions.setPageSize(parseInt(e.target.value)); 
+  },
+
   handleNext: function(e){
     LocalActions.loadNext();
   },
+
   handlePrevious: function(e){ 
     LocalActions.loadPrevious();
   },
+
   dataChange: function(){
     this.setState(getStateFromStore())
   },
+
   scrollChange: function(){
     var newState = {
       xScrollPosition: ScrollStore.getXScrollPosition(),
@@ -96,9 +106,11 @@ module.exports = React.createClass({
     // Set the state.
     this.setState(newState);
   },
+
   getInitialState: function(){
     return getStateFromStore();
   },
+
   componentDidMount: function(){
     // Register data listener
     DataStore.addChangeListener(this.dataChange);
@@ -108,12 +120,16 @@ module.exports = React.createClass({
     this.scrollChange();
     LocalActions.loadData(FakeData);
   },
+
   componentWillUnmount: function(){
     DataStore.removeChangeListener(this.dataChange);
     ScrollStore.removeChangeListener(this.scrollChange);
   },
+
   gridScroll: function(){
     var scrollable = React.findDOMNode(this.refs.scrollable);
     ScrollActions.setScrollPosition(scrollable.scrollLeft, scrollable.scrollTop)
   }
 });
+
+module.exports = FakeGriddle; 

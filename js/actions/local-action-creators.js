@@ -32,18 +32,24 @@ module.exports ={
       actionType: Constants.GRIDDLE_SET_PAGE_SIZE,
       pageSize: pageSize
     }
+
+    AppDispatcher.dispatch(action);
   },
   sort: function(column){
     var action = {
       actionType: Constants.GRIDDLE_SORT, 
       sortColumns: [column]
     };
+
+    AppDispatcher.dispatch(action);
   },
   addSortColumn: function(column){
     var action = {
       actionType: Constants.GRIDDLE_ADD_SORT_COLUMN,
       sortColumn: column
     }
+
+    AppDispatcher.dispatch(action);
   },
   loadNext: function(){
     var action = {

@@ -12,15 +12,40 @@ var _state = {
   //this is the filtered / sorted data (not paged!)
   visibleData: [],
 
-  pageProperties: { current: 0, maxPage: 0, pageSize: 5},
+  currentDataPage: [],
+
+  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5},
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
 
-var DataStore = assign({}, StoreBoilerplate, {
-  //gets the original, full data-set
-  getAllData: function(){
-    return _state.data;
+//these are helpers that have access to the state
+var helpers = {
+  setCurrentDataPage: function(){
+    var initialIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
+    _state.currentDataPage = this.getRangeOfVisibleResults(initialIndex, initialIndex + _state.pageProperties.pageSize);
+  },
+
+  setMaxPage: function(){
+     _state.pageProperties.maxPage = DataHelper.getMaxPageSize(_state.data.length, _state.pageProperties.pageSize);
+     this.setCurrentDataPage();
+  },
+
+  //this gets the full sorted and filtered dataset
+  getAllVisibleData: function(){
+    return helpers.showVisibleData() ? _state.visibleData : _state.data;
+  },
+
+  getRangeOfVisibleResults: function(start, end){
+    return _.at(this.getAllVisibleData(), _.range((start), end));
+  },
+
+  //todo: change the name on this
+  //this determines whether the data array or visible data array should be used
+  showVisibleData: function(){
+    if(_state.hasFilter === true){
+      return true;
+    }
   },
 
   //tries to set the current page
@@ -30,85 +55,94 @@ var DataStore = assign({}, StoreBoilerplate, {
     }
   },
 
-  //this determines whether the data array or visible data array should be used
-  showVisibleData: function(){
-    if(_state.hasFilter === true){
-      return true;
-    }
+  filterData: function(filter){
+    _state.pageProperties.currentPage = 0;
+    _state.hasFilter = true; 
+    _state.visibleData = DataHelper.sort(
+      _state.sortProperties.sortColumns,
+      DataHelper.filterAllData(filter, _state.data),
+      _state.sortProperties.sortAscending
+    );
+    this.setCurrentDataPage();  
   },
 
-  //this gets the full sorted and filtered dataset
-  getAllVisibleData: function(){
-    return this.showVisibleData() ? _state.visibleData : _state.data;
+  sort: function(){
+    _state.visibleData = DataHelper.sort(
+      _state.sortProperties.sortColumns,
+      DataStore.getVisibleData(), 
+      _state.sortProperties.sortAscending
+    );
+  }
+};
+
+var DataStore = assign({}, StoreBoilerplate, {
+  getState: function(){
+    return _state;
   },
 
-  getRangeOfVisibleResults: function(start, end){
-    return _.at(this.getAllVisibleData(), _.range((start), end));
+  //gets the original, full data-set
+  getAllData: function(){
+    return _state.data;
   },
 
-  getCurrentPage: function(){
-    var initialIndex = _state.pageProperties.current * _state.pageProperties.pageSize;
-    return this.getRangeOfVisibleResults(initialIndex, 
-      initialIndex + _state.pageProperties.pageSize);
- },
-
- getPageCount: function(){
+  getPageCount: function(){
     return _state.pageProperties.maxPage; 
- }
+  },
+
+  getPageProperties: function(){
+    return _state.pageProperties;  
+  }
 });
 
 AppDispatcher.register(function(action){
   switch(action.actionType){
     case Constants.GRIDDLE_LOADED_DATA:
       _state.data = action.data;
-      var calc = _state.data.length / _state.pageProperties.pageSize
-      _state.pageProperties.maxPage = calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
+      helpers.setMaxPage(); 
+      helpers.setCurrentDataPage();
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTERED:
-      _state.pageProperties.current = 0;
-      _state.hasFilter = true; 
-      _state.visibleData = DataHelper.sort(
-        _state.sortProperties.sortColumns,
-        DataHelper.filterAllData(action.filter, _state.data),
-        _state.sortProperties.sortAscending);
+      helpers.filterData(action.filter);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTER_REMOVED:
       _state.hasFilter = false;
+      helpers.setCurrentDataPage();
       DataStore.emitChange();
       break;
     case Constants.GRIDDLE_SET_PAGE_SIZE:
+    debugger;
       _state.pageProperties.pageSize = action.pageSize;    
+      helpers.setMaxPage();
+      helpers.setCurrentDataPage();
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_GET_PAGE:
       if (action.pageNumber >= 0 && action.pageNumber <= _state.pageProperties.maxPage){
-        _state.pageProperties.current = action.pageNumber; 
+        _state.pageProperties.currentPage = action.pageNumber; 
+        helpers.setCurrentDataPage();
         DataStore.emitChange(); 
       }
       break;
     case Constants.GRIDDLE_NEXT_PAGE:
-      if(_state.pageProperties.current < _state.pageProperties.maxPage){
-        _state.pageProperties.current++;
+      if(_state.pageProperties.currentPage < _state.pageProperties.maxPage){
+        _state.pageProperties.currentPage++;
+        helpers.setCurrentDataPage(); 
         DataStore.emitChange();
       }
       break;
     case Constants.GRIDDLE_PREVIOUS_PAGE:
-      if(_state.pageProperties.current > 0){
-        _state.pageProperties.current--;
+      if(_state.pageProperties.currentPage > 0){
+        _state.pageProperties.currentPage--;
+        helpers.setCurrentDataPage();
         DataStore.emitChange();
       }
       break;
     case Constants.GRIDDLE_SORT:
       _state.sortProperties.sortColumns = action.sortColumns;
-      _state.sortAscending = action.sortAscending||_state.sortProperties.defaultSortAscending;
-
-      _state.visibleData = DataHelper.sort(
-        _state.sortProperties.sortColumns,
-        DataStore.getVisibleData(), 
-        _state.sortAscending
-      );
+      _state.sortProperties.sortAscending = action.sortAscending||_state.sortProperties.defaultSortAscending;
+      helpers.sort();
       DataStore.emitChange();
       break;
     case Constants.GRIDDLE_ADD_SORT_COLUMN:

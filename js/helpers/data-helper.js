@@ -28,6 +28,11 @@ var DataHelper = {
   reverseSort: function(data){
     //abstracting this here for a future date.
     data.reverse();
+  },
+
+  getMaxPageSize: function(dataLength, pageSize){
+    var calc = dataLength / pageSize;
+    return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
   }
 }
 
