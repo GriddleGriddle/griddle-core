@@ -59,7 +59,9 @@ var FakeGriddle = React.createClass({
       <input type="text" onChange={this.handleUpdatePageSize} />
         <div ref="scrollable" onScroll={this.gridScroll} style={tableWrapperStyle}>
           <table>
-            {rows}
+            <tbody>
+              {rows}
+            </tbody>
           </table>
         </div>
 
