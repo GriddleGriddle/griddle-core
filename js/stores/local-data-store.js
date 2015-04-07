@@ -126,7 +126,7 @@ AppDispatcher.register(function(action){
       }
       break;
     case Constants.GRIDDLE_NEXT_PAGE:
-      if(_state.pageProperties.currentPage < _state.pageProperties.maxPage){
+      if(_state.pageProperties.currentPage < _state.pageProperties.maxPage-1){
         _state.pageProperties.currentPage++;
         helpers.setCurrentDataPage(); 
         DataStore.emitChange();
