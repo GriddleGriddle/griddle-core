@@ -4,6 +4,7 @@ var ScrollStore = require('../stores/scroll-store');
 var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 var FakeData = require('../fake/fake-data');
+var SpacerRow = require('./spacer-row');
 var _ = require('lodash');
 
 function getStateFromStore(){
@@ -11,8 +12,10 @@ function getStateFromStore(){
     dataState: DataStore.getState(),
     xScrollPosition: ScrollStore.getXScrollPosition(),
     yScrollPosition: ScrollStore.getYScrollPosition(),
-    pageProperties: DataStore.getPageProperties(),
-
+    tableHeight: ScrollStore.getTableHeight(),
+    tableWidth: ScrollStore.getTableHeight(),
+    rowHeight: ScrollStore.getRowHeight(),
+    pageProperties: DataStore.getPageProperties()
   };
 }
 
@@ -48,8 +51,8 @@ var FakeGriddle = React.createClass({
     var tableWrapperStyle = {
       "top": this.state.yScrollPosition + "px",
       "left": this.state.xScrollPosition + "px",
-      "height":"400px",
-      "width":"900px",
+      "height": this.state.tableHeight + "px",
+      "width": this.state.tableWidth + "px",
       "overflow": "scroll"
     };
 
@@ -60,7 +63,9 @@ var FakeGriddle = React.createClass({
         <div ref="scrollable" onScroll={this.gridScroll} style={tableWrapperStyle}>
           <table>
             <tbody>
+              <SpacerRow position="top"/>
               {rows}
+              <SpacerRow position="bottom"/>
             </tbody>
           </table>
         </div>

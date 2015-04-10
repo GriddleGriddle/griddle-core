@@ -5,7 +5,10 @@ var Constants = require('../constants/constants');
 
 var _state = {
   xScrollPosition: 0,
-  yScrollPosition: 0
+  yScrollPosition: 0,
+  tableHeight: 400,
+  tableWidth: 900,
+  rowHeight: 25
 };
 
 var ScrollStore = assign({}, StoreBoilerplate, {
@@ -24,18 +27,48 @@ var ScrollStore = assign({}, StoreBoilerplate, {
   setYScrollPosition: function(position){
     _state.yScrollPosition = position;
   },
-});
 
-AppDispatcher.register(function(action){
-  switch(action.actionType){
-    case Constants.XY_POSITION_CHANGED:
-      _state.xScrollPosition = action.xScrollPosition;
-      _state.yScrollPosition = action.yScrollPosition;
-      ScrollStore.emitChange();
-      break;
-    default:
-  }
-});
+  getTableHeight: function(){
+    return _state.tableHeight;
+  },
 
+  setTableHeight: function(tableHeight){
+    _state.tableHeight = tableHeight;
+  },
+
+  getTableWidth: function(){
+    return _state.tableWidth;
+  },
+
+  setTableWidth: function(tableWidth){
+    _state.tableWidth = tableWidth;
+  },
+
+  getRowHeight: function(){
+    return _state.rowHeight;
+  },
+
+  setRowHeight: function(rowHeight){
+    _state.rowHeight = rowHeight;
+  },
+
+  dispatchToken: AppDispatcher.register(function(action){
+    switch(action.actionType){
+      case Constants.TABLE_DIMENSIONS_CHANGED:
+        _state.tableHeight = action.tableHeight;
+        _state.tableWidth = action.tableWidth;
+        ScrollStore.emitChange();
+      case Constants.ROW_HEIGHT_CHANGED:
+        _state.rowHeight = action.rowHeight;
+        ScrollStore.emitChange();
+      case Constants.XY_POSITION_CHANGED:
+        _state.xScrollPosition = action.xScrollPosition;
+        _state.yScrollPosition = action.yScrollPosition;
+        ScrollStore.emitChange();
+        break;
+      default:
+    }
+  })
+});
 
 module.exports = ScrollStore;

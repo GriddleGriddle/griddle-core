@@ -3,6 +3,7 @@ var assign = require('object-assign');
 var DataHelper = require('../helpers/data-helper'); 
 var StoreBoilerplate = require('./store-boilerplate'); 
 var Constants = require('../constants/constants');
+var ScrollStore = require('./scroll-store');
 
 var _state = {
   hasFilter: false,
@@ -14,7 +15,7 @@ var _state = {
 
   currentDataPage: [],
 
-  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5},
+  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true },
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 };
@@ -23,7 +24,16 @@ var _state = {
 var helpers = {
   setCurrentDataPage: function(){
     var initialIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
-    _state.currentDataPage = this.getRangeOfVisibleResults(initialIndex, initialIndex + _state.pageProperties.pageSize);
+    _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
+
+    // If we're infinite scrolling, set the initial index to 0.
+    if (_state.pageProperties.infiniteScroll) {
+      _state.pageProperties.initialDisplayIndex = 0;
+    } else {
+      _state.pageProperties.initialDisplayIndex = initialIndex;
+    }
+
+    _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
   },
 
   setMaxPage: function(){
@@ -72,6 +82,13 @@ var helpers = {
       DataStore.getVisibleData(), 
       _state.sortProperties.sortAscending
     );
+  },
+
+  handleScroll: function(){
+    var newState = {
+      xScrollPosition: ScrollStore.getXScrollPosition(),
+      yScrollPosition: ScrollStore.getYScrollPosition()
+    };
   }
 };
 
@@ -85,6 +102,11 @@ var DataStore = assign({}, StoreBoilerplate, {
     return _state.data;
   },
 
+  //gets the filtered, sorted data-set
+  getVisibleData: function(){
+    return _state.visibleData;
+  },
+
   getPageCount: function(){
     return _state.pageProperties.maxPage; 
   },
@@ -93,6 +115,9 @@ var DataStore = assign({}, StoreBoilerplate, {
     return _state.pageProperties;  
   }
 });
+
+// Register data listener
+ScrollStore.addChangeListener(helpers.handleScroll);
 
 AppDispatcher.register(function(action){
   switch(action.actionType){

@@ -25,5 +25,7 @@ module.exports = keyMirror({
   GRIDDLE_GET_PAGE: null,
   GRIDDLE_PAGE_LOADED: null,
   GRIDDLE_SET_PAGE_SIZE: null,
-  XY_POSITION_CHANGED: null
+  XY_POSITION_CHANGED: null,
+  TABLE_DIMENSIONS_CHANGED: null,
+  ROW_HEIGHT_CHANGED: null
 });
