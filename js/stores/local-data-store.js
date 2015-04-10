@@ -12,12 +12,15 @@ var _state = {
   data: [],
   //this is the filtered / sorted data (not paged!)
   visibleData: [],
-
+  // this is the filtered, sorted, and paged data
   currentDataPage: [],
 
   pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true },
 
-  sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
+  sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true },
+
+  // scroll properties from the ScrollStore
+  scrollProperties: ScrollStore.getScrollProperties()
 };
 
 //these are helpers that have access to the state
@@ -32,6 +35,9 @@ var helpers = {
     } else {
       _state.pageProperties.initialDisplayIndex = initialIndex;
     }
+
+    // Update the initial display index / last index based on what's visible.
+    // _state.scrollProperties.;
 
     _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
   },
@@ -82,13 +88,6 @@ var helpers = {
       DataStore.getVisibleData(), 
       _state.sortProperties.sortAscending
     );
-  },
-
-  handleScroll: function(){
-    var newState = {
-      xScrollPosition: ScrollStore.getXScrollPosition(),
-      yScrollPosition: ScrollStore.getYScrollPosition()
-    };
   }
 };
 
@@ -116,8 +115,12 @@ var DataStore = assign({}, StoreBoilerplate, {
   }
 });
 
-// Register data listener
-ScrollStore.addChangeListener(helpers.handleScroll);
+// Register data listener when the scroll properties change.
+ScrollStore.addChangeListener(function() {
+  _state.scrollProperties = ScrollStore.getScrollProperties();
+  helpers.setCurrentDataPage();
+  DataStore.emitChange();
+});
 
 AppDispatcher.register(function(action){
   switch(action.actionType){
