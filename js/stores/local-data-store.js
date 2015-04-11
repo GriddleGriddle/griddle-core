@@ -4,6 +4,7 @@ var DataHelper = require('../helpers/data-helper');
 var StoreBoilerplate = require('./store-boilerplate'); 
 var Constants = require('../constants/constants');
 var ScrollStore = require('./scroll-store');
+var LocalActions = require('../actions/local-action-creators');
 
 var _state = {
   hasFilter: false,
@@ -88,7 +89,30 @@ var helpers = {
       DataStore.getVisibleData(), 
       _state.sortProperties.sortAscending
     );
-  }
+  },
+  shouldUpdateDrawnRows: function(oldScrollProperties){
+    return Math.abs(oldScrollProperties.yScrollPosition - _state.scrollProperties.yScrollPosition) >= this.getAdjustedRowHeight();
+  },
+  shouldLoadNewPage: function(){
+
+    // TODO: At the moment, we're only really tracking scrollTop (which is the offset), but we need to track scrollHeight, too (which is the total height).
+
+//   // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
+//   // the spacer's height.
+//   var scrollHeightDiff = scrollHeight - (scrollTop + clientHeight) - _state.scrollProperties.infiniteScrollLoadTreshold;
+
+//   // Make sure that we load results a little before reaching the bottom.
+//   var compareHeight = scrollHeightDiff * 0.6;
+
+//   if (compareHeight <= _state.scrollProperties.infiniteScrollLoadTreshold) {
+//     this.props.nextPage();
+//   }
+
+    return false;
+  },
+  getAdjustedRowHeight: function(){
+    return this.props.rowHeight + this.props.paddingHeight * 2; // account for padding.
+  },
 };
 
 var DataStore = assign({}, StoreBoilerplate, {
@@ -117,9 +141,21 @@ var DataStore = assign({}, StoreBoilerplate, {
 
 // Register data listener when the scroll properties change.
 ScrollStore.addChangeListener(function() {
+  var oldScrollProperties = _state.scrollProperties;
   _state.scrollProperties = ScrollStore.getScrollProperties();
-  helpers.setCurrentDataPage();
-  DataStore.emitChange();
+
+  // If the scroll position changes and the drawn rows need to update, do so.
+  if (helpers.shouldUpdateDrawnRows(oldScrollProperties)) {
+      helpers.setCurrentDataPage();
+      DataStore.emitChange();
+
+      // After emitting the change in data, check to see if we need to load a new page.
+      if (_state.pageProperties.infiniteScroll && 
+          _state.pageProperties.currentPage != _state.pageProperties.maxPage &&
+          helpers.shouldLoadNewPage()) {
+        LocalActions.loadNext();
+      }
+    }
 });
 
 AppDispatcher.register(function(action){

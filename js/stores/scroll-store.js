@@ -8,14 +8,15 @@ var _state = {
   yScrollPosition: 0,
   tableHeight: 400,
   tableWidth: 900,
-  rowHeight: 25
+  rowHeight: 25,
+  infiniteScrollLoadTreshold: 50
 };
 
 var ScrollStore = assign({}, StoreBoilerplate, {
   getScrollProperties: function(){
     return _state;
   },
-  
+
   getXScrollPosition: function(){
     return _state.xScrollPosition;
   },
