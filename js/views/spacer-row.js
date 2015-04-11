@@ -4,12 +4,12 @@ var ScrollStore = require('../stores/scroll-store');
 var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 
-function getStateFromStore(){
-  var pageProperties = DataStore.getPageProperties();
+function getStateFromStore(gridId){
+  var pageProperties = DataStore.getPageProperties(gridId);
 
   return {
     rowHeight: ScrollStore.getRowHeight(),
-    visibleDataLength: DataStore.getVisibleData().length,
+    visibleDataLength: DataStore.getVisibleData(gridId).length,
     initialDisplayIndex: pageProperties.initialDisplayIndex, 
     lastDisplayIndex: pageProperties.lastDisplayIndex
   };
@@ -34,10 +34,10 @@ module.exports = React.createClass({
     );
   },
   getInitialState: function(){
-    return getStateFromStore();
+    return getStateFromStore(this.props.gridId);
   },
   dataChange: function(){
-    var newState = getStateFromStore();
+    var newState = getStateFromStore(this.props.gridId);
     if (newState.visibleDataLength !== this.state.visibleDataLength ||
         newState.initialDisplayIndex !== this.state.initialDisplayIndex ||
         newState.lastDisplayIndex !== this.state.lastDisplayIndex) {

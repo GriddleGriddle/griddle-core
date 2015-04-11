@@ -5,7 +5,7 @@ var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var ScrollStore = require('./scroll-store');
 
-var _state = {
+var defaultGridState = {
   hasFilter: false,
   hasSort: false,
   //this is the original data set -- don't mutate it (and yes we should switch to immutable)
@@ -15,7 +15,7 @@ var _state = {
   // this is the filtered, sorted, and paged data
   currentDataPage: [],
 
-  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true },
+  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: false },
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true },
 
@@ -23,95 +23,100 @@ var _state = {
   scrollProperties: ScrollStore.getScrollProperties()
 };
 
+var _state = {};
+
 //these are helpers that have access to the state
 var helpers = {
-  setCurrentDataPage: function(){
-    var initialIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
-    _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
+  setCurrentDataPage: function(gridId){
+    var initialIndex = _state[gridId].pageProperties.currentPage * _state[gridId].pageProperties.pageSize;
+
+    _state[gridId].pageProperties.lastDisplayIndex = initialIndex + _state[gridId].pageProperties.pageSize;
 
     // If we're infinite scrolling, set the initial index to 0.
-    if (_state.pageProperties.infiniteScroll) {
-      _state.pageProperties.initialDisplayIndex = 0;
+    if (_state[gridId].pageProperties.infiniteScroll) {
+      _state[gridId].pageProperties.initialDisplayIndex = 0;
     } else {
-      _state.pageProperties.initialDisplayIndex = initialIndex;
+      _state[gridId].pageProperties.initialDisplayIndex = initialIndex;
     }
 
     // Update the initial display index / last index based on what's visible.
     // _state.scrollProperties.;
 
-    _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
+    _state[gridId].currentDataPage = this.getRangeOfVisibleResults(gridId, _state[gridId].pageProperties.initialDisplayIndex, _state[gridId].pageProperties.lastDisplayIndex);
+//    _state[gridId].currentDataPage = this.getRangeOfVisibleResults(gridId, initialIndex, initialIndex + _state[gridId].pageProperties.pageSize);
   },
 
-  setMaxPage: function(){
-     _state.pageProperties.maxPage = DataHelper.getMaxPageSize(_state.data.length, _state.pageProperties.pageSize);
-     this.setCurrentDataPage();
+  setMaxPage: function(gridId){
+     _state[gridId].pageProperties.maxPage = DataHelper.getMaxPageSize(_state[gridId].data.length, _state[gridId].pageProperties.pageSize);
+     this.setCurrentDataPage(gridId);
   },
 
   //this gets the full sorted and filtered dataset
-  getAllVisibleData: function(){
-    return helpers.showVisibleData() ? _state.visibleData : _state.data;
+  getAllVisibleData: function(gridId){
+    return helpers.showVisibleData(gridId) ? _state[gridId].visibleData : _state[gridId].data;
   },
 
-  getRangeOfVisibleResults: function(start, end){
-    return _.at(this.getAllVisibleData(), _.range((start), end));
+  getRangeOfVisibleResults: function(gridId, start, end){
+    return _.at(this.getAllVisibleData(gridId), _.range((start), end));
   },
 
   //todo: change the name on this
   //this determines whether the data array or visible data array should be used
-  showVisibleData: function(){
-    if(_state.hasFilter === true){
+  showVisibleData: function(gridId){
+    if(_state[gridId] && _state[gridId].hasFilter === true){
       return true;
     }
   },
 
   //tries to set the current page
-  setCurrentPage: function(pageNumber){
-    if(pageNumber > 0 && pageNumber <= _state.pageProperties.maxPage){
-      _state.pageProperties.currentPage = pageNumber;
+  setCurrentPage: function(gridId, pageNumber){
+    if(pageNumber > 0 && pageNumber <= _state[gridId].pageProperties.maxPage){
+      _state[gridId].pageProperties.currentPage = pageNumber;
     }
   },
 
-  filterData: function(filter){
-    _state.pageProperties.currentPage = 0;
-    _state.hasFilter = true; 
-    _state.visibleData = DataHelper.sort(
-      _state.sortProperties.sortColumns,
-      DataHelper.filterAllData(filter, _state.data),
-      _state.sortProperties.sortAscending
+  filterData: function(gridId, filter){
+    _state[gridId].pageProperties.currentPage = 0;
+    _state[gridId].hasFilter = true; 
+    _state[gridId].visibleData = DataHelper.sort(
+      _state[gridId].sortProperties.sortColumns,
+      DataHelper.filterAllData(filter, _state[gridId].data),
+      _state[gridId].sortProperties.sortAscending
     );
-    this.setCurrentDataPage();  
+
+    this.setCurrentDataPage(gridId);  
   },
 
   sort: function(){
-    _state.visibleData = DataHelper.sort(
-      _state.sortProperties.sortColumns,
+    _state[gridId].visibleData = DataHelper.sort(
+      _state[gridId].sortProperties.sortColumns,
       DataStore.getVisibleData(), 
-      _state.sortProperties.sortAscending
+      _state[gridId].sortProperties.sortAscending
     );
   }
 };
 
 var DataStore = assign({}, StoreBoilerplate, {
-  getState: function(){
-    return _state;
+  getState: function(gridId){
+    return _state[gridId];
   },
 
   //gets the original, full data-set
-  getAllData: function(){
-    return _state.data;
+  getAllData: function(gridId){
+    return _state[gridId].data;
   },
 
   //gets the filtered, sorted data-set
-  getVisibleData: function(){
-    return _state.visibleData;
+  getVisibleData: function(gridId){
+    return _state[gridId].visibleData;
   },
 
-  getPageCount: function(){
-    return _state.pageProperties.maxPage; 
+  getPageCount: function(gridId){
+    return _state[gridId].pageProperties.maxPage; 
   },
 
-  getPageProperties: function(){
-    return _state.pageProperties;  
+  getPageProperties: function(gridId){
+    return _state[gridId].pageProperties;  
   }
 });
 
@@ -124,66 +129,76 @@ ScrollStore.addChangeListener(function() {
 
 AppDispatcher.register(function(action){
   switch(action.actionType){
+    case Constants.GRIDDLE_INITIALIZED: 
+      //assign new state object
+      var state = assign({}, defaultGridState);
+      _state[action.gridId] = state; 
+      DataStore.emitChange();
+      break;
+    case Constants.GRIDDLE_REMOVED:
+      //remove the item from the hash
+      delete _state[action.gridId];
+      DataStore.emitChange();
+      break;
     case Constants.GRIDDLE_LOADED_DATA:
-      _state.data = action.data;
-      helpers.setMaxPage(); 
-      helpers.setCurrentDataPage();
+      _state[action.gridId].data = action.data;
+      helpers.setMaxPage(action.gridId); 
+      helpers.setCurrentDataPage(action.gridId);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTERED:
-      helpers.filterData(action.filter);
+      helpers.filterData(action.gridId, action.filter);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_FILTER_REMOVED:
-      _state.hasFilter = false;
-      helpers.setCurrentDataPage();
+      _state[action.gridId].hasFilter = false;
+      helpers.setCurrentDataPage(action.gridId);
       DataStore.emitChange();
       break;
     case Constants.GRIDDLE_SET_PAGE_SIZE:
-    debugger;
-      _state.pageProperties.pageSize = action.pageSize;    
-      helpers.setMaxPage();
-      helpers.setCurrentDataPage();
+      _state[action.gridId].pageProperties.pageSize = action.pageSize;    
+      helpers.setMaxPage(action.gridId);
+      helpers.setCurrentDataPage(action.gridId);
       DataStore.emitChange(); 
       break;
     case Constants.GRIDDLE_GET_PAGE:
-      if (action.pageNumber >= 0 && action.pageNumber <= _state.pageProperties.maxPage){
-        _state.pageProperties.currentPage = action.pageNumber; 
-        helpers.setCurrentDataPage();
+      if (action.pageNumber >= 0 && action.pageNumber <= _state[action.gridId].pageProperties.maxPage){
+        _state[action.gridId].pageProperties.currentPage = action.pageNumber; 
+        helpers.setCurrentDataPage(action.gridId);
         DataStore.emitChange(); 
       }
       break;
     case Constants.GRIDDLE_NEXT_PAGE:
-      if(_state.pageProperties.currentPage < _state.pageProperties.maxPage-1){
-        _state.pageProperties.currentPage++;
-        helpers.setCurrentDataPage(); 
+      if(_state[action.gridId].pageProperties.currentPage < _state[action.gridId].pageProperties.maxPage-1){
+        _state[action.gridId].pageProperties.currentPage++;
+        helpers.setCurrentDataPage(action.gridId); 
         DataStore.emitChange();
       }
       break;
     case Constants.GRIDDLE_PREVIOUS_PAGE:
-      if(_state.pageProperties.currentPage > 0){
-        _state.pageProperties.currentPage--;
-        helpers.setCurrentDataPage();
+      if(_state[action.gridId].pageProperties.currentPage > 0){
+        _state[action.gridId].pageProperties.currentPage--;
+        helpers.setCurrentDataPage(action.gridId);
         DataStore.emitChange();
       }
       break;
     case Constants.GRIDDLE_SORT:
-      _state.sortProperties.sortColumns = action.sortColumns;
-      _state.sortProperties.sortAscending = action.sortAscending||_state.sortProperties.defaultSortAscending;
-      helpers.sort();
+      _state[action.gridId].sortProperties.sortColumns = action.sortColumns;
+      _state[action.gridId].sortProperties.sortAscending = action.sortAscending||_state[action.gridId].sortProperties.defaultSortAscending;
+      helpers.sort(action.gridId);
       DataStore.emitChange();
       break;
     case Constants.GRIDDLE_ADD_SORT_COLUMN:
-      _state.sortProperties.sortColumns.push(action.sortColumn);
-      _state.visibleData = DataHelper.sort(
-        _state.sortProperties.sortColumns,
-        DataStore.getVisibleData(), 
-        _state.sortAscending
+      _state[action.gridId].sortProperties.sortColumns.push(action.sortColumn);
+      _state[action.gridId].visibleData = DataHelper.sort(
+        _state[action.gridId].sortProperties.sortColumns,
+        DataStore.getVisibleData(action.gridId), 
+        _state[action.gridId].sortAscending
       );
       break; 
     case Constants.GRIDDLE_SORT_ORDER_CHANGE:
-      _state.sortAscending = !_state.sortAscending; 
-      _state.visibleData = DataHelper.reverseSort(DataStore.getVisibleData()); 
+      _state[action.gridId].sortAscending = !_state[action.gridId].sortAscending; 
+      _state[action.gridId].visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action.gridId)); 
       DataStore.emitChange(); 
       break;
     default:
