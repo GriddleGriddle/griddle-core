@@ -17,7 +17,7 @@ var _state = {
 
 var ScrollStore = assign({}, StoreBoilerplate, {
   getScrollProperties: function(){
-    return _.clone(_state);
+    return _state;
   },
 
   getXScrollPosition: function(){

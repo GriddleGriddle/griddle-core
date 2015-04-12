@@ -3,9 +3,10 @@ var DataStore = require('../stores/local-data-store');
 var ScrollStore = require('../stores/scroll-store');
 var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
+var _ = require('lodash');
 
 function getStateFromStore(){
-  var pageProperties = DataStore.getPageProperties();
+  var pageProperties = _.clone(DataStore.getPageProperties());
 
   return {
     rowHeight: ScrollStore.getRowHeight(),

@@ -21,8 +21,8 @@ var _state = {
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true },
 
-  // scroll properties from the ScrollStore
-  scrollProperties: ScrollStore.getScrollProperties()
+  // Scroll properties from the ScrollStore, cloned for comparison's sake.
+  scrollProperties: _.clone(ScrollStore.getScrollProperties())
 };
 
 //these are helpers that have access to the state
@@ -35,7 +35,7 @@ var helpers = {
 
       // Inspired by : http://jsfiddle.net/vjeux/KbWJ2/9/
       _state.pageProperties.initialDisplayIndex = Math.max(0, Math.floor(_state.scrollProperties.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
-      _state.pageProperties.lastDisplayIndex = Math.min(_state.pageProperties.initialDisplayIndex + visibleRecordCount * 1.25, this.getAllVisibleData().length - 1);
+      _state.pageProperties.lastDisplayIndex = Math.min(_state.pageProperties.initialDisplayIndex + visibleRecordCount * 1.25, this.getAllVisibleData().length - 1) + 1;
     } else {
       _state.pageProperties.initialDisplayIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
       _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
@@ -134,14 +134,14 @@ var DataStore = assign({}, StoreBoilerplate, {
   },
 
   getPageProperties: function(){
-    return _.clone(_state.pageProperties);
+    return _state.pageProperties;
   }
 });
 
 // Register data listener when the scroll properties change.
 ScrollStore.addChangeListener(function() {
   var oldScrollProperties = _state.scrollProperties;
-  _state.scrollProperties = ScrollStore.getScrollProperties();
+  _state.scrollProperties = _.clone(ScrollStore.getScrollProperties());
 
   // If the scroll position changes and the drawn rows need to update, do so.
   if (helpers.shouldUpdateDrawnRows(oldScrollProperties)) {
