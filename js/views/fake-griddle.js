@@ -135,7 +135,7 @@ var FakeGriddle = React.createClass({
 
   gridScroll: function(){
     var scrollable = React.findDOMNode(this.refs.scrollable);
-    ScrollActions.setScrollPosition(scrollable.scrollLeft, scrollable.scrollTop)
+    ScrollActions.setScrollPosition(scrollable.scrollLeft, scrollable.scrollWidth, scrollable.scrollTop, scrollable.scrollHeight)
   }
 });
 

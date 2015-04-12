@@ -5,6 +5,7 @@ var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var ScrollStore = require('./scroll-store');
 var LocalActions = require('../actions/local-action-creators');
+var _ = require('lodash');
 
 var _state = {
   hasFilter: false,
@@ -27,18 +28,18 @@ var _state = {
 //these are helpers that have access to the state
 var helpers = {
   setCurrentDataPage: function(){
-    var initialIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
-    _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
-
     // If we're infinite scrolling, set the initial index to 0.
     if (_state.pageProperties.infiniteScroll) {
-      _state.pageProperties.initialDisplayIndex = 0;
-    } else {
-      _state.pageProperties.initialDisplayIndex = initialIndex;
-    }
+      var adjustedHeight = this.getAdjustedRowHeight();
+      var visibleRecordCount = Math.ceil(_state.scrollProperties.tableHeight / adjustedHeight);
 
-    // Update the initial display index / last index based on what's visible.
-    // _state.scrollProperties.;
+      // Inspired by : http://jsfiddle.net/vjeux/KbWJ2/9/
+      _state.pageProperties.initialDisplayIndex = Math.max(0, Math.floor(_state.scrollProperties.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
+      _state.pageProperties.lastDisplayIndex = Math.min(_state.pageProperties.initialDisplayIndex + visibleRecordCount * 1.25, this.getAllVisibleData().length - 1);
+    } else {
+      _state.pageProperties.initialDisplayIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
+      _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
+    }
 
     _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
   },
@@ -94,24 +95,18 @@ var helpers = {
     return Math.abs(oldScrollProperties.yScrollPosition - _state.scrollProperties.yScrollPosition) >= this.getAdjustedRowHeight();
   },
   shouldLoadNewPage: function(){
+   // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
+   // the spacer's height.
+   var scrollHeightDiff = _state.scrollProperties.yScrollMax - (_state.scrollProperties.yScrollPosition + _state.scrollProperties.tableHeight) - _state.scrollProperties.infiniteScrollLoadTreshold;
 
-    // TODO: At the moment, we're only really tracking scrollTop (which is the offset), but we need to track scrollHeight, too (which is the total height).
+   // Make sure that we load results a little before reaching the bottom.
+   var compareHeight = scrollHeightDiff * 0.6;
 
-//   // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
-//   // the spacer's height.
-//   var scrollHeightDiff = scrollHeight - (scrollTop + clientHeight) - _state.scrollProperties.infiniteScrollLoadTreshold;
-
-//   // Make sure that we load results a little before reaching the bottom.
-//   var compareHeight = scrollHeightDiff * 0.6;
-
-//   if (compareHeight <= _state.scrollProperties.infiniteScrollLoadTreshold) {
-//     this.props.nextPage();
-//   }
-
-    return false;
+    // Send back whether or not we're under the threshold. 
+    return compareHeight <= _state.scrollProperties.infiniteScrollLoadTreshold;
   },
   getAdjustedRowHeight: function(){
-    return this.props.rowHeight + this.props.paddingHeight * 2; // account for padding.
+    return _state.scrollProperties.rowHeight; //+ this.props.paddingHeight * 2; // account for padding.
   },
 };
 
@@ -127,7 +122,11 @@ var DataStore = assign({}, StoreBoilerplate, {
 
   //gets the filtered, sorted data-set
   getVisibleData: function(){
-    return _state.visibleData;
+    return helpers.getAllVisibleData();
+  },
+
+  getCurrentDataPage: function(){
+    return _state.currentDataPage;
   },
 
   getPageCount: function(){
@@ -135,7 +134,7 @@ var DataStore = assign({}, StoreBoilerplate, {
   },
 
   getPageProperties: function(){
-    return _state.pageProperties;  
+    return _.clone(_state.pageProperties);
   }
 });
 
@@ -153,7 +152,10 @@ ScrollStore.addChangeListener(function() {
       if (_state.pageProperties.infiniteScroll && 
           _state.pageProperties.currentPage != _state.pageProperties.maxPage &&
           helpers.shouldLoadNewPage()) {
-        LocalActions.loadNext();
+
+        // This seems a little lousy, but it's necessary to fire off another action
+        // and it didn't quite make sense for the data store to listen to scroll actions directly.
+        _.debounce(LocalActions.loadNext, 1);
       }
     }
 });
@@ -176,7 +178,6 @@ AppDispatcher.register(function(action){
       DataStore.emitChange();
       break;
     case Constants.GRIDDLE_SET_PAGE_SIZE:
-    debugger;
       _state.pageProperties.pageSize = action.pageSize;    
       helpers.setMaxPage();
       helpers.setCurrentDataPage();

@@ -2,10 +2,13 @@ var AppDispatcher = require('../dispatcher/app-dispatcher');
 var assign = require('object-assign');
 var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
+var _ = require('lodash');
 
 var _state = {
   xScrollPosition: 0,
+  xScrollMax: 0,
   yScrollPosition: 0,
+  yScrollMax: 0,
   tableHeight: 400,
   tableWidth: 900,
   rowHeight: 25,
@@ -14,47 +17,35 @@ var _state = {
 
 var ScrollStore = assign({}, StoreBoilerplate, {
   getScrollProperties: function(){
-    return _state;
+    return _.clone(_state);
   },
 
   getXScrollPosition: function(){
     return _state.xScrollPosition;
   },
 
-  setXScrollPosition: function(position){
-    _state.xScrollPosition = position;
+  getXScrollMax: function(){
+    return _state.xScrollMax;
   },
 
   getYScrollPosition: function(){
     return _state.yScrollPosition;
   },
 
-  setYScrollPosition: function(position){
-    _state.yScrollPosition = position;
+  getYScrollMax: function(){
+    return _state.yScrollMax;
   },
 
   getTableHeight: function(){
     return _state.tableHeight;
   },
 
-  setTableHeight: function(tableHeight){
-    _state.tableHeight = tableHeight;
-  },
-
   getTableWidth: function(){
     return _state.tableWidth;
   },
 
-  setTableWidth: function(tableWidth){
-    _state.tableWidth = tableWidth;
-  },
-
   getRowHeight: function(){
     return _state.rowHeight;
-  },
-
-  setRowHeight: function(rowHeight){
-    _state.rowHeight = rowHeight;
   },
 
   dispatchToken: AppDispatcher.register(function(action){
@@ -68,7 +59,9 @@ var ScrollStore = assign({}, StoreBoilerplate, {
         ScrollStore.emitChange();
       case Constants.XY_POSITION_CHANGED:
         _state.xScrollPosition = action.xScrollPosition;
+        _state.xScrollMax = action.xScrollMax;
         _state.yScrollPosition = action.yScrollPosition;
+        _state.yScrollMax = action.yScrollMax;
         ScrollStore.emitChange();
         break;
       default:

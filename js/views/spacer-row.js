@@ -23,8 +23,8 @@ module.exports = React.createClass({
   },
   render: function(){
     // Get the length of rows that the spacer row will represent.
-    var spacerRowCount = this.state.position === "top" ? this.state.visibleDataLength * this.state.initialDisplayIndex :
-      this.state.visibleDataLength * this.state.lastDisplayIndex;
+    var spacerRowCount = this.props.position === "top" ? this.state.initialDisplayIndex :
+      this.state.visibleDataLength - this.state.lastDisplayIndex;
 
     // Get the height in pixels.
     var height = this.state.rowHeight * spacerRowCount;
