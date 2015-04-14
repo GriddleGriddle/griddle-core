@@ -17,7 +17,7 @@ var _state = {
   // this is the filtered, sorted, and paged data
   currentDataPage: [],
 
-  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true },
+  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: false },
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true },
 
@@ -38,7 +38,7 @@ var helpers = {
       _state.pageProperties.lastDisplayIndex = Math.min(_state.pageProperties.initialDisplayIndex + visibleRecordCount * 1.25, this.getAllVisibleData().length - 1) + 1;
     } else {
       _state.pageProperties.initialDisplayIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
-      _state.pageProperties.lastDisplayIndex = initialIndex + _state.pageProperties.pageSize;
+      _state.pageProperties.lastDisplayIndex = _state.pageProperties.initialDisplayIndex + _state.pageProperties.pageSize;
     }
 
     _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);

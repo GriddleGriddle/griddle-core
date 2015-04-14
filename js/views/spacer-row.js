@@ -12,7 +12,8 @@ function getStateFromStore(){
     rowHeight: ScrollStore.getRowHeight(),
     visibleDataLength: DataStore.getVisibleData().length,
     initialDisplayIndex: pageProperties.initialDisplayIndex, 
-    lastDisplayIndex: pageProperties.lastDisplayIndex
+    lastDisplayIndex: pageProperties.lastDisplayIndex,
+    infiniteScroll: pageProperties.infiniteScroll
   };
 }
 
@@ -23,15 +24,19 @@ module.exports = React.createClass({
     };
   },
   render: function(){
-    // Get the length of rows that the spacer row will represent.
-    var spacerRowCount = this.props.position === "top" ? this.state.initialDisplayIndex :
-      this.state.visibleDataLength - this.state.lastDisplayIndex;
+    var height = 0, spacerRowStyle = {};
+    if (this.state.infiniteScroll) {
+      // Get the length of rows that the spacer row will represent.
+      var spacerRowCount = this.props.position === "top" ? this.state.initialDisplayIndex :
+        this.state.visibleDataLength - this.state.lastDisplayIndex;
 
-    // Get the height in pixels.
-    var height = this.state.rowHeight * spacerRowCount;
-    var spacerRowHeight = { height: height + "px" };
+      // Get the height in pixels.
+      height = this.state.rowHeight * spacerRowCount;
+      spacerRowStyle.height = height + "px";
+    }
+
     return (
-      <tr key={this.props.position + '-' + height} style={spacerRowHeight}></tr>
+      <tr key={this.props.position + '-' + height} style={spacerRowStyle}></tr>
     );
   },
   getInitialState: function(){
