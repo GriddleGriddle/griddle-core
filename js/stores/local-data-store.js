@@ -127,7 +127,7 @@ ScrollStore.addChangeListener(function() {
   DataStore.emitChange();
 });
 
-AppDispatcher.register(function(action){
+var registeredCallback = function(action){
   switch(action.actionType){
     case Constants.GRIDDLE_INITIALIZED: 
       //assign new state object
@@ -204,7 +204,9 @@ AppDispatcher.register(function(action){
     default:
   }
 
-});
+}; 
+
+AppDispatcher.register(registeredCallback);
 
 
 module.exports = DataStore; 

@@ -19,11 +19,12 @@ function getStateFromStore(gridId){
 
 var PageSelect = React.createClass({
   propTypes: {
-    pageProperties: React.PropTypes.object.isRequired
+    pageProperties: React.PropTypes.object.isRequired,
+    gridId: React.PropTypes.string.isRequired
   },
 
   handleSelect: function(e){
-    LocalActions.loadPage(this.state.gridId, parseInt(e.target.value - 1));
+    LocalActions.loadPage(this.props.gridId, parseInt(e.target.value - 1));
   },
 
   render: function(){
@@ -71,7 +72,7 @@ var FakeGriddle = React.createClass({
         </div>
 
         <button type="button" onClick={this.handlePrevious}>Previous</button>
-        <PageSelect pageProperties={this.state.pageProperties} />
+        <PageSelect pageProperties={this.state.pageProperties} gridId={this.state.gridId}/>
         <button type="button" onClick={this.handleNext}>Next</button>
       </div>
     );
