@@ -11,8 +11,11 @@ var assign = require('object-assign');
 function getStateFromStore(gridId){
   return {
     dataState: DataStore.getState(gridId),
-    xScrollPosition: ScrollStore.getXScrollPosition(),
-    yScrollPosition: ScrollStore.getYScrollPosition(),
+    xScrollPosition: ScrollStore.getXScrollPosition(gridId),
+    yScrollPosition: ScrollStore.getYScrollPosition(gridId),
+    tableHeight: ScrollStore.getTableHeight(gridId),
+    tableWidth: ScrollStore.getTableHeight(gridId),
+    rowHeight: ScrollStore.getRowHeight(gridId),
     pageProperties: DataStore.getPageProperties(gridId),
   };
 }
@@ -23,7 +26,7 @@ var PageSelect = React.createClass({
   },
 
   handleSelect: function(e){
-    LocalActions.loadPage(this.state.gridId, parseInt(e.target.value - 1));
+    LocalActions.loadPage(this.props.gridId, parseInt(e.target.value - 1));
   },
 
   render: function(){
@@ -71,7 +74,7 @@ var FakeGriddle = React.createClass({
         </div>
 
         <button type="button" onClick={this.handlePrevious}>Previous</button>
-        <PageSelect pageProperties={this.state.pageProperties} />
+        <PageSelect gridId={this.state.gridId} pageProperties={this.state.pageProperties} />
         <button type="button" onClick={this.handleNext}>Next</button>
       </div>
     );
@@ -99,8 +102,8 @@ var FakeGriddle = React.createClass({
 
   scrollChange: function(){
     var newState = {
-      xScrollPosition: ScrollStore.getXScrollPosition(),
-      yScrollPosition: ScrollStore.getYScrollPosition()
+      xScrollPosition: ScrollStore.getXScrollPosition(this.state.gridId),
+      yScrollPosition: ScrollStore.getYScrollPosition(this.state.gridId)
     };
     // Update the scroll position, if necessary.
     var scrollable = React.findDOMNode(this.refs.scrollable);
@@ -118,7 +121,7 @@ var FakeGriddle = React.createClass({
     var gridId = _.uniqueId("grid"); 
     this.setState({gridId: gridId});
 
-    LocalActions.initializeGrid(gridId); 
+    LocalActions.initializeGrid(gridId);
   }, 
 
   componentDidMount: function(){
@@ -140,7 +143,7 @@ var FakeGriddle = React.createClass({
 
   gridScroll: function(){
     var scrollable = React.findDOMNode(this.refs.scrollable);
-    ScrollActions.setScrollPosition(scrollable.scrollLeft, scrollable.scrollTop)
+    ScrollActions.setScrollPosition(this.state.gridId, scrollable.scrollLeft, scrollable.scrollWidth, scrollable.scrollTop, scrollable.scrollHeight)
   }
 });
 
