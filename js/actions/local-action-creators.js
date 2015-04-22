@@ -2,17 +2,33 @@ var AppDispatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
 
 module.exports ={
-  loadData: function(data){
+  initializeGrid: function(gridId){
+    var action = {
+      gridId: gridId,
+      actionType: Constants.GRIDDLE_INITIALIZED
+    }
+
+    AppDispatcher.dispatch(action);
+  },
+  removeGrid: function(gridId){
+    var action = {
+      gridId: gridId, 
+      actionType: Constants.GRIDDLE_REMOVED
+    }
+  },
+  loadData: function(gridId, data){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
+      gridId: gridId, 
       data: data
     }
 
     AppDispatcher.dispatch(action); 
   },
-  filterData: function(filter){
+  filterData: function(gridId, filter){
     if(filter === ""){
       var action = {
+        gridId: gridId, 
         actionType: Constants.GRIDDLE_FILTER_REMOVED
       }
 
@@ -21,54 +37,61 @@ module.exports ={
     }
 
     var action = {
+      gridId: gridId, 
       actionType: Constants.GRIDDLE_FILTERED,
       filter: filter
     };
 
     AppDispatcher.dispatch(action); 
   },
-  setPageSize: function(pageSize){
+  setPageSize: function(gridId, pageSize){
     var action = {
+      gridId: gridId,      
       actionType: Constants.GRIDDLE_SET_PAGE_SIZE,
       pageSize: pageSize
     }
 
     AppDispatcher.dispatch(action);
   },
-  sort: function(column){
+  sort: function(gridId, column){
     var action = {
+      gridId: gridId,      
       actionType: Constants.GRIDDLE_SORT, 
       sortColumns: [column]
     };
 
     AppDispatcher.dispatch(action);
   },
-  addSortColumn: function(column){
+  addSortColumn: function(gridId, column){
     var action = {
+      gridId: gridId,
       actionType: Constants.GRIDDLE_ADD_SORT_COLUMN,
       sortColumn: column
     }
 
     AppDispatcher.dispatch(action);
   },
-  loadNext: function(){
+  loadNext: function(gridId){
     var action = {
+      gridId: gridId,            
       actionType: Constants.GRIDDLE_NEXT_PAGE
     };
 
     AppDispatcher.dispatch(action);
   },
 
-  loadPrevious: function(){
+  loadPrevious: function(gridId){
     var action = {
+      gridId: gridId,     
       actionType: Constants.GRIDDLE_PREVIOUS_PAGE
     };
 
     AppDispatcher.dispatch(action);
   },
 
-  loadPage: function(number){
+  loadPage: function(gridId, number){
     var action = { 
+      gridId: gridId,
       actionType: Constants.GRIDDLE_GET_PAGE,
       pageNumber: number
     }

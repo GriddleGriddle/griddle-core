@@ -5,12 +5,12 @@ var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 var _ = require('lodash');
 
-function getStateFromStore(){
-  var pageProperties = _.clone(DataStore.getPageProperties());
+function getStateFromStore(gridId){
+  var pageProperties = DataStore.getPageProperties(gridId);
 
   return {
-    rowHeight: ScrollStore.getRowHeight(),
-    visibleDataLength: DataStore.getVisibleData().length,
+    rowHeight: ScrollStore.getRowHeight(gridId),
+    visibleDataLength: DataStore.getVisibleData(gridId).length,
     initialDisplayIndex: pageProperties.initialDisplayIndex, 
     lastDisplayIndex: pageProperties.lastDisplayIndex,
     infiniteScroll: pageProperties.infiniteScroll
@@ -40,10 +40,10 @@ module.exports = React.createClass({
     );
   },
   getInitialState: function(){
-    return getStateFromStore();
+    return getStateFromStore(this.props.gridId);
   },
   dataChange: function(){
-    var newState = getStateFromStore();
+    var newState = getStateFromStore(this.props.gridId);
     if (newState.visibleDataLength !== this.state.visibleDataLength ||
         newState.initialDisplayIndex !== this.state.initialDisplayIndex ||
         newState.lastDisplayIndex !== this.state.lastDisplayIndex) {
@@ -51,7 +51,7 @@ module.exports = React.createClass({
     }
   },
   scrollChange: function(){
-    var newRowHeight = ScrollStore.getRowHeight();
+    var newRowHeight = ScrollStore.getRowHeight(this.props.gridId);
 
     if (this.state !== newRowHeight) {
       // Set the state.

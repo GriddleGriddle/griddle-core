@@ -4,7 +4,7 @@ var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var _ = require('lodash');
 
-var _state = {
+var defaultGridState = {
   xScrollPosition: 0,
   xScrollMax: 0,
   yScrollPosition: 0,
@@ -15,53 +15,66 @@ var _state = {
   infiniteScrollLoadTreshold: 50
 };
 
+var _state = {};
+
 var ScrollStore = assign({}, StoreBoilerplate, {
-  getScrollProperties: function(){
-    return _state;
+  getScrollProperties: function(gridId){
+    return _state[gridId];
   },
 
-  getXScrollPosition: function(){
-    return _state.xScrollPosition;
+  getXScrollPosition: function(gridId){
+    return _state[gridId].xScrollPosition;
   },
 
-  getXScrollMax: function(){
-    return _state.xScrollMax;
+  getXScrollMax: function(gridId){
+    return _state[gridId].xScrollMax;
   },
 
-  getYScrollPosition: function(){
-    return _state.yScrollPosition;
+  getYScrollPosition: function(gridId){
+    return _state[gridId].yScrollPosition;
   },
 
-  getYScrollMax: function(){
-    return _state.yScrollMax;
+  getYScrollMax: function(gridId){
+    return _state[gridId].yScrollMax;
   },
 
-  getTableHeight: function(){
-    return _state.tableHeight;
+  getTableHeight: function(gridId){
+    return _state[gridId].tableHeight;
   },
 
-  getTableWidth: function(){
-    return _state.tableWidth;
+  getTableWidth: function(gridId){
+    return _state[gridId].tableWidth;
   },
 
-  getRowHeight: function(){
-    return _state.rowHeight;
+  getRowHeight: function(gridId){
+    return _state[gridId].rowHeight;
   },
 
   dispatchToken: AppDispatcher.register(function(action){
     switch(action.actionType){
+      case Constants.GRIDDLE_INITIALIZED: 
+        //assign new state object
+        var state = assign({}, defaultGridState);
+        _state[action.gridId] = state; 
+        ScrollStore.emitChange();
+        break;
+      case Constants.GRIDDLE_REMOVED:
+        //remove the item from the hash
+        delete _state[action.gridId];
+        ScrollStore.emitChange();
+        break;
       case Constants.TABLE_DIMENSIONS_CHANGED:
-        _state.tableHeight = action.tableHeight;
-        _state.tableWidth = action.tableWidth;
+        _state[action.gridId].tableHeight = action.tableHeight;
+        _state[action.gridId].tableWidth = action.tableWidth;
         ScrollStore.emitChange();
       case Constants.ROW_HEIGHT_CHANGED:
-        _state.rowHeight = action.rowHeight;
+        _state[action.gridId].rowHeight = action.rowHeight;
         ScrollStore.emitChange();
       case Constants.XY_POSITION_CHANGED:
-        _state.xScrollPosition = action.xScrollPosition;
-        _state.xScrollMax = action.xScrollMax;
-        _state.yScrollPosition = action.yScrollPosition;
-        _state.yScrollMax = action.yScrollMax;
+        _state[action.gridId].xScrollPosition = action.xScrollPosition;
+        _state[action.gridId].xScrollMax = action.xScrollMax;
+        _state[action.gridId].yScrollPosition = action.yScrollPosition;
+        _state[action.gridId].yScrollMax = action.yScrollMax;
         ScrollStore.emitChange();
         break;
       default:
