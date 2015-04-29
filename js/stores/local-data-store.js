@@ -22,7 +22,7 @@ var defaultGridState = {
   // An array of the current visible columns.
   currentVisibleColumns: [],
 
-  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnCount : 0 },
+  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnLength : 0 },
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 
@@ -133,16 +133,16 @@ var helpers = {
 
       // Update the indexes.
       _state[gridId].visibleColumnProperties.initialDisplayIndex = Math.floor(_state[gridId].scrollProperties.xScrollPosition / columnWidth) - 1;
-      _state[gridId].visibleColumnProperties.lastDisplayIndex = Math.ceil((_state[gridId].visibleColumnProperties.initialDisplayIndex + _state[gridId].scrollProperties.tableWidth) / columnWidth) + 1;
-      _state[gridId].visibleColumnProperties.maxColumnCount = Object.keys(_state[gridId].data[0]).length;
+      _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.initialDisplayIndex + Math.ceil(_state[gridId].scrollProperties.tableWidth / columnWidth) + 1;
+      _state[gridId].visibleColumnProperties.maxColumnLength = Object.keys(_state[gridId].data[0]).length;
 
       // Make sure that the first index is at least 0.
       if (_state[gridId].visibleColumnProperties.initialDisplayIndex < 0) {
         _state[gridId].visibleColumnProperties.initialDisplayIndex = 0;
       }
       // If there aren't enough available columns, set to the max length of properties. 
-      if (_state[gridId].visibleColumnProperties.maxColumnCount.length < _state[gridId].visibleColumnProperties.lastDisplayIndex) {
-        _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.maxColumnCount;
+      if (_state[gridId].visibleColumnProperties.maxColumnLength < _state[gridId].visibleColumnProperties.lastDisplayIndex) {
+        _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.maxColumnLength;
       }
     } else {
       // Set indexes to '0' if there's no data.

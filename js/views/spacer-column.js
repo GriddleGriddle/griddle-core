@@ -12,7 +12,7 @@ function getStateFromStore(gridId){
     columnWidth: ScrollStore.getColumnWidth(gridId),
     initialDisplayIndex: columnProperties.initialDisplayIndex, 
     lastDisplayIndex: columnProperties.lastDisplayIndex,
-    maxColumnCount: columnProperties.maxColumnCount
+    maxColumnLength: columnProperties.maxColumnLength
   };
 }
 
@@ -28,7 +28,7 @@ module.exports = React.createClass({
 
     // Get the length of columns that the spacer column will represent.
     var spacerColumnCount = this.props.position === "left" ? this.state.initialDisplayIndex :
-      this.state.maxColumnCount - this.state.lastDisplayIndex;
+      this.state.maxColumnLength - this.state.lastDisplayIndex;
 
     // Get the width in pixels.
     width = this.state.columnWidth * spacerColumnCount;
@@ -44,7 +44,7 @@ module.exports = React.createClass({
   },
   dataChange: function(){
     var newState = getStateFromStore(this.props.gridId);
-    if (newState.maxColumnCount !== this.state.maxColumnCount ||
+    if (newState.maxColumnLength !== this.state.maxColumnLength ||
         newState.initialDisplayIndex !== this.state.initialDisplayIndex ||
         newState.lastDisplayIndex !== this.state.lastDisplayIndex) {
       this.setState(newState);
