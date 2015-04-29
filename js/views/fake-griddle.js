@@ -5,6 +5,7 @@ var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 var FakeData = require('../fake/fake-data');
 var SpacerRow = require('./spacer-row');
+var SpacerColumn = require('./spacer-column');
 var _ = require('lodash');
 var assign = require('object-assign'); 
 
@@ -47,9 +48,11 @@ var FakeGriddle = React.createClass({
 
     var rows = _.map(this.state.dataState.currentDataPage, function(item){
       return <tr>
-      {_.map(_.keys(item), function(key){
-        return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td>{item[key]}</td>) : null;
-      })}
+        <SpacerColumn gridId={that.state.gridId} position="left"/>
+        {_.map(_.keys(item), function(key){
+          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td>{item[key]}</td>) : null;
+        })}
+        <SpacerColumn gridId={that.state.gridId} position="right"/>
       </tr>
     });
 
@@ -58,9 +61,11 @@ var FakeGriddle = React.createClass({
       columnSection = (
         <thead>
           <tr>
-          {_.map(this.state.dataState.currentVisibleColumns, function(item){
-            return <th width={that.state.columnWidth + "px"}>{item}</th>
-          })}
+            <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
+            {_.map(this.state.dataState.currentVisibleColumns, function(item){
+              return <th width={that.state.columnWidth + "px"}>{item}</th>
+            })}
+            <SpacerColumn gridId={that.state.gridId} position="right" header={true}/>
           </tr>
         </thead>
       );

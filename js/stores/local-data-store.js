@@ -22,7 +22,7 @@ var defaultGridState = {
   // An array of the current visible columns.
   currentVisibleColumns: [],
 
-  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0 },
+  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnCount : 0 },
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 
@@ -130,19 +130,19 @@ var helpers = {
     if (_state[gridId].data && _state[gridId].data.length > 0){
       // Load the width of the columns.
       var columnWidth = helpers.getAdjustedColumnWidth(gridId);
-      var availableColumns = Object.keys(_state[gridId].data[0]);
 
       // Update the indexes.
       _state[gridId].visibleColumnProperties.initialDisplayIndex = Math.floor(_state[gridId].scrollProperties.xScrollPosition / columnWidth) - 1;
       _state[gridId].visibleColumnProperties.lastDisplayIndex = Math.ceil((_state[gridId].visibleColumnProperties.initialDisplayIndex + _state[gridId].scrollProperties.tableWidth) / columnWidth) + 1;
+      _state[gridId].visibleColumnProperties.maxColumnCount = Object.keys(_state[gridId].data[0]).length;
 
       // Make sure that the first index is at least 0.
-      if (_state[gridId].visibleColumnProperties.initialDisplayIndex < 0){
+      if (_state[gridId].visibleColumnProperties.initialDisplayIndex < 0) {
         _state[gridId].visibleColumnProperties.initialDisplayIndex = 0;
       }
       // If there aren't enough available columns, set to the max length of properties. 
-      if (availableColumns.length < _state[gridId].visibleColumnProperties.lastDisplayIndex){
-        _state[gridId].visibleColumnProperties.lastDisplayIndex = availableColumns.length;
+      if (_state[gridId].visibleColumnProperties.maxColumnCount.length < _state[gridId].visibleColumnProperties.lastDisplayIndex) {
+        _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.maxColumnCount;
       }
     } else {
       // Set indexes to '0' if there's no data.
@@ -241,6 +241,10 @@ var DataStore = assign({}, StoreBoilerplate, {
 
   getPageProperties: function(gridId){
     return _state[gridId].pageProperties;
+  },
+
+  getColumnProperties: function(gridId){
+    return _state[gridId].visibleColumnProperties;
   },
 
   dispatchToken: AppDispatcher.register(function(action){
