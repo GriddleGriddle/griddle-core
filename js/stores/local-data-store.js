@@ -1,7 +1,7 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
-var assign = require('object-assign'); 
-var DataHelper = require('../helpers/data-helper'); 
-var StoreBoilerplate = require('./store-boilerplate'); 
+var assign = require('object-assign');
+var DataHelper = require('../helpers/data-helper');
+var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var ScrollStore = require('./scroll-store');
 var LocalActions = require('../actions/local-action-creators');
@@ -74,20 +74,20 @@ var helpers = {
 
   filterData: function(gridId, filter){
     _state[gridId].pageProperties.currentPage = 0;
-    _state[gridId].hasFilter = true; 
+    _state[gridId].hasFilter = true;
     _state[gridId].visibleData = DataHelper.sort(
       _state[gridId].sortProperties.sortColumns,
       DataHelper.filterAllData(filter, _state[gridId].data),
       _state[gridId].sortProperties.sortAscending
     );
 
-    this.setCurrentDataPage(gridId);  
+    this.setCurrentDataPage(gridId);
   },
 
   sort: function(){
     _state[gridId].visibleData = DataHelper.sort(
       _state[gridId].sortProperties.sortColumns,
-      DataStore.getVisibleData(), 
+      DataStore.getVisibleData(),
       _state[gridId].sortProperties.sortAscending
     );
   },
@@ -102,7 +102,7 @@ var helpers = {
    // Make sure that we load results a little before reaching the bottom.
    var compareHeight = scrollHeightDiff * 0.6;
 
-    // Send back whether or not we're under the threshold. 
+    // Send back whether or not we're under the threshold.
     return compareHeight <= _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
   },
   getAdjustedRowHeight: function(gridId){
@@ -121,7 +121,7 @@ var helpers = {
       DataStore.emitChange();
 
       // After emitting the change in data, check to see if we need to load a new page.
-      if (_state[gridId].pageProperties.infiniteScroll && 
+      if (_state[gridId].pageProperties.infiniteScroll &&
           _state[gridId].pageProperties.currentPage != _state[gridId].pageProperties.maxPage &&
           helpers.shouldLoadNewPage(gridId)) {
 
@@ -135,42 +135,17 @@ var helpers = {
   }
 };
 
-var DataStore = assign({}, StoreBoilerplate, {
-  getState: function(gridId){
-    return _state[gridId];
-  },
-
-  //gets the original, full data-set
-  getAllData: function(gridId){
-    return _state[gridId].data;
-  },
-
-  //gets the filtered, sorted data-set
-  getVisibleData: function(gridId){
-    return helpers.getAllVisibleData(gridId);
-  },
-
-  getCurrentDataPage: function(gridId){
-    return _state[gridId].currentDataPage;
-  },
-
-  getPageCount: function(gridId){
-    return _state[gridId].pageProperties.maxPage; 
-  },
-
-  getPageProperties: function(gridId){
-    return _state[gridId].pageProperties;
-  },
-
-  dispatchToken: AppDispatcher.register(function(action){
+var registeredCallback = function(action){
     switch(action.actionType){
-      case Constants.GRIDDLE_INITIALIZED: 
+      case Constants.GRIDDLE_INITIALIZED:
         //assign new state object
         var state = assign({}, defaultGridState);
         _state[action.gridId] = state;
 
         // Wait for a scroll store to finish initializing
-        AppDispatcher.waitFor([ScrollStore.dispatchToken]);
+        if(AppDispatcher.isDispatching()){
+          AppDispatcher.waitFor([ScrollStore.dispatchToken]);
+        }
 
         // Scroll properties from the ScrollStore, cloned for comparison's sake.
         _state[action.gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(action.gridId));
@@ -194,13 +169,13 @@ var DataStore = assign({}, StoreBoilerplate, {
         break;
       case Constants.GRIDDLE_LOADED_DATA:
         _state[action.gridId].data = action.data;
-        helpers.setMaxPage(action.gridId); 
+        helpers.setMaxPage(action.gridId);
         helpers.setCurrentDataPage(action.gridId);
-        DataStore.emitChange(); 
+        DataStore.emitChange();
         break;
       case Constants.GRIDDLE_FILTERED:
         helpers.filterData(action.gridId, action.filter);
-        DataStore.emitChange(); 
+        DataStore.emitChange();
         break;
       case Constants.GRIDDLE_FILTER_REMOVED:
         _state[action.gridId].hasFilter = false;
@@ -208,22 +183,22 @@ var DataStore = assign({}, StoreBoilerplate, {
         DataStore.emitChange();
         break;
       case Constants.GRIDDLE_SET_PAGE_SIZE:
-        _state[action.gridId].pageProperties.pageSize = action.pageSize;    
+        _state[action.gridId].pageProperties.pageSize = action.pageSize;
         helpers.setMaxPage(action.gridId);
         helpers.setCurrentDataPage(action.gridId);
-        DataStore.emitChange(); 
+        DataStore.emitChange();
         break;
       case Constants.GRIDDLE_GET_PAGE:
         if (action.pageNumber >= 0 && action.pageNumber <= _state[action.gridId].pageProperties.maxPage){
-          _state[action.gridId].pageProperties.currentPage = action.pageNumber; 
+          _state[action.gridId].pageProperties.currentPage = action.pageNumber;
           helpers.setCurrentDataPage(action.gridId);
-          DataStore.emitChange(); 
+          DataStore.emitChange();
         }
         break;
       case Constants.GRIDDLE_NEXT_PAGE:
         if(_state[action.gridId].pageProperties.currentPage < _state[action.gridId].pageProperties.maxPage-1){
           _state[action.gridId].pageProperties.currentPage++;
-          helpers.setCurrentDataPage(action.gridId); 
+          helpers.setCurrentDataPage(action.gridId);
           DataStore.emitChange();
         }
         break;
@@ -236,7 +211,7 @@ var DataStore = assign({}, StoreBoilerplate, {
         break;
       case Constants.GRIDDLE_SORT:
         _state[action.gridId].sortProperties.sortColumns = action.sortColumns;
-        _state[action.gridId].sortProperties.sortAscending = action.sortAscending||_state[action.gridId].sortProperties.defaultSortAscending;
+        _state[action.gridId].sortProperties.sortAscending = action.sortAscending || _state[action.gridId].sortProperties.defaultSortAscending;
         helpers.sort(action.gridId);
         DataStore.emitChange();
         break;
@@ -244,18 +219,51 @@ var DataStore = assign({}, StoreBoilerplate, {
         _state[action.gridId].sortProperties.sortColumns.push(action.sortColumn);
         _state[action.gridId].visibleData = DataHelper.sort(
           _state[action.gridId].sortProperties.sortColumns,
-          DataStore.getVisibleData(action.gridId), 
+          DataStore.getVisibleData(action.gridId),
           _state[action.gridId].sortAscending
         );
-        break; 
+        break;
       case Constants.GRIDDLE_SORT_ORDER_CHANGE:
-        _state[action.gridId].sortAscending = !_state[action.gridId].sortAscending; 
-        _state[action.gridId].visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action.gridId)); 
-        DataStore.emitChange(); 
+        _state[action.gridId].sortAscending = !_state[action.gridId].sortAscending;
+        _state[action.gridId].visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action.gridId));
+        DataStore.emitChange();
         break;
       default:
     }
-  })
+  }
+
+
+var DataStore = assign({}, StoreBoilerplate, {
+  getState: function(gridId){
+    return _state[gridId];
+  },
+
+  //gets the original, full data-set
+  getAllData: function(gridId){
+    return _state[gridId].data;
+  },
+
+  //gets the filtered, sorted data-set
+  getVisibleData: function(gridId){
+    return helpers.getAllVisibleData(gridId);
+  },
+
+  getCurrentDataPage: function(gridId){
+    return _state[gridId].currentDataPage;
+  },
+
+  getPageCount: function(gridId){
+    return _state[gridId].pageProperties.maxPage;
+  },
+
+  getPageProperties: function(gridId){
+    return _state[gridId].pageProperties;
+  },
+
+  dispatchToken: AppDispatcher.register(registeredCallback)
 });
 
-module.exports = DataStore; 
+
+
+
+module.exports = DataStore;

@@ -6,7 +6,7 @@ var ScrollActions = require('../actions/scroll-action-creators');
 var FakeData = require('../fake/fake-data');
 var SpacerRow = require('./spacer-row');
 var _ = require('lodash');
-var assign = require('object-assign'); 
+var assign = require('object-assign');
 
 function getStateFromStore(gridId){
   return {
@@ -22,7 +22,8 @@ function getStateFromStore(gridId){
 
 var PageSelect = React.createClass({
   propTypes: {
-    pageProperties: React.PropTypes.object.isRequired
+    pageProperties: React.PropTypes.object.isRequired,
+    gridId: React.PropTypes.string.isRequired
   },
 
   handleSelect: function(e){
@@ -85,14 +86,14 @@ var FakeGriddle = React.createClass({
   },
 
   handleUpdatePageSize: function(e){
-    LocalActions.setPageSize(this.state.gridId, parseInt(e.target.value)); 
+    LocalActions.setPageSize(this.state.gridId, parseInt(e.target.value));
   },
 
   handleNext: function(e){
     LocalActions.loadNext(this.state.gridId);
   },
 
-  handlePrevious: function(e){ 
+  handlePrevious: function(e){
     LocalActions.loadPrevious(this.state.gridId);
   },
 
@@ -118,11 +119,11 @@ var FakeGriddle = React.createClass({
   },
 
   componentWillMount: function(){
-    var gridId = _.uniqueId("grid"); 
+    var gridId = _.uniqueId("grid");
     this.setState({gridId: gridId});
 
     LocalActions.initializeGrid(gridId);
-  }, 
+  },
 
   componentDidMount: function(){
     // Register data listener
@@ -147,4 +148,4 @@ var FakeGriddle = React.createClass({
   }
 });
 
-module.exports = FakeGriddle; 
+module.exports = FakeGriddle;

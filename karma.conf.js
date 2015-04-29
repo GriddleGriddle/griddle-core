@@ -1,33 +1,38 @@
+var webpack = require('webpack');
+var rewirePlugin = require('rewire-webpack');
+
 module.exports = function(config) {
   config.set({
     basePath: '',
-    frameworks: ['jasmine', 'browserify'],
+    frameworks: ['jasmine'],
     files: [
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
-      'test/**/*.js'
+      './test/**/*.js'
     ],
     exclude: [
+      'node_modules/**.*.js'
     ],
     preprocessors: {
-      'js/**/*.js': ['browserify', 'babel'],
-      'test/**/*.js': ['browserify', 'babel']
+      './js/**/*.js': ['webpack'],
+      './test/**/*.js': ['webpack']
     },
 
-    "babelPreprocessor": {
-      options: {
-        sourceMap: "inline"
+    webpack: {
+      resolve: {
+        extensions: ['', '.js', '.jsx']
       },
-      filename: function(file) {
-        return file.originalPath.replace(/\.js$/, ".es5.js");
+      module: {
+        loaders: [
+          {
+            test: /\.jsx?$/,
+            loader: 'babel-loader',
+            exclude: /node_modules/
+          }
+        ]
       },
-      sourceFileName: function(file) {
-        return file.originalPath;
-      }
-    },
-
-    browserify: {
-      debug: true,
-      transform: [ 'babelify' ]
+      plugins: [
+        new rewirePlugin()
+      ]
     },
 
     reporters: ['progress'],
@@ -35,7 +40,15 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['PhantomJS'],
-    singleRun: false
+    browsers: ['PhantomJS', 'Chrome'],
+    singleRun: false,
+
+    plugins: [
+      'karma-jasmine',
+      'karma-webpack',
+      'karma-babel-preprocessor',
+      'karma-phantomjs-launcher',
+      'karma-chrome-launcher'
+    ]
   });
 };
