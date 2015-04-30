@@ -19,7 +19,17 @@ var defaultGridState = {
 
   pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: false },
 
+  // An array of the current visible columns.
+  currentVisibleColumns: [],
+
+  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnLength : 0 },
+
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
+
+  /* Properties added after initialization :
+
+     scrollProperties
+  */
 };
 
 var _state = {};
@@ -43,6 +53,15 @@ var helpers = {
     _state[gridId].currentDataPage = this.getRangeOfVisibleResults(gridId, _state[gridId].pageProperties.initialDisplayIndex, _state[gridId].pageProperties.lastDisplayIndex);
   },
 
+  setVisibleColumns: function(gridId){
+    if (_state[gridId].data.length > 0) {
+      var availableColumns = Object.keys(_state[gridId].data[0]);
+      _state[gridId].currentVisibleColumns = _.at(availableColumns, _.range(_state[gridId].visibleColumnProperties.initialDisplayIndex, _state[gridId].visibleColumnProperties.lastDisplayIndex));
+    } else {
+      _state[gridId].currentVisibleColumns = [];
+    }
+  },
+
   setMaxPage: function(gridId){
      _state[gridId].pageProperties.maxPage = DataHelper.getMaxPageSize(_state[gridId].data.length, _state[gridId].pageProperties.pageSize);
      this.setCurrentDataPage(gridId);
@@ -54,7 +73,7 @@ var helpers = {
   },
 
   getRangeOfVisibleResults: function(gridId, start, end){
-    return _.at(this.getAllVisibleData(gridId), _.range((start), end));
+    return _.at(this.getAllVisibleData(gridId), _.range(start, end));
   },
 
   //todo: change the name on this
@@ -63,6 +82,10 @@ var helpers = {
     if(_state[gridId] && _state[gridId].hasFilter === true){
       return true;
     }
+  },
+
+  getGrid: function(gridId){
+    return _state[gridId];
   },
 
   //tries to set the current page
@@ -91,9 +114,43 @@ var helpers = {
       _state[gridId].sortProperties.sortAscending
     );
   },
+
   shouldUpdateDrawnRows: function(oldScrollProperties, gridId){
-    return Math.abs(oldScrollProperties.yScrollPosition - _state[gridId].scrollProperties.yScrollPosition) >= this.getAdjustedRowHeight(gridId);
+    return oldScrollProperties === undefined ||
+           Math.abs(oldScrollProperties.yScrollPosition - _state[gridId].scrollProperties.yScrollPosition) >= this.getAdjustedRowHeight(gridId);
   },
+
+  shouldUpdateDrawnColumns: function(oldVisibleColumnProperties, gridId){
+    return oldVisibleColumnProperties === undefined ||
+           _state[gridId].visibleColumnProperties.initialDisplayIndex != oldVisibleColumnProperties.initialDisplayIndex ||
+           _state[gridId].visibleColumnProperties.lastDisplayIndex != oldVisibleColumnProperties.lastDisplayIndex;
+  },
+
+  updateVisibleColumnProperties: function(gridId){
+    if (_state[gridId].data && _state[gridId].data.length > 0){
+      // Load the width of the columns.
+      var columnWidth = helpers.getAdjustedColumnWidth(gridId);
+
+      // Update the indexes.
+      _state[gridId].visibleColumnProperties.initialDisplayIndex = Math.floor(_state[gridId].scrollProperties.xScrollPosition / columnWidth) - 1;
+      _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.initialDisplayIndex + Math.ceil(_state[gridId].scrollProperties.tableWidth / columnWidth) + 1;
+      _state[gridId].visibleColumnProperties.maxColumnLength = Object.keys(_state[gridId].data[0]).length;
+
+      // Make sure that the first index is at least 0.
+      if (_state[gridId].visibleColumnProperties.initialDisplayIndex < 0) {
+        _state[gridId].visibleColumnProperties.initialDisplayIndex = 0;
+      }
+
+      // If there aren't enough available columns, set to the max length of properties.
+      if (_state[gridId].visibleColumnProperties.maxColumnLength < _state[gridId].visibleColumnProperties.lastDisplayIndex) {
+        _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.maxColumnLength;
+      }
+    } else {
+      // Set indexes to '0' if there's no data.
+      _state[gridId].visibleColumnProperties.initialDisplayIndex = _state[gridId].visibleColumnProperties.lastDisplayIndex = 0;
+    }
+  },
+
   shouldLoadNewPage: function(gridId){
    // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
    // the spacer's height.
@@ -105,19 +162,44 @@ var helpers = {
     // Send back whether or not we're under the threshold.
     return compareHeight <= _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
   },
+
   getAdjustedRowHeight: function(gridId){
     return _state[gridId].scrollProperties.rowHeight; //+ this.props.paddingHeight * 2; // account for padding.
   },
-  getGrid: function(gridId){
-    return _state[gridId];
+
+  getAdjustedColumnWidth: function(gridId){
+    return _state[gridId].scrollProperties.columnWidth; //+ this.props.paddingHeight * 2; // account for padding.
   },
-  initializeScrollStoreListener: function(gridId){
+
+  columnsHaveUpdated: function(gridId){
+     // Compute the new visible column properties.
+    var oldColumnProperties = _.clone(_state[gridId].visibleColumnProperties);
+    helpers.updateVisibleColumnProperties(gridId);
+
+    if (helpers.shouldUpdateDrawnColumns(oldColumnProperties, gridId)){
+      helpers.setVisibleColumns(gridId);
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  rowsHaveUpdated: function(gridId, oldScrollProperties){
+    // If the scroll position changes and the drawn rows need to update, do so.
+    if (helpers.shouldUpdateDrawnRows(oldScrollProperties, gridId)){
+      // Update the current displayed rows
+      helpers.setCurrentDataPage(gridId);
+      return true;
+    } else {
+      return false;
+    }
+  },
+
+  scrollStoreListener: function(gridId){
+    // Load the new scrollProperties
     var oldScrollProperties = _state[gridId].scrollProperties;
     _state[gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(gridId));
-
-    // If the scroll position changes and the drawn rows need to update, do so.
-    if (helpers.shouldUpdateDrawnRows(oldScrollProperties, gridId)) {
-      helpers.setCurrentDataPage(gridId);
+    if (helpers.rowsHaveUpdated(gridId, oldScrollProperties) || helpers.columnsHaveUpdated(gridId)) {
       DataStore.emitChange();
 
       // After emitting the change in data, check to see if we need to load a new page.
@@ -147,12 +229,12 @@ var registeredCallback = function(action){
           AppDispatcher.waitFor([ScrollStore.dispatchToken]);
         }
 
-        // Scroll properties from the ScrollStore, cloned for comparison's sake.
+        // Set the initial scroll properties.
         _state[action.gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(action.gridId));
 
         // Register data listener when the scroll properties change.
         _state[action.gridId].scrollStoreListener = function(){
-          helpers.initializeScrollStoreListener(action.gridId);
+          helpers.scrollStoreListener(action.gridId);
         }
         ScrollStore.addChangeListener(_state[action.gridId].scrollStoreListener);
 
@@ -171,6 +253,8 @@ var registeredCallback = function(action){
         _state[action.gridId].data = action.data;
         helpers.setMaxPage(action.gridId);
         helpers.setCurrentDataPage(action.gridId);
+        helpers.updateVisibleColumnProperties(action.gridId);
+        helpers.setVisibleColumns(action.gridId);
         DataStore.emitChange();
         break;
       case Constants.GRIDDLE_FILTERED:
@@ -258,6 +342,10 @@ var DataStore = assign({}, StoreBoilerplate, {
 
   getPageProperties: function(gridId){
     return _state[gridId].pageProperties;
+  },
+
+  getColumnProperties: function(gridId){
+    return _state[gridId].visibleColumnProperties;
   },
 
   dispatchToken: AppDispatcher.register(registeredCallback)
