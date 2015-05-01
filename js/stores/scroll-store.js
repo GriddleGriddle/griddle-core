@@ -57,7 +57,7 @@ var ScrollStore = assign({}, StoreBoilerplate, {
 
   dispatchToken: AppDispatcher.register(function(action){
     switch(action.actionType){
-      case Constants.GRIDDLE_INITIALIZED: 
+      case Constants.GRIDDLE_INITIALIZE: 
         //assign new state object
         var state = assign({}, defaultGridState);
         _state[action.gridId] = state; 
@@ -75,7 +75,7 @@ var ScrollStore = assign({}, StoreBoilerplate, {
       case Constants.ROW_HEIGHT_CHANGED:
         _state[action.gridId].rowHeight = action.rowHeight;
         ScrollStore.emitChange();
-      case Constants.XY_POSITION_CHANGED:
+      case Constants.XY_POSITION_CHANGE:
         _state[action.gridId].xScrollPosition = action.xScrollPosition;
         _state[action.gridId].xScrollMax = action.xScrollMax;
         _state[action.gridId].yScrollPosition = action.yScrollPosition;

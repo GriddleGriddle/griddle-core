@@ -2,16 +2,29 @@ var AppDispatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
 
 module.exports = {
-  setScrollPosition: function(gridId, xScrollPosition, xScrollMax, yScrollPosition, yScrollMax){
-    var action = {
+  initializeScrollStore: function(gridId){
+    AppDispatcher.dispatch({
       gridId: gridId,
-      actionType: Constants.XY_POSITION_CHANGED,
+      actionType: Constants.GRIDDLE_INITIALIZE
+    });
+  },
+  setScrollPosition: function(gridId, xScrollPosition, xScrollMax, yScrollPosition, yScrollMax){
+    // Fire off initial dispatch
+    AppDispatcher.dispatch({
+      gridId: gridId,
+      actionType: Constants.XY_POSITION_CHANGE,
       xScrollPosition: xScrollPosition,
       xScrollMax: xScrollMax,
       yScrollPosition: yScrollPosition,
       yScrollMax: yScrollMax
-    }
+    });
 
-    AppDispatcher.dispatch(action);
+    // Fire off follow up action 
+    AppDispatcher.dispatch({
+      gridId: gridId,
+      actionType: Constants.XY_POSITION_CHANGED
+    });
+
+    // For infinite scrolling, after the position changed, determine if another page should be loaded.
   }
 }
