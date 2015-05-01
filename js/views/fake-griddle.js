@@ -124,7 +124,7 @@ var FakeGriddle = React.createClass({
   },
 
   dataChange: function(){
-    this.setState(getStateFromStore(this.state.gridId))
+    this.setState(getStateFromStore(this.state.gridId));
   },
 
   scrollChange: function(){
@@ -161,6 +161,13 @@ var FakeGriddle = React.createClass({
     this.scrollChange();
 
     LocalActions.loadData(this.state.gridId, FakeData);
+  },
+
+  componentDidUpdate: function(){
+    // After updating the state, check to see if the next page should be loaded.
+    if (this.state.pageProperties.shouldAutoLoadNextPage){
+      LocalActions.loadNext(this.state.gridId);
+    }
   },
 
   componentWillUnmount: function(){

@@ -24,5 +24,7 @@ module.exports = {
       gridId: gridId,
       actionType: Constants.XY_POSITION_CHANGED
     });
+
+    // For infinite scrolling, after the position changed, determine if another page should be loaded.
   }
 }

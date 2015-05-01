@@ -17,7 +17,7 @@ var defaultGridState = {
   // this is the filtered, sorted, and paged data
   currentDataPage: [],
 
-  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: false },
+  pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true, shouldAutoLoadNextPage: false },
 
   // An array of the current visible columns.
   currentVisibleColumns: [],
@@ -152,15 +152,20 @@ var helpers = {
   },
 
   shouldLoadNewPage: function(gridId){
-   // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
-   // the spacer's height.
-   var scrollHeightDiff = _state[gridId].scrollProperties.yScrollMax - (_state[gridId].scrollProperties.yScrollPosition + _state[gridId].scrollProperties.tableHeight) - _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
+    _state[gridId].pageProperties.infiniteScroll &&
+    _state[gridId].pageProperties.lastDisplayIndex !== this.getAllVisibleData(gridId).length &&
+    _state[gridId].pageProperties.currentPage !== _state[gridId].pageProperties.maxPage &&
+    function(){
+        // Determine the diff by subtracting the amount scrolled by the total height, taking into consideratoin
+        // the spacer's height.
+        var scrollHeightDiff = _state[gridId].scrollProperties.yScrollMax - (_state[gridId].scrollProperties.yScrollPosition + _state[gridId].scrollProperties.tableHeight) - _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
 
-   // Make sure that we load results a little before reaching the bottom.
-   var compareHeight = scrollHeightDiff * 0.6;
+        // Make sure that we load results a little before reaching the bottom.
+        var compareHeight = scrollHeightDiff * 0.6;
 
-    // Send back whether or not we're under the threshold.
-    return compareHeight <= _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
+        // Send back whether or not we're under the threshold.
+        return compareHeight <= _state[gridId].scrollProperties.infiniteScrollLoadTreshold;
+    }();
   },
 
   getAdjustedRowHeight: function(gridId){
@@ -200,20 +205,16 @@ var helpers = {
     var oldScrollProperties = _state[gridId].scrollProperties;
     _state[gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(gridId));
     if (helpers.rowsHaveUpdated(gridId, oldScrollProperties) || helpers.columnsHaveUpdated(gridId)) {
+
+      // Update whether or not we should automatically load the next page.
+      _state[gridId].pageProperties.shouldAutoLoadNextPage = helpers.shouldLoadNewPage(gridId);
+      // Emit the change.
       DataStore.emitChange();
-
-      // After emitting the change in data, check to see if we need to load a new page.
-      if (_state[gridId].pageProperties.infiniteScroll &&
-          _state[gridId].pageProperties.currentPage != _state[gridId].pageProperties.maxPage &&
-          helpers.shouldLoadNewPage(gridId)) {
-
-        // This seems a little lousy, but it's necessary to fire off another action
-        // and it didn't quite make sense for the data store to listen to scroll actions directly.
-        _.debounce(function(){
-          LocalActions.loadNext(gridId);
-        }, 1);
-      }
     }
+  },
+
+  checkIfShouldLoadNextPage: function(gridId){
+      return 
   }
 };
 

@@ -4,7 +4,7 @@ var ScrollActions = require('./scroll-action-creators');
 
 module.exports ={
   initializeGrid: function(gridId){
-    //Initialize all local dependents.
+    //Initialize all dependents.
     ScrollActions.initializeScrollStore(gridId);
 
     // Continue initializing
