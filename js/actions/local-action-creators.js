@@ -1,14 +1,20 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
+var ScrollActions = require('./scroll-action-creators');
 
 module.exports ={
   initializeGrid: function(gridId){
+    //Initialize all local dependents.
+    ScrollActions.initializeScrollStore(gridId);
+
+    // Continue initializing
     var action = {
       gridId: gridId,
       actionType: Constants.GRIDDLE_INITIALIZED
     }
 
     AppDispatcher.dispatch(action);
+
   },
   removeGrid: function(gridId){
     var action = {

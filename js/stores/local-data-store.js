@@ -195,7 +195,7 @@ var helpers = {
     }
   },
 
-  scrollStoreListener: function(gridId){
+  updateScrollProperties: function(gridId){
     // Load the new scrollProperties
     var oldScrollProperties = _state[gridId].scrollProperties;
     _state[gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(gridId));
@@ -224,26 +224,12 @@ var registeredCallback = function(action){
         var state = assign({}, defaultGridState);
         _state[action.gridId] = state;
 
-        // Wait for a scroll store to finish initializing
-        if(AppDispatcher.isDispatching()){
-          AppDispatcher.waitFor([ScrollStore.dispatchToken]);
-        }
-
         // Set the initial scroll properties.
         _state[action.gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(action.gridId));
-
-        // Register data listener when the scroll properties change.
-        _state[action.gridId].scrollStoreListener = function(){
-          helpers.scrollStoreListener(action.gridId);
-        }
-        ScrollStore.addChangeListener(_state[action.gridId].scrollStoreListener);
 
         DataStore.emitChange();
         break;
       case Constants.GRIDDLE_REMOVED:
-        // Remove the listener
-        ScrollStore.removeChangeListener(_state[action.gridId].scrollStoreListener);
-
         //remove the item from the hash
         delete _state[action.gridId];
 
@@ -312,6 +298,9 @@ var registeredCallback = function(action){
         _state[action.gridId].visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action.gridId));
         DataStore.emitChange();
         break;
+      case Constants.XY_POSITION_CHANGED:
+          helpers.updateScrollProperties(action.gridId);
+          break;
       default:
     }
   }
