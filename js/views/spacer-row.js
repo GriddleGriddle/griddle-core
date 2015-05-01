@@ -67,4 +67,8 @@ module.exports = React.createClass({
     // Register scroll listener
     ScrollStore.addChangeListener(this.scrollChange);
   },
+  componentWillUnmount: function(){
+    DataStore.removeChangeListener(this.dataChange);
+    ScrollStore.removeChangeListener(this.scrollChange);
+  }
 });
