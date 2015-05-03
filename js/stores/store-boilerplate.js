@@ -1,10 +1,10 @@
-var assign = require('object-assign'); 
+var assign = require('object-assign');
 var EventEmitter = require('eventemitter3').EventEmitter;
 
 module.exports = assign({}, EventEmitter.prototype, {
    //boilerplate
   emitChange: function(){
-    this.emit('change'); 
+    this.emit('change');
   },
 
   //boilerplate
@@ -15,5 +15,5 @@ module.exports = assign({}, EventEmitter.prototype, {
   //boilerplate
   removeChangeListener: function(callback){
     this.removeListener('change', callback);
-  }  
+  }
 });

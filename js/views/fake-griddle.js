@@ -46,8 +46,8 @@ var FakeGriddle = React.createClass({
   render: function(){
     var that = this;
     if(!this.state.dataState) { return <h1>Nothing</h1>; }
-
-    var rows = _.map(this.state.dataState.currentDataPage, function(item){
+debugger;
+    var rows = _.map(this.state.dataState.data, function(item){
       return <tr>
         <SpacerColumn gridId={that.state.gridId} position="left"/>
         {_.map(_.keys(item), function(key){
@@ -157,17 +157,13 @@ var FakeGriddle = React.createClass({
 
     // Register scroll listener and fire off initial scroll change.
     ScrollStore.addChangeListener(this.scrollChange);
-    
+
     this.scrollChange();
 
     LocalActions.loadData(this.state.gridId, FakeData);
   },
 
   componentDidUpdate: function(){
-    // After updating the state, check to see if the next page should be loaded.
-    if (this.state.pageProperties.shouldAutoLoadNextPage){
-      LocalActions.loadNext(this.state.gridId);
-    }
   },
 
   componentWillUnmount: function(){
