@@ -5,6 +5,7 @@ var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var ScrollStore = require('./scroll-store');
 var LocalActions = require('../actions/local-action-creators');
+var ColumnProperties = require('../properties/column-properties');
 var _ = require('lodash');
 
 var defaultGridState = {
@@ -22,7 +23,7 @@ var defaultGridState = {
   // An array of the current visible columns.
   currentVisibleColumns: [],
 
-  visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnLength : 0 },
+  columnProperties: new ColumnProperties(),
 
   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
 
@@ -54,9 +55,10 @@ var helpers = {
   },
 
   setVisibleColumns: function(gridId){
-    if (_state[gridId].data.length > 0) {
-      var availableColumns = Object.keys(_state[gridId].data[0]);
-      _state[gridId].currentVisibleColumns = _.at(availableColumns, _.range(_state[gridId].visibleColumnProperties.initialDisplayIndex, _state[gridId].visibleColumnProperties.lastDisplayIndex));
+    var availableColumns = helpers.getAvailableColumns(gridId);
+
+    if (availableColumns.length > 0) {
+      _state[gridId].currentVisibleColumns = _.at(availableColumns, _.range(_state[gridId].columnProperties.getInitialDisplayIndex(), _state[gridId].columnProperties.getLastDisplayIndex() + 1));
     } else {
       _state[gridId].currentVisibleColumns = [];
     }
@@ -120,35 +122,31 @@ var helpers = {
            Math.abs(oldScrollProperties.yScrollPosition - _state[gridId].scrollProperties.yScrollPosition) >= this.getAdjustedRowHeight(gridId);
   },
 
-  shouldUpdateDrawnColumns: function(oldVisibleColumnProperties, gridId){
-    return oldVisibleColumnProperties === undefined ||
-           _state[gridId].visibleColumnProperties.initialDisplayIndex != oldVisibleColumnProperties.initialDisplayIndex ||
-           _state[gridId].visibleColumnProperties.lastDisplayIndex != oldVisibleColumnProperties.lastDisplayIndex;
+  shouldUpdateDrawnColumns: function(oldColumnProperties, gridId){
+    return oldColumnProperties === undefined ||
+           _state[gridId].columnProperties.getInitialDisplayIndex() != oldColumnProperties.getInitialDisplayIndex() ||
+           _state[gridId].columnProperties.getLastDisplayIndex() != oldColumnProperties.getLastDisplayIndex();
   },
 
-  updateVisibleColumnProperties: function(gridId){
-    if (_state[gridId].data && _state[gridId].data.length > 0){
+  updateColumnProperties: function(gridId, columnMetadata){
+      // If there isn't any metadata defined, create default metadata based on the available properties.
+    if (!columnMetadata && _state[gridId].data && _state[gridId].data.length > 0){
       // Load the width of the columns.
       var columnWidth = helpers.getAdjustedColumnWidth(gridId);
 
-      // Update the indexes.
-      _state[gridId].visibleColumnProperties.initialDisplayIndex = Math.floor(_state[gridId].scrollProperties.xScrollPosition / columnWidth) - 1;
-      _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.initialDisplayIndex + Math.ceil(_state[gridId].scrollProperties.tableWidth / columnWidth) + 1;
-      _state[gridId].visibleColumnProperties.maxColumnLength = Object.keys(_state[gridId].data[0]).length;
+      var availableDataColumns = Object.keys(_state[gridId].data[0]);
 
-      // Make sure that the first index is at least 0.
-      if (_state[gridId].visibleColumnProperties.initialDisplayIndex < 0) {
-        _state[gridId].visibleColumnProperties.initialDisplayIndex = 0;
+      columnMetadata = {};
+      for(var i = 0; i < availableDataColumns.length; i++){
+        var column = availableDataColumns[i];
+        columnMetadata[column] = {
+          displayIndex: i,
+          columnWidth: _state[gridId].scrollProperties.defaultColumnWidth
+        };
       }
-
-      // If there aren't enough available columns, set to the max length of properties.
-      if (_state[gridId].visibleColumnProperties.maxColumnLength < _state[gridId].visibleColumnProperties.lastDisplayIndex) {
-        _state[gridId].visibleColumnProperties.lastDisplayIndex = _state[gridId].visibleColumnProperties.maxColumnLength;
-      }
-    } else {
-      // Set indexes to '0' if there's no data.
-      _state[gridId].visibleColumnProperties.initialDisplayIndex = _state[gridId].visibleColumnProperties.lastDisplayIndex = 0;
     }
+
+    _state[gridId].columnProperties = new ColumnProperties(columnMetadata, _state[gridId].scrollProperties.xScrollPosition, _state[gridId].scrollProperties.tableWidth);
   },
 
   shouldLoadNewPage: function(gridId){
@@ -173,13 +171,13 @@ var helpers = {
   },
 
   getAdjustedColumnWidth: function(gridId){
-    return _state[gridId].scrollProperties.columnWidth; //+ this.props.paddingHeight * 2; // account for padding.
+    return _state[gridId].scrollProperties.defaultColumnWidth; //+ this.props.paddingHeight * 2; // account for padding.
   },
 
   columnsHaveUpdated: function(gridId){
      // Compute the new visible column properties.
-    var oldColumnProperties = _.clone(_state[gridId].visibleColumnProperties);
-    helpers.updateVisibleColumnProperties(gridId);
+    var oldColumnProperties = _state[gridId].columnProperties; // TODO: Removed _.clone
+    helpers.updateColumnProperties(gridId, _state[gridId].columnProperties.getColumnMetadata());
 
     if (helpers.shouldUpdateDrawnColumns(oldColumnProperties, gridId)){
       helpers.setVisibleColumns(gridId);
@@ -213,8 +211,13 @@ var helpers = {
     }
   },
 
-  checkIfShouldLoadNextPage: function(gridId){
-      return 
+  getAvailableColumns: function(gridId){
+    if (_state[gridId].data){
+      // TODO: this will be coming from column metadata, but for now, go with the property names.
+      return Object.keys(_state[gridId].data[0]);
+    } else {
+      return [];
+    }
   }
 };
 
@@ -240,7 +243,7 @@ var registeredCallback = function(action){
         _state[action.gridId].data = action.data;
         helpers.setMaxPage(action.gridId);
         helpers.setCurrentDataPage(action.gridId);
-        helpers.updateVisibleColumnProperties(action.gridId);
+        helpers.updateColumnProperties(action.gridId, action.columnMetadata);
         helpers.setVisibleColumns(action.gridId);
         DataStore.emitChange();
         break;
@@ -335,7 +338,7 @@ var DataStore = assign({}, StoreBoilerplate, {
   },
 
   getColumnProperties: function(gridId){
-    return _state[gridId].visibleColumnProperties;
+    return _state[gridId].columnProperties;
   },
 
   dispatchToken: AppDispatcher.register(registeredCallback)

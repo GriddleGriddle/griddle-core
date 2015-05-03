@@ -22,11 +22,12 @@ module.exports ={
       actionType: Constants.GRIDDLE_REMOVED
     }
   },
-  loadData: function(gridId, data){
+  loadData: function(gridId, data, columnMetadata){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
       gridId: gridId, 
-      data: data
+      data: data,
+      columnMetadata: columnMetadata
     }
 
     AppDispatcher.dispatch(action); 

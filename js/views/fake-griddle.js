@@ -17,7 +17,7 @@ function getStateFromStore(gridId){
     tableHeight: ScrollStore.getTableHeight(gridId),
     tableWidth: ScrollStore.getTableWidth(gridId),
     rowHeight: ScrollStore.getRowHeight(gridId),
-    columnWidth: ScrollStore.getColumnWidth(gridId),
+    columnProperties: DataStore.getColumnProperties(gridId),
     pageProperties: DataStore.getPageProperties(gridId),
   };
 }
@@ -64,7 +64,7 @@ var FakeGriddle = React.createClass({
           <tr>
             <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
             {_.map(this.state.dataState.currentVisibleColumns, function(item){
-              return <th width={that.state.columnWidth + "px"}>{item}</th>
+              return <th width={that.state.columnProperties.getWidthForColumn(item) + "px"}>{item}</th>
             })}
             <SpacerColumn gridId={that.state.gridId} position="right" header={true}/>
           </tr>
