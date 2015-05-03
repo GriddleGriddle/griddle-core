@@ -14,10 +14,9 @@ class ColumnProperties{
     this.maxColumnLength = metadataKeys.length;
 
     if (metadataKeys.length > 0){
-
       // Determine the first column visible
       for(var i = 0; i < this.maxColumnLength; i++){
-        var offset = this.leftHiddenColumnWidth + columnMetadata[metadataKeys[this.initialDisplayIndex]].columnWidth;
+        var offset = this.leftHiddenColumnWidth + columnMetadata[metadataKeys[i]].columnWidth;
 
         if (offset >= horizontalOffset){
           this.initialDisplayIndex = i;
@@ -28,21 +27,22 @@ class ColumnProperties{
       }
 
       // Subtract by one to allow give ourselves a buffer.
-      this.leftHiddenColumnWidth -= columnMetadata[metadataKeys[this.initialDisplayIndex]].columnWidth;
       this.initialDisplayIndex = this.initialDisplayIndex - 1;
 
       // If the index is less than zero, set to zero.
       if (this.initialDisplayIndex < 0) {
         this.initialDisplayIndex = 0;
         this.leftHiddenColumnWidth = 0;
+      } else {
+        this.leftHiddenColumnWidth -= columnMetadata[metadataKeys[this.initialDisplayIndex]].columnWidth;
       }
 
       // Determine the last column visible
       var tableOffset = 0;
       for(var i = this.initialDisplayIndex; i < this.maxColumnLength; i++){
-        var offset = tableOffset + columnMetadata[metadataKeys[this.initialDisplayIndex]].columnWidth;
+        var offset = tableOffset + columnMetadata[metadataKeys[i]].columnWidth;
 
-        if (offset >= tableWidth){
+        if (offset >= tableWidth || i === this.maxColumnLength - 1){
           this.lastDisplayIndex = i;
           break;
         } else {
@@ -50,8 +50,8 @@ class ColumnProperties{
         }
       }
 
-      // Add one to give ourselves a buffer.
-      this.lastDisplayIndex = this.lastDisplayIndex + 1;
+      // Add two to give ourselves a buffer.
+      this.lastDisplayIndex = this.lastDisplayIndex + 2;
 
       // If there aren't enough available columns, set to the max length of properties.
       if (this.lastDisplayIndex > this.maxColumnLength - 1){
@@ -60,7 +60,7 @@ class ColumnProperties{
 
       // Compute the width of columns after what's shown.
       for(var i = this.lastDisplayIndex; i < this.maxColumnLength - 1; i++){
-        this.rightHiddenColumnWidth += columnMetadata[metadataKeys[this.initialDisplayIndex]].columnWidth;
+        this.rightHiddenColumnWidth += columnMetadata[metadataKeys[i]].columnWidth;
       }
     }
   }

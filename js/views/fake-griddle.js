@@ -4,6 +4,7 @@ var ScrollStore = require('../stores/scroll-store');
 var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 var FakeData = require('../fake/fake-data');
+var FakeMetdata = require('../fake/fake-metadata');
 var SpacerRow = require('./spacer-row');
 var SpacerColumn = require('./spacer-column');
 var _ = require('lodash');
@@ -160,7 +161,7 @@ var FakeGriddle = React.createClass({
     
     this.scrollChange();
 
-    LocalActions.loadData(this.state.gridId, FakeData);
+    LocalActions.loadData(this.state.gridId, FakeData, FakeMetdata);
   },
 
   componentDidUpdate: function(){

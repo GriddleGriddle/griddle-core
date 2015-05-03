@@ -140,6 +140,7 @@ var helpers = {
       for(var i = 0; i < availableDataColumns.length; i++){
         var column = availableDataColumns[i];
         columnMetadata[column] = {
+          displayName: column,
           displayIndex: i,
           columnWidth: _state[gridId].scrollProperties.defaultColumnWidth
         };
