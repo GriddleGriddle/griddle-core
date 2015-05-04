@@ -43,17 +43,22 @@ var PageSelect = React.createClass({
 });
 
 var FakeGriddle = React.createClass({
+  getDefaultProps(){
+    return {
+      isInfinite: false
+    }
+  },
   render: function(){
     var that = this;
     if(!this.state.dataState) { return <h1>Nothing</h1>; }
-debugger;
-    var rows = _.map(this.state.dataState.data, function(item){
+
+    var rows = _.map(this.state.dataState.currentDataPage, (item) => {
       return <tr>
-        <SpacerColumn gridId={that.state.gridId} position="left"/>
+        {this.props.isInfinite ? <SpacerColumn gridId={that.state.gridId} position="left"/> : null }
         {_.map(_.keys(item), function(key){
           return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td>{item[key]}</td>) : null;
         })}
-        <SpacerColumn gridId={that.state.gridId} position="right"/>
+        {this.props.isInfinite ? <SpacerColumn gridId={that.state.gridId} position="right"/> :null }
       </tr>
     });
 
@@ -62,11 +67,11 @@ debugger;
       columnSection = (
         <thead>
           <tr>
-            <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
+            {this.props.isInfinite ? <SpacerColumn gridId={that.state.gridId} position="left" header={true}/> : null }
             {_.map(this.state.dataState.currentVisibleColumns, function(item){
               return <th width={that.state.columnWidth + "px"}>{item}</th>
             })}
-            <SpacerColumn gridId={that.state.gridId} position="right" header={true}/>
+            {this.props.isInfinite ? <SpacerColumn gridId={that.state.gridId} position="right" header={true}/> : null}
           </tr>
         </thead>
       );
@@ -93,9 +98,9 @@ debugger;
           <table style={tableStyle}>
             {columnSection}
             <tbody>
-              <SpacerRow gridId={this.state.gridId} position="top"/>
+              {this.props.isInfinite ? <SpacerRow gridId={this.state.gridId} position="top"/> : null }
               {rows}
-              <SpacerRow gridId={this.state.gridId} position="bottom"/>
+              {this.props.isInfinite ? <SpacerRow gridId={this.state.gridId} position="bottom"/> : null }
             </tbody>
           </table>
         </div>

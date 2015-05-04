@@ -46,15 +46,6 @@ var helpers = assign({}, {
     _state[gridId].currentDataPage = this.getRangeOfVisibleResults(gridId, _state[gridId].pageProperties.initialDisplayIndex, _state[gridId].pageProperties.lastDisplayIndex);
   },
 
-  setVisibleColumns: function(gridId){
-    if (_state[gridId].data.length > 0) {
-      var availableColumns = Object.keys(_state[gridId].data[0]);
-      _state[gridId].currentVisibleColumns = _.at(availableColumns, _.range(_state[gridId].visibleColumnProperties.initialDisplayIndex, _state[gridId].visibleColumnProperties.lastDisplayIndex));
-    } else {
-      _state[gridId].currentVisibleColumns = [];
-    }
-  },
-
   setMaxPage: function(gridId){
      _state[gridId].pageProperties.maxPage = DataHelper.getMaxPageSize(_state[gridId].data.length, _state[gridId].pageProperties.pageSize);
      this.setCurrentDataPage(gridId);
@@ -107,7 +98,7 @@ var helpers = assign({}, {
       _state[gridId].sortProperties.sortAscending
     );
   }
-}, ScrollPlugin.helpers);
+});
 
 //this is currently calling the scroll plugins directly but it should go through any plugins
 var finishChange = function(action) {
@@ -133,7 +124,6 @@ var registeredCallback = function(action){
         _state[action.gridId].data = action.data;
         helpers.setMaxPage(action.gridId);
         helpers.setCurrentDataPage(action.gridId);
-        helpers.setVisibleColumns(action.gridId);
         finishChange(action);
         break;
       case Constants.GRIDDLE_FILTERED:
@@ -191,9 +181,6 @@ var registeredCallback = function(action){
         _state[action.gridId].visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action.gridId));
         finishChange(action);
         break;
-      case Constants.XY_POSITION_CHANGED:
-          helpers.updateScrollProperties(action.gridId);
-          break;
       default:
         ScrollPlugin.registeredCallbacks(action)
         break;

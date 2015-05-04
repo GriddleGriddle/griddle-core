@@ -18,23 +18,23 @@ module.exports ={
   },
   removeGrid: function(gridId){
     var action = {
-      gridId: gridId, 
+      gridId: gridId,
       actionType: Constants.GRIDDLE_REMOVED
     }
   },
   loadData: function(gridId, data){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
-      gridId: gridId, 
+      gridId: gridId,
       data: data
     }
 
-    AppDispatcher.dispatch(action); 
+    AppDispatcher.dispatch(action);
   },
   filterData: function(gridId, filter){
     if(filter === ""){
       var action = {
-        gridId: gridId, 
+        gridId: gridId,
         actionType: Constants.GRIDDLE_FILTER_REMOVED
       }
 
@@ -43,16 +43,16 @@ module.exports ={
     }
 
     var action = {
-      gridId: gridId, 
+      gridId: gridId,
       actionType: Constants.GRIDDLE_FILTERED,
       filter: filter
     };
 
-    AppDispatcher.dispatch(action); 
+    AppDispatcher.dispatch(action);
   },
   setPageSize: function(gridId, pageSize){
     var action = {
-      gridId: gridId,      
+      gridId: gridId,
       actionType: Constants.GRIDDLE_SET_PAGE_SIZE,
       pageSize: pageSize
     }
@@ -61,8 +61,8 @@ module.exports ={
   },
   sort: function(gridId, column){
     var action = {
-      gridId: gridId,      
-      actionType: Constants.GRIDDLE_SORT, 
+      gridId: gridId,
+      actionType: Constants.GRIDDLE_SORT,
       sortColumns: [column]
     };
 
@@ -79,7 +79,7 @@ module.exports ={
   },
   loadNext: function(gridId){
     var action = {
-      gridId: gridId,            
+      gridId: gridId,
       actionType: Constants.GRIDDLE_NEXT_PAGE
     };
 
@@ -88,7 +88,7 @@ module.exports ={
 
   loadPrevious: function(gridId){
     var action = {
-      gridId: gridId,     
+      gridId: gridId,
       actionType: Constants.GRIDDLE_PREVIOUS_PAGE
     };
 
@@ -96,7 +96,7 @@ module.exports ={
   },
 
   loadPage: function(gridId, number){
-    var action = { 
+    var action = {
       gridId: gridId,
       actionType: Constants.GRIDDLE_GET_PAGE,
       pageNumber: number

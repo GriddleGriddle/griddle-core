@@ -23,6 +23,23 @@ var ScrollStore = require('../scroll-store');
              _state[gridId].visibleColumnProperties.lastDisplayIndex != oldVisibleColumnProperties.lastDisplayIndex;
     },
 
+    setVisibleColumns: function(gridId){
+      if (_state[gridId].data.length > 0) {
+        var availableColumns = Object.keys(_state[gridId].data[0]);
+
+        _state[gridId].currentVisibleColumns = _.at(
+          availableColumns,
+          _.range(
+            _state[gridId].visibleColumnProperties.initialDisplayIndex,
+            _state[gridId].visibleColumnProperties.lastDisplayIndex
+          )
+        );
+
+      } else {
+        _state[gridId].currentVisibleColumns = [];
+      }
+    },
+
     updateVisibleColumnProperties: function(gridId){
       if (_state[gridId].data && _state[gridId].data.length > 0){
         // Load the width of the columns.
@@ -76,10 +93,10 @@ var ScrollStore = require('../scroll-store');
     columnsHaveUpdated: function(gridId){
        // Compute the new visible column properties.
       var oldColumnProperties = _.clone(_state[gridId].visibleColumnProperties);
-      helpers.updateVisibleColumnProperties(gridId);
+      this.updateVisibleColumnProperties(gridId);
 
-      if (helpers.shouldUpdateDrawnColumns(oldColumnProperties, gridId)){
-        helpers.setVisibleColumns(gridId);
+      if (this.shouldUpdateDrawnColumns(oldColumnProperties, gridId)){
+        this.setVisibleColumns(gridId);
         return true;
       } else {
         return false;
@@ -88,9 +105,9 @@ var ScrollStore = require('../scroll-store');
 
     rowsHaveUpdated: function(gridId, oldScrollProperties){
       // If the scroll position changes and the drawn rows need to update, do so.
-      if (helpers.shouldUpdateDrawnRows(oldScrollProperties, gridId)){
+      if (this.shouldUpdateDrawnRows(oldScrollProperties, gridId)){
         // Update the current displayed rows
-        this.helpers.setCurrentDataPage(gridId);
+        this.setCurrentDataPage(gridId);
         return true;
       } else {
         return false;
@@ -101,10 +118,10 @@ var ScrollStore = require('../scroll-store');
       // Load the new scrollProperties
       var oldScrollProperties = _state[gridId].scrollProperties;
       _state[gridId].scrollProperties = _.clone(ScrollStore.getScrollProperties(gridId));
-      if (helpers.rowsHaveUpdated(gridId, oldScrollProperties) || helpers.columnsHaveUpdated(gridId)) {
+      if (this.rowsHaveUpdated(gridId, oldScrollProperties) || this.columnsHaveUpdated(gridId)) {
 
         // Update whether or not we should automatically load the next page.
-        _state[gridId].pageProperties.shouldAutoLoadNextPage = helpers.shouldLoadNewPage(gridId);
+        _state[gridId].pageProperties.shouldAutoLoadNextPage = this.shouldLoadNewPage(gridId);
         // Emit the change.
         DataStore.emitChange();
       }
@@ -125,6 +142,7 @@ var ScrollStore = require('../scroll-store');
         break;
       case Constants.GRIDDLE_LOADED_DATA:
         this.helpers.updateVisibleColumnProperties(action.gridId);
+        this.helpers.setVisibleColumns(action.gridId);
         break;
       default:
     }
