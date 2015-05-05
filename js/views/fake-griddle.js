@@ -7,6 +7,7 @@ var FakeData = require('../fake/fake-data');
 var FakeMetdata = require('../fake/fake-metadata');
 var SpacerRow = require('./spacer-row');
 var SpacerColumn = require('./spacer-column');
+var DraggableColumn = require('./draggable-column.js');
 var _ = require('lodash');
 var assign = require('object-assign');
 
@@ -65,7 +66,9 @@ var FakeGriddle = React.createClass({
           <tr>
             <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
             {_.map(this.state.dataState.currentVisibleColumns, function(item){
-              return <th width={that.state.columnProperties.getWidthForColumn(item) + "px"}>{item}</th>
+              return <th width={that.state.columnProperties.getWidthForColumn(item) + "px"}>
+                <DraggableColumn columnName={that.state.columnProperties.getNameForColumn(item)} column={item} gridId={that.state.gridId} />
+              </th>
             })}
             <SpacerColumn gridId={that.state.gridId} position="right" header={true}/>
           </tr>

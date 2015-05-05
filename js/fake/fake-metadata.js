@@ -32,6 +32,6 @@ module.exports = {
     "favoriteNumber": {
         displayName: "Favorite Number",
         displayIndex: 6,
-        columnWidth: 20
+        columnWidth: 150
     }
   };

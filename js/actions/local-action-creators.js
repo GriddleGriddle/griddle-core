@@ -104,5 +104,16 @@ module.exports ={
     }
 
     AppDispatcher.dispatch(action);
+  },
+
+  resizeColumn: function(gridId, column, change){
+    var action = { 
+      gridId: gridId,
+      actionType: Constants.COLUMN_RESIZE,
+      column: column,
+      change: change
+    }
+
+    AppDispatcher.dispatch(action);
   }
 }

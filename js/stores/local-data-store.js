@@ -304,8 +304,14 @@ var registeredCallback = function(action){
         DataStore.emitChange();
         break;
       case Constants.XY_POSITION_CHANGED:
-          helpers.updateScrollProperties(action.gridId);
-          break;
+        helpers.updateScrollProperties(action.gridId);
+        break;
+      case Constants.COLUMN_RESIZE:
+        var updatedColumnMetadata = _state[action.gridId].columnProperties.getColumnMetadata();
+        updatedColumnMetadata[action.column].columnWidth += action.change;
+        helpers.updateColumnProperties(action.gridId, updatedColumnMetadata);
+        DataStore.emitChange();
+        break;
       default:
     }
   }

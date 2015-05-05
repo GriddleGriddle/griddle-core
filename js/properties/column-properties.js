@@ -73,6 +73,10 @@ class ColumnProperties{
   	return this.columnMetadata[column].columnWidth;
   }
 
+  getNameForColumn(column){
+    return this.columnMetadata[column].displayName;
+  }
+
   getInitialDisplayIndex(){
     return this.initialDisplayIndex;
   }
