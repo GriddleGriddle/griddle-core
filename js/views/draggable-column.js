@@ -29,18 +29,18 @@ module.exports = React.createClass({
       var offsetTranslation = "translate(" + (-1*this.state.currentPosition) + "px, 0px)";
       var offsetStyle = {
         translate: offsetTranslation,
-        webkitTransform: offsetTranslation
+        WebkitTransform: offsetTranslation
       };
 
-      return (<div style={offsetStyle}>
-                <Draggable axis="x" onStart={this.dragStart} onDrag={this.dragMove}>
-                  <div>
-                    {this.props.columnName}
-                    <div style={{float: "right", cursor: "pointer"}}>
-                      <span style={{borderLeft: "4px solid"}}></span>
-                    </div>
+      return (<div>
+                  <span style={{float: "left"}}>{this.props.columnName}</span>
+                  <div style={offsetStyle}>
+                    <Draggable axis="x" onStart={this.dragStart} onDrag={this.dragMove}>
+                      <div style={{float: "right", cursor: "pointer"}}>
+                        <span style={{borderLeft: "4px solid"}}></span>
+                      </div>
+                    </Draggable>
                   </div>
-                </Draggable>
               </div>);
   },
   dragStart: function(event, ui){

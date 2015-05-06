@@ -36,7 +36,7 @@ var PageSelect = React.createClass({
 
   render: function(){
     var options = _.map(_.range(this.props.pageProperties.maxPage), function(i){
-      return <option value={i + 1}>{i + 1}</option>;
+      return <option key={i} value={i + 1}>{i + 1}</option>;
     });
     return <select value={this.props.pageProperties.currentPage + 1} onChange={this.handleSelect}>
       {options}
@@ -50,10 +50,10 @@ var FakeGriddle = React.createClass({
     if(!this.state.dataState) { return <h1>Nothing</h1>; }
 
     var rows = _.map(this.state.dataState.currentDataPage, function(item){
-      return <tr>
+      return <tr key={item.id}>
         <SpacerColumn gridId={that.state.gridId} position="left"/>
         {_.map(_.keys(item), function(key){
-          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td>{item[key]}</td>) : null;
+          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td key={'' + item.id + key}>{item[key]}</td>) : null;
         })}
         <SpacerColumn gridId={that.state.gridId} position="right"/>
       </tr>
@@ -66,7 +66,8 @@ var FakeGriddle = React.createClass({
           <tr>
             <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
             {_.map(this.state.dataState.currentVisibleColumns, function(item){
-              return <th width={that.state.columnProperties.getWidthForColumn(item) + "px"}>
+              var columnName = that.state.columnProperties.getNameForColumn(item);
+              return <th key={"drag-column-" + columnName} width={that.state.columnProperties.getWidthForColumn(item) + "px"}>
                 <DraggableColumn columnName={that.state.columnProperties.getNameForColumn(item)} column={item} gridId={that.state.gridId} />
               </th>
             })}

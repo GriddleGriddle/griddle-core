@@ -2,7 +2,7 @@ module.exports = {
     "id": {
         displayName: "ID",
         displayIndex: 0,
-        columnWidth: 20
+        columnWidth: 30
     },
     "name": {
         displayName: "Name",
