@@ -22,11 +22,12 @@ module.exports ={
       actionType: Constants.GRIDDLE_REMOVED
     }
   },
-  loadData: function(gridId, data){
+  loadData: function(gridId, data, columnMetadata){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
       gridId: gridId, 
-      data: data
+      data: data,
+      columnMetadata: columnMetadata
     }
 
     AppDispatcher.dispatch(action); 
@@ -100,6 +101,17 @@ module.exports ={
       gridId: gridId,
       actionType: Constants.GRIDDLE_GET_PAGE,
       pageNumber: number
+    }
+
+    AppDispatcher.dispatch(action);
+  },
+
+  resizeColumn: function(gridId, column, change){
+    var action = { 
+      gridId: gridId,
+      actionType: Constants.COLUMN_RESIZE,
+      column: column,
+      change: change
     }
 
     AppDispatcher.dispatch(action);

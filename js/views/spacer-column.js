@@ -6,13 +6,8 @@ var ScrollActions = require('../actions/scroll-action-creators');
 var _ = require('lodash');
 
 function getStateFromStore(gridId){
-  var columnProperties = DataStore.getColumnProperties(gridId);
-
   return {
-    columnWidth: ScrollStore.getColumnWidth(gridId),
-    initialDisplayIndex: columnProperties.initialDisplayIndex, 
-    lastDisplayIndex: columnProperties.lastDisplayIndex,
-    maxColumnLength: columnProperties.maxColumnLength
+    columnProperties: DataStore.getColumnProperties(gridId)
   };
 }
 
@@ -24,19 +19,12 @@ module.exports = React.createClass({
     };
   },
   render: function(){
-    var width = 0, spacerColumnStyle = {};
+    var spacerColumnStyle = {
+      width: (this.props.position === "left" ? this.state.columnProperties.getLeftHiddenColumnWidth() : this.state.columnProperties.getRightHiddenColumnWidth()) + "px"
+    };
 
-    // Get the length of columns that the spacer column will represent.
-    var spacerColumnCount = this.props.position === "left" ? this.state.initialDisplayIndex :
-      this.state.maxColumnLength - this.state.lastDisplayIndex;
-
-    // Get the width in pixels.
-    width = this.state.columnWidth * spacerColumnCount;
-    spacerColumnStyle.width = width + "px";
-
-
-    return this.props.header ? (<th key={this.props.position + '-' + width} style={spacerColumnStyle}></th>) : (
-      <td key={this.props.position + '-' + width} style={spacerColumnStyle}></td>
+    return this.props.header ? (<th key={this.props.position + '-' + spacerColumnStyle.width} style={spacerColumnStyle}></th>) : (
+      <td key={this.props.position + '-' + spacerColumnStyle.width} style={spacerColumnStyle}></td>
     );
   },
   getInitialState: function(){
@@ -44,31 +32,17 @@ module.exports = React.createClass({
   },
   dataChange: function(){
     var newState = getStateFromStore(this.props.gridId);
-    if (newState.maxColumnLength !== this.state.maxColumnLength ||
-        newState.initialDisplayIndex !== this.state.initialDisplayIndex ||
-        newState.lastDisplayIndex !== this.state.lastDisplayIndex) {
+    if (newState.columnProperties.getMaxColumnLength() !== this.state.columnProperties.getMaxColumnLength() ||
+        newState.columnProperties.getInitialDisplayIndex() !== this.state.columnProperties.getInitialDisplayIndex() ||
+        newState.columnProperties.getLastDisplayIndex() !== this.state.columnProperties.getLastDisplayIndex()) {
       this.setState(newState);
-    }
-  },
-  scrollChange: function(){
-    var newColumnWidth = ScrollStore.getColumnWidth(this.props.gridId);
-
-    if (this.state !== newColumnWidth) {
-      // Set the state.
-      this.setState({
-        columnWidth: newColumnWidth
-      });
     }
   },
   componentDidMount: function(){
     // Register data listener
     DataStore.addChangeListener(this.dataChange);
-
-    // Register scroll listener
-    ScrollStore.addChangeListener(this.scrollChange);
   },
   componentWillUnmount: function(){
     DataStore.removeChangeListener(this.dataChange);
-    ScrollStore.removeChangeListener(this.scrollChange);
   }
 });

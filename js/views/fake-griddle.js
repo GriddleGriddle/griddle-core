@@ -4,8 +4,10 @@ var ScrollStore = require('../stores/scroll-store');
 var LocalActions = require('../actions/local-action-creators');
 var ScrollActions = require('../actions/scroll-action-creators');
 var FakeData = require('../fake/fake-data');
+var FakeMetdata = require('../fake/fake-metadata');
 var SpacerRow = require('./spacer-row');
 var SpacerColumn = require('./spacer-column');
+var DraggableColumn = require('./draggable-column.js');
 var _ = require('lodash');
 var assign = require('object-assign');
 
@@ -17,7 +19,7 @@ function getStateFromStore(gridId){
     tableHeight: ScrollStore.getTableHeight(gridId),
     tableWidth: ScrollStore.getTableWidth(gridId),
     rowHeight: ScrollStore.getRowHeight(gridId),
-    columnWidth: ScrollStore.getColumnWidth(gridId),
+    columnProperties: DataStore.getColumnProperties(gridId),
     pageProperties: DataStore.getPageProperties(gridId),
   };
 }
@@ -34,7 +36,7 @@ var PageSelect = React.createClass({
 
   render: function(){
     var options = _.map(_.range(this.props.pageProperties.maxPage), function(i){
-      return <option value={i + 1}>{i + 1}</option>;
+      return <option key={i} value={i + 1}>{i + 1}</option>;
     });
     return <select value={this.props.pageProperties.currentPage + 1} onChange={this.handleSelect}>
       {options}
@@ -48,10 +50,10 @@ var FakeGriddle = React.createClass({
     if(!this.state.dataState) { return <h1>Nothing</h1>; }
 
     var rows = _.map(this.state.dataState.currentDataPage, function(item){
-      return <tr>
+      return <tr key={item.id}>
         <SpacerColumn gridId={that.state.gridId} position="left"/>
         {_.map(_.keys(item), function(key){
-          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td>{item[key]}</td>) : null;
+          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td key={'' + item.id + key}>{item[key]}</td>) : null;
         })}
         <SpacerColumn gridId={that.state.gridId} position="right"/>
       </tr>
@@ -64,7 +66,10 @@ var FakeGriddle = React.createClass({
           <tr>
             <SpacerColumn gridId={that.state.gridId} position="left" header={true}/>
             {_.map(this.state.dataState.currentVisibleColumns, function(item){
-              return <th width={that.state.columnWidth + "px"}>{item}</th>
+              var columnName = that.state.columnProperties.getNameForColumn(item);
+              return <th key={"drag-column-" + columnName} width={that.state.columnProperties.getWidthForColumn(item) + "px"}>
+                <DraggableColumn columnName={that.state.columnProperties.getNameForColumn(item)} column={item} gridId={that.state.gridId} />
+              </th>
             })}
             <SpacerColumn gridId={that.state.gridId} position="right" header={true}/>
           </tr>
@@ -160,7 +165,7 @@ var FakeGriddle = React.createClass({
     
     this.scrollChange();
 
-    LocalActions.loadData(this.state.gridId, FakeData);
+    LocalActions.loadData(this.state.gridId, FakeData, FakeMetdata);
   },
 
   componentDidUpdate: function(){

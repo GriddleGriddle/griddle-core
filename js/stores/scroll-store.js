@@ -12,7 +12,7 @@ var defaultGridState = {
   tableHeight: 400,
   tableWidth: 200,
   rowHeight: 25,
-  columnWidth: 80,
+  defaultColumnWidth: 80,
   infiniteScrollLoadTreshold: 50
 };
 
@@ -51,8 +51,8 @@ var ScrollStore = assign({}, StoreBoilerplate, {
     return _state[gridId].rowHeight;
   },
 
-  getColumnWidth: function(gridId){
-    return _state[gridId].columnWidth;
+  getDefaultColumnWidth: function(gridId){
+    return _state[gridId].defaultColumnWidth;
   },
 
   dispatchToken: AppDispatcher.register(function(action){

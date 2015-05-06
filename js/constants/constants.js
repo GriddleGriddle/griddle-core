@@ -31,5 +31,6 @@ module.exports = keyMirror({
   XY_POSITION_CHANGE: null,
   XY_POSITION_CHANGED: null,
   TABLE_DIMENSIONS_CHANGED: null,
-  ROW_HEIGHT_CHANGED: null
+  ROW_HEIGHT_CHANGED: null,
+  COLUMN_RESIZE: null
 });
