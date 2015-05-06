@@ -52,8 +52,8 @@ var FakeGriddle = React.createClass({
     var rows = _.map(this.state.dataState.currentDataPage, function(item){
       return <tr key={item.id}>
         <SpacerColumn gridId={that.state.gridId} position="left"/>
-        {_.map(_.keys(item), function(key){
-          return that.state.dataState.currentVisibleColumns.indexOf(key) !== -1 ? (<td key={'' + item.id + key}>{item[key]}</td>) : null;
+        {_.map(that.state.dataState.currentVisibleColumns, function(key){
+          return <td key={'' + item.id + key}>{item[key]}</td>
         })}
         <SpacerColumn gridId={that.state.gridId} position="right"/>
       </tr>
