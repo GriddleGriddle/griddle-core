@@ -213,10 +213,20 @@ var helpers = {
   },
 
   getAvailableColumns: function(gridId){
-    if (_state[gridId].data){
-      // TODO: this will be coming from column metadata, but for now, go with the property names.
+    var columnMetadata = _state[gridId].columnProperties.getColumnMetadata();
+    if (columnMetadata){
+        var columnArray = [];
+
+        _.forOwn(columnMetadata, function(value, key) {
+          columnArray.push({'key': key, sortOrder: value.sortOrder});
+        });
+
+        return _.pluck(_.sortBy(columnArray, 'sortOrder'), 'key');
+    } else if (_state[gridId].data){
+      // If there's no column metadata, use the keys of the first row in the data.
       return Object.keys(_state[gridId].data[0]);
     } else {
+      // If there's no column metadata OR data, display nothing.
       return [];
     }
   }
