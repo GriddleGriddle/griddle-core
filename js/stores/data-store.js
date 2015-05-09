@@ -16,9 +16,19 @@ class DataStore extends StoreBoilerplate{
     const _this = this;
     _this.state = new Immutable.fromJS(defaultGridState);
 
+    //add the helper functions directly onto the object
+    Object.keys(_this.Helpers)
+      .forEach(key => this[key] = this.Helpers[key])
+
+    //add the plugins to the plugins collection
     this.plugins = [];
-    _.each(plugins, function(plugin){
-      _this.plugins.push(new plugin());
+    plugins.forEach(plugin => {
+      const pluginInstance = new plugin(this.state);
+      this.plugins.push(pluginInstance);
+
+      //add the helpers to the object -- overriding anything that came before
+      Object.keys(!!pluginInstance.Helpers && pluginInstance.Helpers)
+        .forEach(key => this[key] = pluginInstance.Helpers[key])
     });
 
     dispatcher.register((action) => {
@@ -54,7 +64,6 @@ class DataStore extends StoreBoilerplate{
       this.plugins.forEach(plugin => {
         if(!!plugin.PostPatches && !!plugin.PostPatches[action.actionType]) {
           _this.state = plugin.PostPatches[action.actionType](action, _this.state);
-          debugger;
         }
       });
 
@@ -62,7 +71,7 @@ class DataStore extends StoreBoilerplate{
     });
   }
 
-  get RegisteredCallbacks(){
+  get RegisteredCallbacks() {
     return {
       GRIDDLE_INITIALIZED(action, state){
       },
@@ -73,13 +82,18 @@ class DataStore extends StoreBoilerplate{
     }
   }
 
-  /* HELPERS */
-  getData() {
-    return this.state.data;
-  }
 
-  getState() {
-    return this.state;
+  /* HELPERS */
+  get Helpers() {
+    return {
+      getData() {
+        return this.state.data;
+      },
+
+      getState() {
+        return this.state;
+      }
+    }
   }
 
 }

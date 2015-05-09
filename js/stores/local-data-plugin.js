@@ -2,8 +2,9 @@ import StoreBoilerplate from './store-boilerplate';
 import Immutable from 'immutable';
 
 class LocalDataPlugin extends StoreBoilerplate {
-  constructor(){
+  constructor(state){
     super();
+    this.state = state;
   }
 
   get RegisteredCallbacks() {
@@ -26,6 +27,17 @@ class LocalDataPlugin extends StoreBoilerplate {
     return {
       GRIDDLE_LOADED_DATA(action, state) {
          return state.set('data', state.get('data').push({five: "five", six: "six"}));
+      }
+    }
+  }
+
+  get Helpers() {
+    return {
+      getState() {
+        return this.state
+          .set('data', new Immutable.List([
+            {one: '1', two: '2'}
+          ]));
       }
     }
   }
