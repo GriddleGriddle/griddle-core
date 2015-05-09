@@ -1,6 +1,6 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var assign = require('object-assign');
-var StoreBoilerplate = require('./store-boilerplate');
+var StoreBoilerplate = require('./store-boilerplate').other;
 var Constants = require('../constants/constants');
 var _ = require('lodash');
 
@@ -57,30 +57,30 @@ var ScrollStore = assign({}, StoreBoilerplate, {
 
   dispatchToken: AppDispatcher.register(function(action){
     switch(action.actionType){
-      case Constants.GRIDDLE_INITIALIZE: 
+      case Constants.GRIDDLE_INITIALIZE:
         //assign new state object
         var state = assign({}, defaultGridState);
-        _state[action.gridId] = state; 
-        ScrollStore.emitChange();
+        _state[action.gridId] = state;
+        // ScrollStore.emitChange();
         break;
       case Constants.GRIDDLE_REMOVED:
         //remove the item from the hash
         delete _state[action.gridId];
-        ScrollStore.emitChange();
+        // ScrollStore.emitChange();
         break;
       case Constants.TABLE_DIMENSIONS_CHANGED:
         _state[action.gridId].tableHeight = action.tableHeight;
         _state[action.gridId].tableWidth = action.tableWidth;
-        ScrollStore.emitChange();
+        // ScrollStore.emitChange();
       case Constants.ROW_HEIGHT_CHANGED:
         _state[action.gridId].rowHeight = action.rowHeight;
-        ScrollStore.emitChange();
+        // ScrollStore.emitChange();
       case Constants.XY_POSITION_CHANGE:
         _state[action.gridId].xScrollPosition = action.xScrollPosition;
         _state[action.gridId].xScrollMax = action.xScrollMax;
         _state[action.gridId].yScrollPosition = action.yScrollPosition;
         _state[action.gridId].yScrollMax = action.yScrollMax;
-        ScrollStore.emitChange();
+        // ScrollStore.emitChange();
         break;
       default:
     }

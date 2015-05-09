@@ -1,0 +1,389 @@
+var assign = require('object-assign');
+var DataHelper = require('../helpers/data-helper');
+var StoreBoilerplate = require('./store-boilerplate');
+var Constants = require('../constants/constants');
+var LocalActions = require('../actions/local-action-creators');
+var _ = require('lodash');
+var ScrollPluginInstance = require('./store_plugins/scroll-store.js');
+var EventEmitter = require('eventemitter3').EventEmitter;
+var Immutable = require('immutable');
+
+
+var defaultGridState = {
+  data: [],
+};
+
+
+class DataStore extends StoreBoilerplate{
+  constructor(dispatcher, plugins) {
+    super();
+    var _this = this;
+    _this.state = new Immutable.fromJS(defaultGridState);
+
+    dispatcher.register((action) => {
+      this.state = _this[action.actionType](action, this.state);
+    });
+
+  }
+
+  runPlugins() {
+  }
+
+  GRIDDLE_INITIALIZED(action, state){
+    debugger;
+  }
+
+  GRIDDLE_LOADED_DATA(action, state){
+    _state.data = action.data;
+    this.emitChange();
+  }
+
+
+  }
+}
+// var DataStore = {
+//   _state: {},
+
+//   create(plugins) {
+//     var _this = assign(this, StoreBoilerplate, {
+
+//       getState: function(){
+//         return _state;
+//       },
+
+//       //gets the original, full data-set
+//       getAllData: function(){
+//         return _state.data;
+//       },
+
+//       //gets the filtered, sorted data-set
+//       getVisibleData: function(){
+//         return this.helpers.getAllVisibleData();
+//       },
+
+//       getCurrentDataPage: function(){
+//         return _state.currentDataPage;
+//       },
+
+//       getPageCount: function(){
+//         return _state.pageProperties.maxPage;
+//       },
+
+//       getPageProperties: function(){
+//         return _state.pageProperties;
+//       },
+
+//       getColumnProperties: function(){
+//         return _state.visibleColumnProperties;
+//       },
+
+//     });
+
+//     _this.dispatchToken = AppDispatcher.register(_this.registeredCallback);
+//     //register the plugins on this before returning
+
+//     _this.registeredCallback.bind(_this);
+//     _this.helpers.setCurrentDataPage.bind(_this);
+// this.helpers.setCurrentDataPage();
+//     return _this;
+//   },
+
+//   runPlugins(action) {
+//     console.log(action);
+//   },
+
+//   helpers: {
+//     setCurrentDataPage: function(){
+//       debugger;
+//       _state.pageProperties.initialDisplayIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
+//       _state.pageProperties.lastDisplayIndex = _state.pageProperties.initialDisplayIndex + _state.pageProperties.pageSize;
+
+//       _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
+//     },
+
+//     setMaxPage: function(){
+//        _state.pageProperties.maxPage = DataHelper.getMaxPageSize(_state.data.length, _state.pageProperties.pageSize);
+//        this.setCurrentDataPage();
+//     },
+
+//     //this gets the full sorted and filtered dataset
+//     getAllVisibleData: function(){
+//       return this.showVisibleData() ? _state.visibleData : _state.data;
+//     },
+
+//     getRangeOfVisibleResults: function(start, end){
+//       return _.at(this.getAllVisibleData(), _.range(start, end));
+//     },
+
+//     //todo: change the name on this
+//     //this determines whether the data array or visible data array should be used
+//     showVisibleData: function(){
+//       if(_state && _state.hasFilter === true){
+//         return true;
+//       }
+//     },
+
+//     getGrid: function(){
+//       return _state;
+//     },
+
+//     //tries to set the current page
+//     setCurrentPage: function(pageNumber){
+//       if(pageNumber > 0 && pageNumber <= _state.pageProperties.maxPage){
+//         _state.pageProperties.currentPage = pageNumber;
+//       }
+//     },
+
+//     filterData: function(filter){
+//       _state.pageProperties.currentPage = 0;
+//       _state.hasFilter = true;
+//       _state.visibleData = DataHelper.sort(
+//         _state.sortProperties.sortColumns,
+//         DataHelper.filterAllData(filter, _state.data),
+//         _state.sortProperties.sortAscending
+//       );
+
+//       this.setCurrentDataPage();
+//     },
+
+//     sort: function(){
+//       _state.visibleData = DataHelper.sort(
+//         _state.sortProperties.sortColumns,
+//         DataStore.getVisibleData(),
+//         _state.sortProperties.sortAscending
+//       );
+//     }
+//   },
+
+//   registeredCallback(action){
+//     debugger;
+//     switch(action.actionType){
+//       case Constants.GRIDDLE_LOADED_DATA:
+//         _state.data = action.data;
+//         this.helpers.setMaxPage();
+//         this.helpers.setCurrentDataPage();
+//         finishChange(action);
+//         break;
+//       case Constants.GRIDDLE_FILTERED:
+//         this.helpers.filterData(action.filter);
+//         finishChange(action);
+//         break;
+//       case Constants.GRIDDLE_FILTER_REMOVED:
+//         _state.hasFilter = false;
+//         this.helpers.setCurrentDataPage();
+//         finishChange(action);
+//         break;
+//       case Constants.GRIDDLE_SET_PAGE_SIZE:
+//         _state.pageProperties.pageSize = action.pageSize;
+//         this.helpers.setMaxPage();
+//         this.helpers.setCurrentDataPage();
+//         finishChange(action);
+//         break;
+//       case Constants.GRIDDLE_GET_PAGE:
+//         if (action.pageNumber >= 0 && action.pageNumber <= _state.pageProperties.maxPage){
+//           _state.pageProperties.currentPage = action.pageNumber;
+//           this.helpers.setCurrentDataPage();
+//           finishChange(action);
+//         }
+//         break;
+//       case Constants.GRIDDLE_NEXT_PAGE:
+//         if(_state.pageProperties.currentPage < _state.pageProperties.maxPage-1){
+//           _state.pageProperties.currentPage++;
+//           this.helpers.setCurrentDataPage();
+//           finishChange(action);
+//         }
+//         break;
+//       case Constants.GRIDDLE_PREVIOUS_PAGE:
+//         if(_state.pageProperties.currentPage > 0){
+//           _state.pageProperties.currentPage--;
+//           this.helpers.setCurrentDataPage();
+//           finishChange(action);
+//         }
+//         break;
+//       case Constants.GRIDDLE_SORT:
+//         _state.sortProperties.sortColumns = action.sortColumns;
+//         _state.sortProperties.sortAscending = action.sortAscending || _state.sortProperties.defaultSortAscending;
+//         this.this.helpers.sort(action);
+//         finishChange(action);
+//         break;
+//       case Constants.GRIDDLE_ADD_SORT_COLUMN:
+//         _state.sortProperties.sortColumns.push(action.sortColumn);
+//         _state.visibleData = DataHelper.sort(
+//           _state.sortProperties.sortColumns,
+//           DataStore.getVisibleData(action),
+//           _state.sortAscending
+//         );
+//         break;
+//       case Constants.GRIDDLE_SORT_ORDER_CHANGE:
+//         _state.sortAscending = !_state.sortAscending;
+//         _state.visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action));
+//         finishChange(action);
+//         break;
+//       default:
+//       debugger;
+//         this.runPlugins(action)
+//         break;
+//     }
+//   }
+
+// }
+
+// var defaultGridState = {
+//   hasFilter: false,
+//   hasSort: false,
+//   //this is the original data set -- don't mutate it (and yes we should switch to immutable)
+//   data: [],
+//   //this is the filtered / sorted data (not paged!)
+//   visibleData: [],
+//   // this is the filtered, sorted, and paged data
+//   currentDataPage: [],
+
+//   pageProperties: { currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: true, shouldAutoLoadNextPage: false },
+
+//   // An array of the current visible columns.
+//   currentVisibleColumns: [],
+
+//   visibleColumnProperties: { initialDisplayIndex: 0, lastDisplayIndex : 0, maxColumnLength : 0 },
+
+//   sortProperties: { sortColumns: [], sortAscending: true, defaultSortAscending: true }
+
+//   /* Properties added after initialization :
+
+//      scrollProperties
+//   */
+// };
+
+
+
+    // //AppDispatcher.register(this.registeredCallback);
+    // this.helpers = {
+    //   setCurrentDataPage(){
+    //     _state.pageProperties.initialDisplayIndex = _state.pageProperties.currentPage * _state.pageProperties.pageSize;
+    //     _state.pageProperties.lastDisplayIndex = _state.pageProperties.initialDisplayIndex + _state.pageProperties.pageSize;
+
+    //     _state.currentDataPage = this.getRangeOfVisibleResults(_state.pageProperties.initialDisplayIndex, _state.pageProperties.lastDisplayIndex);
+    //   },
+
+    //   setMaxPage() {
+    //      _state.pageProperties.maxPage = DataHelper.getMaxPageSize(_state.data.length, _state.pageProperties.pageSize);
+    //      this.setCurrentDataPage();
+    //   },
+
+    //   getAllVisibleData() {
+    //     return this.showVisibleData() ? _state.visibleData : _state.data;
+    //   },
+
+    //   getRangeOfVisibleResults(start, end) {
+    //     return _.at(this.getAllVisibleData(), _.range(start, end));
+    //   },
+
+    //   //todo: change the name on this
+    //   //this determines whether the data array or visible data array should be used
+    //   showVisibleData() {
+    //     if(_state && _state.hasFilter === true){
+    //       return true;
+    //     }
+    //   },
+
+    //   getGrid() {
+    //     return _state;
+    //   },
+
+    //   //tries to set the current page
+    //   setCurrentPage(pageNumber) {
+    //     if(pageNumber > 0 && pageNumber <= _state.pageProperties.maxPage){
+    //       _state.pageProperties.currentPage = pageNumber;
+    //     }
+    //   },
+
+    //   filterData(filter) {
+    //     _state.pageProperties.currentPage = 0;
+    //     _state.hasFilter = true;
+    //     _state.visibleData = DataHelper.sort(
+    //       _state.sortProperties.sortColumns,
+    //       DataHelper.filterAllData(filter, _state.data),
+    //       _state.sortProperties.sortAscending
+    //     );
+
+    //     this.setCurrentDataPage();
+    //   },
+
+    //   sort() {
+    //     _state.visibleData = DataHelper.sort(
+    //       _state.sortProperties.sortColumns,
+    //       DataStore.getVisibleData(),
+    //       _state.sortProperties.sortAscending
+    //     );
+    //   }
+    // }
+
+  // registeredCallback(action) {
+  //   switch(action.actionType){
+  //     case Constants.GRIDDLE_LOADED_DATA:
+  //       _state.data = action.data;
+  //       this.helpers.setMaxPage();
+  //       this.helpers.setCurrentDataPage();
+  //       finishChange(action);
+  //       break;
+  //     case Constants.GRIDDLE_FILTERED:
+  //       this.helpers.filterData(action.filter);
+  //       finishChange(action);
+  //       break;
+  //     case Constants.GRIDDLE_FILTER_REMOVED:
+  //       _state.hasFilter = false;
+  //       this.helpers.setCurrentDataPage();
+  //       finishChange(action);
+  //       break;
+  //     case Constants.GRIDDLE_SET_PAGE_SIZE:
+  //       _state.pageProperties.pageSize = action.pageSize;
+  //       this.helpers.setMaxPage();
+  //       this.helpers.setCurrentDataPage();
+  //       finishChange(action);
+  //       break;
+  //     case Constants.GRIDDLE_GET_PAGE:
+  //       if (action.pageNumber >= 0 && action.pageNumber <= _state.pageProperties.maxPage){
+  //         _state.pageProperties.currentPage = action.pageNumber;
+  //         this.helpers.setCurrentDataPage();
+  //         finishChange(action);
+  //       }
+  //       break;
+  //     case Constants.GRIDDLE_NEXT_PAGE:
+  //       if(_state.pageProperties.currentPage < _state.pageProperties.maxPage-1){
+  //         _state.pageProperties.currentPage++;
+  //         this.helpers.setCurrentDataPage();
+  //         finishChange(action);
+  //       }
+  //       break;
+  //     case Constants.GRIDDLE_PREVIOUS_PAGE:
+  //       if(_state.pageProperties.currentPage > 0){
+  //         _state.pageProperties.currentPage--;
+  //         this.helpers.setCurrentDataPage();
+  //         finishChange(action);
+  //       }
+  //       break;
+  //     case Constants.GRIDDLE_SORT:
+  //       _state.sortProperties.sortColumns = action.sortColumns;
+  //       _state.sortProperties.sortAscending = action.sortAscending || _state.sortProperties.defaultSortAscending;
+  //       this.this.helpers.sort(action);
+  //       finishChange(action);
+  //       break;
+  //     case Constants.GRIDDLE_ADD_SORT_COLUMN:
+  //       _state.sortProperties.sortColumns.push(action.sortColumn);
+  //       _state.visibleData = DataHelper.sort(
+  //         _state.sortProperties.sortColumns,
+  //         DataStore.getVisibleData(action),
+  //         _state.sortAscending
+  //       );
+  //       break;
+  //     case Constants.GRIDDLE_SORT_ORDER_CHANGE:
+  //       _state.sortAscending = !_state.sortAscending;
+  //       _state.visibleData = DataHelper.reverseSort(DataStore.getVisibleData(action));
+  //       finishChange(action);
+  //       break;
+  //     default:
+  //       debugger;
+  //       this.runPlugins(action)
+  //       break;
+  //   }
+
+module.exports = DataStore;

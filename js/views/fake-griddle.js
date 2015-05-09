@@ -1,8 +1,10 @@
 var React = require('react');
-var DataStore = require('../stores/local-data-store');
-var ScrollStore = require('../stores/scroll-store');
-var LocalActions = require('../actions/local-action-creators');
-var ScrollActions = require('../actions/scroll-action-creators');
+var DataStoreClass = require('../stores/data-store');
+var Flux = require('flux');
+var dispatcher = new Flux.Dispatcher();
+var DataStore = new DataStoreClass(dispatcher);
+var LocalActionsClass = require('../actions/local-action-creators');
+var LocalActions = new LocalActionsClass(dispatcher);
 var FakeData = require('../fake/fake-data');
 var SpacerRow = require('./spacer-row');
 var SpacerColumn = require('./spacer-column');
@@ -11,13 +13,7 @@ var assign = require('object-assign');
 
 function getStateFromStore(gridId){
   return {
-    dataState: DataStore.getState(gridId),
-    xScrollPosition: ScrollStore.getXScrollPosition(gridId),
-    yScrollPosition: ScrollStore.getYScrollPosition(gridId),
-    tableHeight: ScrollStore.getTableHeight(gridId),
-    tableWidth: ScrollStore.getTableWidth(gridId),
-    rowHeight: ScrollStore.getRowHeight(gridId),
-    columnWidth: ScrollStore.getColumnWidth(gridId),
+    dataState: DataStore.getState(),
     pageProperties: DataStore.getPageProperties(gridId),
   };
 }
@@ -29,7 +25,7 @@ var PageSelect = React.createClass({
   },
 
   handleSelect: function(e){
-    LocalActions.loadPage(this.props.gridId, parseInt(e.target.value - 1));
+    LocalActions.loadPage(parseInt(e.target.value - 1));
   },
 
   render: function(){
@@ -49,10 +45,10 @@ var FakeGriddle = React.createClass({
     }
   },
   render: function(){
+    debugger;
     var that = this;
     if(!this.state.dataState) { return <h1>Nothing</h1>; }
-
-    var rows = _.map(this.state.dataState.currentDataPage, (item) => {
+    var rows = _.map(this.state.dataState.data, (item) => {
       return <tr>
         {this.props.isInfinite ? <SpacerColumn gridId={that.state.gridId} position="left"/> : null }
         {_.map(_.keys(item), function(key){
@@ -77,14 +73,6 @@ var FakeGriddle = React.createClass({
       );
     }
 
-    var tableWrapperStyle = {
-      "top": this.state.yScrollPosition + "px",
-      "left": this.state.xScrollPosition + "px",
-      "height": this.state.tableHeight + "px",
-      "width": this.state.tableWidth + "px",
-      "overflow": "scroll"
-    };
-
     var tableStyle = {
       tableLayout: "fixed",
       width: "100%"
@@ -94,7 +82,7 @@ var FakeGriddle = React.createClass({
       <div>
       <input type="text" onChange={this.handleFilter} />
       <input type="text" onChange={this.handleUpdatePageSize} />
-        <div ref="scrollable" onScroll={this.gridScroll} style={tableWrapperStyle}>
+        <div ref="scrollable" style={tableWrapperStyle}>
           <table style={tableStyle}>
             {columnSection}
             <tbody>
@@ -113,43 +101,26 @@ var FakeGriddle = React.createClass({
   },
 
   handleFilter: function(e){
-    LocalActions.filterData(this.state.gridId, e.target.value);
+    LocalActions.filterData(e.target.value);
   },
 
   handleUpdatePageSize: function(e){
-    LocalActions.setPageSize(this.state.gridId, parseInt(e.target.value));
+    LocalActions.setPageSize(parseInt(e.target.value));
   },
 
   handleNext: function(e){
-    LocalActions.loadNext(this.state.gridId);
+    LocalActions.loadNext();
   },
 
   handlePrevious: function(e){
-    LocalActions.loadPrevious(this.state.gridId);
+    LocalActions.loadPrevious();
   },
 
   dataChange: function(){
-    this.setState(getStateFromStore(this.state.gridId));
+    this.setState(getStateFromStore());
   },
 
-  scrollChange: function(){
-    var newState = {
-      xScrollPosition: ScrollStore.getXScrollPosition(this.state.gridId),
-      yScrollPosition: ScrollStore.getYScrollPosition(this.state.gridId)
-    };
-    // Update the scroll position, if necessary.
-    var scrollable = React.findDOMNode(this.refs.scrollable);
-    if (scrollable !== null &&
-      (scrollable.scrollLeft !== newState.xScrollPosition || scrollable.scrollTop !== newState.yScrollPosition)) {
-      scrollable.scrollLeft = newState.xScrollPosition;
-      scrollable.scrollTop = newState.yScrollPosition;
-    }
-
-    // Set the state.
-    this.setState(newState);
-  },
-
-  componentWillMount: function(){
+    componentWillMount: function(){
     var gridId = _.uniqueId("grid");
     this.setState({gridId: gridId});
 
@@ -160,12 +131,7 @@ var FakeGriddle = React.createClass({
     // Register data listener
     DataStore.addChangeListener(this.dataChange);
 
-    // Register scroll listener and fire off initial scroll change.
-    ScrollStore.addChangeListener(this.scrollChange);
-
-    this.scrollChange();
-
-    LocalActions.loadData(this.state.gridId, FakeData);
+    LocalActions.loadData(FakeData);
   },
 
   componentDidUpdate: function(){
@@ -173,15 +139,9 @@ var FakeGriddle = React.createClass({
 
   componentWillUnmount: function(){
     DataStore.removeChangeListener(this.dataChange);
-    ScrollStore.removeChangeListener(this.scrollChange);
 
-    LocalActions.removeGrid(this.state.gridId);
+    LocalActions.removeGrid();
   },
-
-  gridScroll: function(){
-    var scrollable = React.findDOMNode(this.refs.scrollable);
-    ScrollActions.setScrollPosition(this.state.gridId, scrollable.scrollLeft, scrollable.scrollWidth, scrollable.scrollTop, scrollable.scrollHeight)
-  }
 });
 
 module.exports = FakeGriddle;
