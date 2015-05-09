@@ -17,9 +17,11 @@ class FakeGriddle extends React.Component {
     this.localActions = new LocalActions(this.dispatcher);
 
     this.state = {};
-    this.state.dataState = this.dataStore.getState();
+    this.state.data = this.dataStore.getVisibleData();
 
     this.dataStore.addChangeListener(this.dataChange.bind(this));
+    this.handlePrevious = this.handlePrevious.bind(this);
+    this.handleNext = this.handleNext.bind(this);
   }
 
   componentDidMount() {
@@ -28,13 +30,21 @@ class FakeGriddle extends React.Component {
     }
   }
 
+  handlePrevious() {
+    this.localActions.loadPrevious();
+  }
+
+  handleNext() {
+    this.localActions.loadNext();
+  }
+
   dataChange() {
-    this.setState({dataState: this.dataStore.getState()});
+    this.setState({data: this.dataStore.getVisibleData()});
   }
 
   render() {
-    const data = this.state.dataState.get('data').toJSON();
-    debugger;
+    const data = this.state.data.toJSON();
+debugger;
     if(data.length === 0) { return <h1>NOTHING!</h1>}
 
     var rows =
@@ -47,9 +57,15 @@ class FakeGriddle extends React.Component {
       });
 
     return (
-      <table>
-        {rows}
-      </table>);
+      <div>
+        <table>
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+        <button onClick={this.handlePrevious}>PREVIOUS</button>
+        <button onClick={this.handleNext}>NEXT</button>
+      </div>);
   }
 }
 

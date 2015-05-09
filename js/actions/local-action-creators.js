@@ -81,7 +81,7 @@ class LocalActions {
       actionType: Constants.GRIDDLE_PREVIOUS_PAGE
     };
 
-    this.disptacher.dispatch(action);
+    this.dispatcher.dispatch(action);
   }
 
   loadPage(number){

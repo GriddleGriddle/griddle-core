@@ -6,6 +6,11 @@ var Immutable = require('immutable');
 
 var defaultGridState = {
   data: [],
+  pageProperties: {
+    currentPage: 0,
+    maxPage: 0,
+    pageSize: 0
+  }
 };
 
 
@@ -24,6 +29,8 @@ class DataStore extends StoreBoilerplate{
     this.plugins = [];
     plugins.forEach(plugin => {
       const pluginInstance = new plugin(this.state);
+      this.state = pluginInstance.initializeState(this.state);
+
       this.plugins.push(pluginInstance);
 
       //add the helpers to the object -- overriding anything that came before
@@ -31,6 +38,7 @@ class DataStore extends StoreBoilerplate{
         .forEach(key => this[key] = pluginInstance.Helpers[key])
     });
 
+    //register the action callbacks
     dispatcher.register((action) => {
       //prepatches
       //this will run through all of the plugins that have
@@ -67,7 +75,8 @@ class DataStore extends StoreBoilerplate{
         }
       });
 
-      _this.emitChange();
+       //TODO: there are some instances where we won't want to emit a change (aka state didn't change)
+       _this.emitChange();
     });
   }
 
@@ -86,8 +95,8 @@ class DataStore extends StoreBoilerplate{
   /* HELPERS */
   get Helpers() {
     return {
-      getData() {
-        return this.state.data;
+      getVisibleData() {
+        return this.state.get('data');
       },
 
       getState() {
