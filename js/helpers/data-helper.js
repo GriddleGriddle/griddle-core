@@ -9,7 +9,7 @@ var DataHelper = {
          }
       }
 
-      return false;      
+      return false;
     });
   },
 
@@ -18,12 +18,12 @@ var DataHelper = {
   },
 
   sort: function(sortColumns, data, ascending){
-    if (sortColumns.length < 1) { return data }; 
+    if (sortColumns.length < 1) { return data };
 
     var returnData = _.sortByAll(data, sortColumns);
 
-    return ascending ? returnData : reverseSort(returnData); 
-  }, 
+    return ascending ? returnData : reverseSort(returnData);
+  },
 
   reverseSort: function(data){
     //abstracting this here for a future date.
@@ -36,4 +36,4 @@ var DataHelper = {
   }
 }
 
-module.exports = DataHelper; 
+module.exports = DataHelper;

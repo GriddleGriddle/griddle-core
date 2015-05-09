@@ -1,12 +1,6 @@
 //clean these up
-var assign = require('object-assign');
-var DataHelper = require('../helpers/data-helper');
 var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
-var LocalActions = require('../actions/local-action-creators');
-var _ = require('lodash');
-var ScrollPluginInstance = require('./store_plugins/scroll-store.js');
-var EventEmitter = require('eventemitter3').EventEmitter;
 var Immutable = require('immutable');
 
 

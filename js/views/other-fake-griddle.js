@@ -13,7 +13,7 @@ class FakeGriddle extends React.Component {
     super(props);
 
     this.dispatcher = new Flux.Dispatcher();
-    this.dataStore = new DataStore(this.dispatcher, []);
+    this.dataStore = new DataStore(this.dispatcher, [LocalDataPlugin]);
     this.localActions = new LocalActions(this.dispatcher);
 
     this.state = {};

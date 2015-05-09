@@ -1,6 +1,5 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
-var ScrollActions = require('./scroll-action-creators');
 
 class LocalActions {
   constructor(dispatcher){

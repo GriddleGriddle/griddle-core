@@ -3,4 +3,3 @@ var React = require('react');
 var FakeData = require('./fake/fake-data');
 
 React.render(<Griddle data={FakeData}/>, document.getElementById('main'));
-//React.render(<Griddle />, document.getElementById('secondary'));
