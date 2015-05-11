@@ -24,15 +24,6 @@ class LocalActions {
   }
 
   filterData(filter){
-    if(filter === ""){
-      var action = {
-        actionType: Constants.GRIDDLE_FILTER_REMOVED
-      }
-
-      this.dispatcher.dispatch(action);
-      return;
-    }
-
     var action = {
       actionType: Constants.GRIDDLE_FILTERED,
       filter: filter

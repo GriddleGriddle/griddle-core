@@ -19,9 +19,11 @@ class FakeGriddle extends React.Component {
     this.state = {};
     this.state.data = this.dataStore.getVisibleData();
 
+    //TODO: look into autobinding plugins
     this.dataStore.addChangeListener(this.dataChange.bind(this));
     this.handlePrevious = this.handlePrevious.bind(this);
     this.handleNext = this.handleNext.bind(this);
+    this.handleFilter = this.handleFilter.bind(this);
   }
 
   componentDidMount() {
@@ -38,13 +40,16 @@ class FakeGriddle extends React.Component {
     this.localActions.loadNext();
   }
 
+  handleFilter(e) {
+    this.localActions.filterData(e.target.value);
+  }
+
   dataChange() {
     this.setState({data: this.dataStore.getVisibleData()});
   }
 
   render() {
     const data = this.state.data.toJSON();
-debugger;
     if(data.length === 0) { return <h1>NOTHING!</h1>}
 
     var rows =
@@ -58,6 +63,7 @@ debugger;
 
     return (
       <div>
+        <input type='text' placeholder='filter' onChange={this.handleFilter} />
         <table>
           <tbody>
             {rows}

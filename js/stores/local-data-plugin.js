@@ -10,7 +10,9 @@ class LocalDataPlugin extends StoreBoilerplate {
     //default state modifications for this plugin
     return state
       .setIn(['pageProperties', 'pageSize'], 10)
-      .setIn(['pageProperties', 'currentPage'], 1);
+      .setIn(['pageProperties', 'currentPage'], 1)
+      .set('filter', '')
+      .set('filteredData', Immutable.fromJS([]));
 
   }
   get RegisteredCallbacks() {
@@ -62,7 +64,37 @@ class LocalDataPlugin extends StoreBoilerplate {
         }
 
         return state;
-      }
+      },
+
+      GRIDDLE_FILTERED(action, state) {
+        if(action.filter === "") {
+        return state
+          .set('filteredData', Immutable.fromJS([]))
+          .setIn(
+            ['pageProperties', 'maxPage'],
+            LocalDataPlugin.getPageCount(
+              state.get('data').length,
+              state.getIn(['pageProperties', 'pageSize'])))
+          .set('filter', '');
+        }
+
+        var filtered = state.get('data')
+          .filter(row  => {
+            return Object.keys(row.toJSON())
+              .some(key => {
+                return row.get(key).toString().toLowerCase().indexOf(action.filter.toLowerCase()) > -1
+              })
+            })
+
+        return state
+          .set('filteredData', filtered)
+          .set('filter', action.filter)
+          .setIn(
+            ['pageProperties', 'maxPage'],
+            LocalDataPlugin.getPageCount(
+              filtered.length,
+              state.getIn(['pageProperties', 'pageSize'])));
+      },
     }
   }
 
@@ -77,10 +109,14 @@ class LocalDataPlugin extends StoreBoilerplate {
   get Helpers() {
     return {
       getVisibleData() {
+        //oldskool
+        let _this = this;
+
         //get the max page / current page and the current page of data
         const pageSize = this.state.getIn(['pageProperties', 'pageSize']);
         const currentPage = this.state.getIn(['pageProperties', 'currentPage']);
-        return this.state.get('data').skip(pageSize * (currentPage-1)).take(pageSize);
+        return LocalDataPlugin.getDataSet(this.state)
+          .skip(pageSize * (currentPage-1)).take(pageSize);
       }
     }
   }
@@ -90,6 +126,14 @@ class LocalDataPlugin extends StoreBoilerplate {
   static getPageCount(total, pageSize) {
     const calc = total / pageSize;
     return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
+  }
+
+  static getDataSet(state) {
+    if(!!state.get('filter')){
+      return state.get('filteredData');
+    }
+
+    return state.get('data');
   }
 }
 
