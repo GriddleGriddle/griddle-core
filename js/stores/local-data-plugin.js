@@ -13,8 +13,8 @@ class LocalDataPlugin extends StoreBoilerplate {
       .setIn(['pageProperties', 'currentPage'], 1)
       .set('filter', '')
       .set('filteredData', Immutable.fromJS([]));
-
   }
+
   get RegisteredCallbacks() {
     return {
       GRIDDLE_LOADED_DATA(action, state) {
@@ -34,50 +34,37 @@ class LocalDataPlugin extends StoreBoilerplate {
       },
 
       GRIDDLE_GET_PAGE(action, state) {
-        if(action.pageNumber >= 1 && action.pageNumber <= state.getIn(['pageProperties', 'maxPage'])) {
-          return state.setIn(['pageProperties', 'currentPage'], action.pageNumber);
-        }
-
-        return state;
+        return(LocalDataPlugin
+          .getPage(state, action.pageNumber));
       },
 
       GRIDDLE_NEXT_PAGE(action, state) {
-        const currentPage = state.getIn(['pageProperties', 'currentPage']);
-        const maxPage = state.getIn(['pageProperties', 'maxPage']);
-
-        if(currentPage < maxPage){
-          return state.setIn(
-            ['pageProperties', 'currentPage'],
-            state.getIn(['pageProperties', 'currentPage']) + 1)
-        }
-
-        return state;
+        return(LocalDataPlugin
+          .getPage(state,
+          state.getIn(['pageProperties', 'currentPage']) + 1));
       },
 
       GRIDDLE_PREVIOUS_PAGE(action, state) {
-        const currentPage = state.getIn(['pageProperties', 'currentPage']);
-
-        if(currentPage > 1){
-          return state.setIn(
-            ['pageProperties', 'currentPage'],
-            state.getIn(['pageProperties', 'currentPage']) - 1)
-        }
-
-        return state;
+        return(LocalDataPlugin
+            .getPage(state,
+            state.getIn(['pageProperties', 'currentPage']) - 1));
       },
 
       GRIDDLE_FILTERED(action, state) {
         if(action.filter === "") {
         return state
           .set('filteredData', Immutable.fromJS([]))
+          .setIn(['pageProperties', 'currentPage'], 1)
           .setIn(
             ['pageProperties', 'maxPage'],
             LocalDataPlugin.getPageCount(
-              state.get('data').length,
+              //use getDataSet to make sure we're not getting rid of sort/etc
+              LocalDataPlugin.getDataSet(state).length,
               state.getIn(['pageProperties', 'pageSize'])))
           .set('filter', '');
         }
 
+        //TODO: We need to support filtering by specific columns
         var filtered = state.get('data')
           .filter(row  => {
             return Object.keys(row.toJSON())
@@ -89,21 +76,14 @@ class LocalDataPlugin extends StoreBoilerplate {
         return state
           .set('filteredData', filtered)
           .set('filter', action.filter)
+          .setIn(['pageProperties', 'currentPage'], 1)
           .setIn(
             ['pageProperties', 'maxPage'],
             LocalDataPlugin.getPageCount(
-              filtered.length,
+              LocalDataPlugin.getDataSet(state).length,
               state.getIn(['pageProperties', 'pageSize'])));
       },
     }
-  }
-
-  get PrePatches() {
-    return;
-  }
-
-  get PostPatches() {
-    return;
   }
 
   get Helpers() {
@@ -117,10 +97,18 @@ class LocalDataPlugin extends StoreBoilerplate {
         const currentPage = this.state.getIn(['pageProperties', 'currentPage']);
         return LocalDataPlugin.getDataSet(this.state)
           .skip(pageSize * (currentPage-1)).take(pageSize);
+      },
+
+      hasNext() {
+        return this.state.getIn(['pageProperties', 'currentPage']) <
+          this.state.getIn(['pageProperties', 'maxPage']);
+      },
+
+      hasPrevious() {
+        return this.state.getIn(['pageProperties', 'currentPage']) > 1;
       }
     }
   }
-
 
   //static helper methods
   static getPageCount(total, pageSize) {
@@ -134,6 +122,20 @@ class LocalDataPlugin extends StoreBoilerplate {
     }
 
     return state.get('data');
+  }
+
+  static getPage(state, pageNumber) {
+    const maxPage = LocalDataPlugin.getPageCount(
+      LocalDataPlugin.getDataSet(state).length,
+      state.getIn(['pageProperties', 'pageSize']));
+
+    if(pageNumber >= 1 && pageNumber <= maxPage) {
+      return state
+        .setIn(['pageProperties', 'currentPage'], pageNumber)
+        .setIn(['pageProperties', 'maxPage'], maxPage);
+    }
+
+    return state;
   }
 }
 

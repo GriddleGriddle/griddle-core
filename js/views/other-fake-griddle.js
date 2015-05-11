@@ -18,7 +18,8 @@ class FakeGriddle extends React.Component {
 
     this.state = {};
     this.state.data = this.dataStore.getVisibleData();
-
+    this.state.hasNext = false;
+    this.state.hasPrevious = false;
     //TODO: look into autobinding plugins
     this.dataStore.addChangeListener(this.dataChange.bind(this));
     this.handlePrevious = this.handlePrevious.bind(this);
@@ -45,7 +46,11 @@ class FakeGriddle extends React.Component {
   }
 
   dataChange() {
-    this.setState({data: this.dataStore.getVisibleData()});
+    this.setState({
+      data: this.dataStore.getVisibleData(),
+      hasNext: this.dataStore.hasNext(),
+      hasPrevious: this.dataStore.hasPrevious()
+    });
   }
 
   render() {
@@ -69,8 +74,8 @@ class FakeGriddle extends React.Component {
             {rows}
           </tbody>
         </table>
-        <button onClick={this.handlePrevious}>PREVIOUS</button>
-        <button onClick={this.handleNext}>NEXT</button>
+        { this.state.hasPrevious ? <button onClick={this.handlePrevious}>PREVIOUS</button> : null }
+        { this.state.hasNext ? <button onClick={this.handleNext}>NEXT</button> : null }
       </div>);
   }
 }
