@@ -8,6 +8,27 @@ import LocalActions from '../actions/local-action-creators';
 import DataStore from '../stores/data-store';
 import LocalDataPlugin from '../stores/local-data-plugin';
 
+
+class SortButton extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(e) {
+    e.preventDefault();
+
+    this.props.action.sort(this.props.column);
+  }
+
+  render() {
+    return (
+      <button onClick={this.handleClick}>{this.props.column}</button>
+    )
+  }
+}
+
 class FakeGriddle extends React.Component {
   constructor(props){
     super(props);
@@ -55,7 +76,9 @@ class FakeGriddle extends React.Component {
 
   render() {
     const data = this.state.data.toJSON();
-    if(data.length === 0) { return <h1>NOTHING!</h1>}
+    if(data.length === 0) {
+      return (<h1>NOTHING!</h1>);
+    }
 
     var rows =
       _.map(data, (item) => {
@@ -66,10 +89,25 @@ class FakeGriddle extends React.Component {
         </tr>
       });
 
+
+    var actionCreator = this.localActions;
+    var keys = data.length > 0 ? Object.keys(data[0]) : null;
+    var thead = !!keys ?
+        <thead>
+          {_.map(keys, function(key) {
+            return (
+              <th>
+                <SortButton column={key} action={actionCreator} />
+              </th>);
+          })}
+
+        </thead>
+      : null;
     return (
       <div>
         <input type='text' placeholder='filter' onChange={this.handleFilter} />
         <table>
+          {thead}
           <tbody>
             {rows}
           </tbody>
