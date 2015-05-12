@@ -1,5 +1,5 @@
-var Griddle = require('./views/fake-griddle');
+var Griddle = require('./views/other-fake-griddle');
 var React = require('react');
+var FakeData = require('./fake/fake-data');
 
-React.render(<Griddle />, document.getElementById('main'));
-//React.render(<Griddle />, document.getElementById('secondary'));
+React.render(<Griddle data={FakeData}/>, document.getElementById('main'));

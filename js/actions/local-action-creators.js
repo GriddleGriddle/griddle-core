@@ -1,119 +1,99 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
-var ScrollActions = require('./scroll-action-creators');
 
-module.exports ={
-  initializeGrid: function(gridId){
-    //Initialize all dependents.
-    ScrollActions.initializeScrollStore(gridId);
+class LocalActions {
+  constructor(dispatcher){
+    this.dispatcher = dispatcher;
+  }
 
-    // Continue initializing
-    var action = {
-      gridId: gridId,
-      actionType: Constants.GRIDDLE_INITIALIZED
-    }
+  initializeGrid(){
+    this.dispatcher.dispatch({actionType: Constants.GRIDDLE_INITIALIZED});
+  }
 
-    AppDispatcher.dispatch(action);
+  removeGrid(){
+    this.dispatcher.dispatch({actionType: Constants.GRIDDLE_REMOVED});
+  }
 
-  },
-  removeGrid: function(gridId){
-    var action = {
-      gridId: gridId, 
-      actionType: Constants.GRIDDLE_REMOVED
-    }
-  },
-  loadData: function(gridId, data, columnMetadata){
+  loadData(data){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
-      gridId: gridId, 
-      data: data,
-      columnMetadata: columnMetadata
+      data: data
     }
 
-    AppDispatcher.dispatch(action); 
-  },
-  filterData: function(gridId, filter){
-    if(filter === ""){
-      var action = {
-        gridId: gridId, 
-        actionType: Constants.GRIDDLE_FILTER_REMOVED
-      }
+    this.dispatcher.dispatch(action);
+  }
 
-      AppDispatcher.dispatch(action);
-      return;
-    }
-
+  filterData(filter){
     var action = {
-      gridId: gridId, 
       actionType: Constants.GRIDDLE_FILTERED,
       filter: filter
     };
 
-    AppDispatcher.dispatch(action); 
-  },
-  setPageSize: function(gridId, pageSize){
+    this.dispatcher.dispatch(action);
+  }
+
+  setPageSize(pageSize){
     var action = {
-      gridId: gridId,      
       actionType: Constants.GRIDDLE_SET_PAGE_SIZE,
       pageSize: pageSize
     }
 
-    AppDispatcher.dispatch(action);
-  },
-  sort: function(gridId, column){
+    this.dispatcher.dispatch(action);
+  }
+
+  sort(column){
     var action = {
-      gridId: gridId,      
-      actionType: Constants.GRIDDLE_SORT, 
+      actionType: Constants.GRIDDLE_SORT,
       sortColumns: [column]
     };
 
-    AppDispatcher.dispatch(action);
-  },
-  addSortColumn: function(gridId, column){
+    this.dispatcher.dispatch(action);
+  }
+
+  addSortColumn(column){
     var action = {
-      gridId: gridId,
       actionType: Constants.GRIDDLE_ADD_SORT_COLUMN,
       sortColumn: column
     }
 
-    AppDispatcher.dispatch(action);
-  },
-  loadNext: function(gridId){
+    this.dispatcher.dispatch(action);
+  }
+
+  loadNext(){
     var action = {
-      gridId: gridId,            
       actionType: Constants.GRIDDLE_NEXT_PAGE
     };
 
-    AppDispatcher.dispatch(action);
-  },
+    this.dispatcher.dispatch(action);
+  }
 
-  loadPrevious: function(gridId){
+  loadPrevious(){
     var action = {
-      gridId: gridId,     
       actionType: Constants.GRIDDLE_PREVIOUS_PAGE
     };
 
-    AppDispatcher.dispatch(action);
-  },
+    this.dispatcher.dispatch(action);
+  }
 
-  loadPage: function(gridId, number){
-    var action = { 
-      gridId: gridId,
+  loadPage(number){
+    var action = {
       actionType: Constants.GRIDDLE_GET_PAGE,
       pageNumber: number
     }
 
-    AppDispatcher.dispatch(action);
-  },
+    this.dispatcher.dispatch(action);
+  }
 
-  resizeColumn: function(gridId, column, change){
-    var action = { 
+  resizeColumn(column, change) {
+    var action = {
       gridId: gridId,
       actionType: Constants.COLUMN_RESIZE,
       column: column,
       change: change
     }
 
-    AppDispatcher.dispatch(action);
+    this.dispatcher.dispatch(action);
   }
 }
+
+export default LocalActions;
