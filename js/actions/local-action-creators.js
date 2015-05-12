@@ -83,6 +83,17 @@ class LocalActions {
 
     this.dispatcher.dispatch(action);
   }
+
+  resizeColumn(column, change) {
+    var action = {
+      gridId: gridId,
+      actionType: Constants.COLUMN_RESIZE,
+      column: column,
+      change: change
+    }
+
+    this.dispatcher.dispatch(action);
+  }
 }
 
 export default LocalActions;
