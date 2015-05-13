@@ -2,7 +2,7 @@
   "name": "griddle-core",
   "version": "0.0.0",
   "description": "The core code used in the griddle-react grid. ",
-  "main": "index.js",
+  "main": "build/griddle.js",
   "scripts": {
     "test": "karma start --browsers PhantomJS",
     "start": "node server.js",
