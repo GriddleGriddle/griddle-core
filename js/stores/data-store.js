@@ -25,55 +25,64 @@ class DataStore extends StoreBoilerplate{
     Object.keys(_this.Helpers)
       .forEach(key => this[key] = this.Helpers[key])
 
-    //add the plugins to the plugins collection
-    this.plugins = [];
-    plugins.forEach(plugin => {
-      const pluginInstance = new plugin(this.state);
-      this.state = pluginInstance.initializeState(this.state);
+    //we want to store plugins / overrides as the actiontype rather than the plugin name
+    var _actionHandlers = [];
 
-      this.plugins.push(pluginInstance);
+    plugins.forEach(plugin => {
+      this.state = !!plugin.initializeState ? plugin.initializeState(this.state) : this.state;
+
+      //Add this plugin's pre/post actions
+      var wireUpAction = (property) => {
+        for (var actionType in plugin[property]) {
+          if (_actionHandlers.hasOwnProperty(actionType)) {
+            _actionHandlers[actionType][property].push(plugin[plugin][actionType])
+          } else {
+            const options = {};
+            options[property] = plugin[property].length > 0 ? plugin[property][actionType] : [plugin[property][actionType]];
+            _actionHandlers[actionType] = DataStore.createActionHandler(options);
+          }
+        }
+      }
+
+      wireUpAction("prePatches");
+      wireUpAction("postPatches");
+
+      //add the plugin's overrides
+      for(var actionType in plugin.RegisteredCallbacks) {
+        if (_actionHandlers.hasOwnProperty(actionType)) {
+          _actionHandlers[actionType].override = plugin.RegisteredCallbacks[actionType];
+        } else {
+          _actionHandlers[actionType] = DataStore.createActionHandler({override: plugin.RegisteredCallbacks[actionType]})
+        }
+      }
 
       //add the helpers to the object -- overriding anything that came before
-      Object.keys(!!pluginInstance.Helpers && pluginInstance.Helpers)
-        .forEach(key => this[key] = pluginInstance.Helpers[key])
+      Object.keys(!!plugin.Helpers && plugin.Helpers)
+        .forEach(key => this[key] = plugin.Helpers[key]);
     });
 
     //register the action callbacks
     dispatcher.register((action) => {
-      //prepatches
-      //this will run through all of the plugins that have
-      //this method registered as a prepatch
-      this.plugins.forEach(plugin => {
-        if(!!plugin.PrePatches && typeof plugin.PrePatches[action.actionType] !== "undefined") {
-          _this.state = plugin.PrePatches[action.actionType](action, _this.state);
-        }
-      });
+      let overridden = false;
 
-      //overrides
-      //this grabs the last plugin that has the same method name as an override
-      //the result of the some method will be false if there are no matches and it will run
-      //the standard action callback
-      let overridden = this.plugins.reverse().some((plugin) => {
-        if(typeof plugin.RegisteredCallbacks[action.actionType] !== "undefined"){
-            _this.state = plugin.RegisteredCallbacks[action.actionType](action, _this.state);
-            return true;
+      if(_actionHandlers.hasOwnProperty(action.actionType)){
+        _actionHandlers[action.actionType]
+          .prePatches
+          .forEach(method => _this.state = method(action, _this.state));
+
+        if(!!_actionHandlers[action.actionType].override) {
+          overridden = true;
+          _this.state = _actionHandlers[action.actionType].override(action, _this.state);
         }
 
-        return false;
-      });
-
-      if(!overridden) {
-        _this.state = _this.RegisteredCallbacks[action.actionType](action, this.state);
+        _actionHandlers[action.actionType]
+          .postPatches
+          .forEach(method => _this.state = method(action, _this.state));
       }
 
-      //post patches
-      //this will run through all of the plugins that have
-      //this method registered as a postpatch
-      this.plugins.forEach(plugin => {
-        if(!!plugin.PostPatches && !!plugin.PostPatches[action.actionType]) {
-          _this.state = plugin.PostPatches[action.actionType](action, _this.state);
-        }
-      });
+      if(!overridden) {
+        _this.state = _this.RegisteredCallbacks[action.actionType](action, _this.state);
+      }
 
        //TODO: there are some instances where we won't want to emit a change (aka state didn't change)
        _this.emitChange();
@@ -105,5 +114,9 @@ class DataStore extends StoreBoilerplate{
     }
   }
 
+  static createActionHandler(properties) {
+    if(properties)
+      return {prePatches: (properties.prePatches || []), postPatches: (properties.postPatches || []), override: properties.override || null}
+  }
 }
 module.exports = DataStore;
