@@ -13,7 +13,7 @@ const LocalDataPlugin  = {
       .set('filteredData', Immutable.fromJS([]));
   },
 
-  RegisteredCallbacks: {
+  registeredCallbacks: {
       GRIDDLE_LOADED_DATA(action, state) {
         //set state's data to this
         return state
@@ -74,7 +74,7 @@ const LocalDataPlugin  = {
       }
   },
 
-  Helpers: {
+  helpers: {
       getVisibleData() {
         //get the max page / current page and the current page of data
         const pageSize = this.state.getIn(['pageProperties', 'pageSize']);
