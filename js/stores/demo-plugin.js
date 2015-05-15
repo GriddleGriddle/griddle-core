@@ -22,7 +22,7 @@ var LocalDataPlugin = {
     }
   },
 
-  Helpers: {
+  helpers: {
     getState() {
       return this.state
         .set('data', new Immutable.List([

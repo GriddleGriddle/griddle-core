@@ -22,8 +22,8 @@ class DataStore extends StoreBoilerplate{
     _this.state = new Immutable.fromJS(defaultGridState);
 
     //add the helper functions directly onto the object
-    Object.keys(_this.Helpers)
-      .forEach(key => this[key] = this.Helpers[key])
+    Object.keys(_this.helpers)
+      .forEach(key => this[key] = this.helpers[key])
 
     //we want to store plugins / overrides as the actiontype rather than the plugin name
     var _actionHandlers = [];
@@ -48,17 +48,17 @@ class DataStore extends StoreBoilerplate{
       wireUpAction("postPatches");
 
       //add the plugin's overrides
-      for(var actionType in plugin.RegisteredCallbacks) {
+      for(var actionType in plugin.registeredCallbacks) {
         if (_actionHandlers.hasOwnProperty(actionType)) {
-          _actionHandlers[actionType].override = plugin.RegisteredCallbacks[actionType];
+          _actionHandlers[actionType].override = plugin.registeredCallbacks[actionType];
         } else {
-          _actionHandlers[actionType] = DataStore.createActionHandler({override: plugin.RegisteredCallbacks[actionType]})
+          _actionHandlers[actionType] = DataStore.createActionHandler({override: plugin.registeredCallbacks[actionType]})
         }
       }
 
       //add the helpers to the object -- overriding anything that came before
-      Object.keys(!!plugin.Helpers && plugin.Helpers)
-        .forEach(key => this[key] = plugin.Helpers[key]);
+      Object.keys(!!plugin.helpers && plugin.helpers)
+        .forEach(key => this[key] = plugin.helpers[key]);
     });
 
     //register the action callbacks
@@ -81,7 +81,7 @@ class DataStore extends StoreBoilerplate{
       }
 
       if(!overridden) {
-        _this.state = _this.RegisteredCallbacks[action.actionType](action, _this.state);
+        _this.state = _this.registeredCallbacks[action.actionType](action, _this.state);
       }
 
        //TODO: there are some instances where we won't want to emit a change (aka state didn't change)
@@ -89,7 +89,7 @@ class DataStore extends StoreBoilerplate{
     });
   }
 
-  get RegisteredCallbacks() {
+  get registeredCallbacks() {
     return {
       GRIDDLE_INITIALIZED(action, state){
       },
@@ -102,7 +102,7 @@ class DataStore extends StoreBoilerplate{
 
 
   /* HELPERS */
-  get Helpers() {
+  get helpers() {
     return {
       getVisibleData() {
         return this.state.get('data');
