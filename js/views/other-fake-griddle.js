@@ -8,7 +8,6 @@ import LocalActions from '../actions/local-action-creators';
 import DataStore from '../stores/data-store';
 import LocalDataPlugin from '../stores/local-data-plugin';
 
-
 class SortButton extends React.Component {
   constructor(props) {
     super(props);

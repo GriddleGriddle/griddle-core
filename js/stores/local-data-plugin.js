@@ -1,11 +1,7 @@
 import StoreBoilerplate from './store-boilerplate';
 import Immutable from 'immutable';
 
-class LocalDataPlugin extends StoreBoilerplate {
-  constructor(state){
-    super();
-  }
-
+const LocalDataPlugin  = {
   initializeState(state) {
     //default state modifications for this plugin
     return state
@@ -15,10 +11,9 @@ class LocalDataPlugin extends StoreBoilerplate {
       .setIn(['sortProperties', 'sortAscending'], 'true')
       .set('filter', '')
       .set('filteredData', Immutable.fromJS([]));
-  }
+  },
 
-  get RegisteredCallbacks() {
-    return {
+  RegisteredCallbacks: {
       GRIDDLE_LOADED_DATA(action, state) {
         //set state's data to this
         return state
@@ -36,6 +31,7 @@ class LocalDataPlugin extends StoreBoilerplate {
       },
 
       GRIDDLE_GET_PAGE(action, state) {
+        debugger;
         return(LocalDataPlugin
           .getPage(state, action.pageNumber));
       },
@@ -76,11 +72,9 @@ class LocalDataPlugin extends StoreBoilerplate {
 
         return LocalDataPlugin.sortByColumns(state, action.sortColumns)
       }
-    }
-  }
+  },
 
-  get Helpers() {
-    return {
+  Helpers: {
       getVisibleData() {
         //get the max page / current page and the current page of data
         const pageSize = this.state.getIn(['pageProperties', 'pageSize']);
@@ -97,24 +91,23 @@ class LocalDataPlugin extends StoreBoilerplate {
       hasPrevious() {
         return this.state.getIn(['pageProperties', 'currentPage']) > 1;
       }
-    }
-  }
+  },
 
   //static helper methods
-  static getPageCount(total, pageSize) {
+  getPageCount(total, pageSize) {
     const calc = total / pageSize;
     return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
-  }
+  },
 
-  static getDataSet(state) {
+  getDataSet(state) {
     if(!!state.get('filter')){
       return state.get('filteredData');
     }
 
     return state.get('data');
-  }
+  },
 
-  static filter(state, filter) {
+  filter(state, filter) {
     //TODO: We need to support filtering by specific columns
     var filtered = state.get('data')
       .filter(row  => {
@@ -133,9 +126,9 @@ class LocalDataPlugin extends StoreBoilerplate {
         LocalDataPlugin.getPageCount(
           LocalDataPlugin.getDataSet(state).length,
           state.getIn(['pageProperties', 'pageSize'])));
-  }
+  },
 
-  static sortByColumns(state, columns, sortAscending=true) {
+  sortByColumns(state, columns, sortAscending=true) {
     if(columns.length === 0 || !state.get('data')) { return state; }
 
     //TODO: this should compare the whole array
@@ -172,9 +165,9 @@ class LocalDataPlugin extends StoreBoilerplate {
     }
 
     return sorted;
-  }
+  },
 
-  static getPage(state, pageNumber) {
+  getPage(state, pageNumber) {
     const maxPage = LocalDataPlugin.getPageCount(
       LocalDataPlugin.getDataSet(state).length,
       state.getIn(['pageProperties', 'pageSize']));
