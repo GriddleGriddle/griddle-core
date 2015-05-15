@@ -7,8 +7,8 @@ const LocalDataPlugin  = {
     return state
       .setIn(['pageProperties', 'pageSize'], 10)
       .setIn(['pageProperties', 'currentPage'], 1)
-      .setIn(['sortProperties', 'sortColumns'], '[]')
-      .setIn(['sortProperties', 'sortAscending'], 'true')
+      .setIn(['sortProperties', 'sortColumns'], [])
+      .setIn(['sortProperties', 'sortAscending'], true)
       .set('filter', '')
       .set('filteredData', Immutable.fromJS([]));
   },

@@ -1,47 +1,36 @@
-var DataStore = require('../../js/stores/local-data-store');
+var Immutable = require('immutable');
+var LocalDataPlugin = require('../../js/stores/local-data-plugin');
 var AppDispatcher = require('../../js/dispatcher/app-dispatcher');
 var Constants = require('../../js/constants/constants');
-var _ = require('lodash');
-var rewire = require('rewire');
-var ScrollStore = rewire('../../js/stores/scroll-store');
-ScrollStore.dispatchToken = "hi";
 
 describe("LocalDataStore", function() {
-  beforeEach(function(){
-    this.LocalDataStore = rewire('../../js/stores/local-data-store');
-    this.registeredCallback = this.LocalDataStore.__get__("registeredCallback");
+  var state;
+
+  beforeEach(function() {
+    state = new Immutable.fromJS({});
   });
 
-  it('sets the state to the initial grid properties on initialize', function(){
-    this.registeredCallback({
-        actionType: Constants.GRIDDLE_INITIALIZED,
-        gridId: "test"
-    });
+  it('initializes the state object with the expected properties', function() {
+    state = LocalDataPlugin.initializeState(state);
 
-    var state = this.LocalDataStore.getState('test');
+    expect(state.getIn(['pageProperties', 'pageSize'])).toEqual(10);
+    expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(1);
 
-    expect(state.hasFilter).toEqual(false);
-    expect(state.hasSort).toEqual(false);
-    expect(state.data).toEqual([]);
-    expect(state.visibleData).toEqual([]);
-    expect(state.currentDataPage).toEqual([]);
-    expect(state.pageProperties).toEqual({ currentPage: 0, maxPage: 0, pageSize: 5, initialDisplayIndex: 0, lastDisplayIndex: 0, infiniteScroll: false });
-    expect(state.sortProperties).toEqual({ sortColumns: [], sortAscending: true, defaultSortAscending: true });
+    //TODO: This seems like a really bad way to test. Make it better
+    expect(JSON.stringify(state.getIn(['sortProperties', 'sortColumns']))).toEqual('[]');
+    expect(JSON.stringify(state.get('filteredData').toJS())).toEqual('[]');
+
+    expect(state.getIn(['sortProperties', 'sortAscending'])).toEqual(true);
+    expect(state.get('filter')).toEqual('');
   });
 
-  it('removes grid state when deleted id is removed', function() {
-    this.registeredCallback({
-      actionType: Constants.GRIDDLE_INITIALIZED,
-      gridId: "test"
-    });
+  it('sets the data on GRIDDLE_LODADED_DATA and data is valid', function() {
+    var action = {data: ['one', 'two', 'three']}
 
-    expect(this.LocalDataStore.getState("test")).toBeDefined();
+    spyOn(LocalDataPlugin, 'getPageCount');
+    state = LocalDataPlugin.registeredCallbacks.GRIDDLE_LOADED_DATA(action, state);
 
-    this.registeredCallback({
-      actionType: Constants.GRIDDLE_REMOVED,
-      gridId: "test"
-    });
-
-    expect(this.LocalDataStore.getState("test")).not.toBeDefined();
-  });
+    expect(state.get('data').toJS()).toEqual(['one', 'two', 'three']);
+    expect(LocalDataPlugin.getPageCount).toHaveBeenCalled();
+  })
 })
