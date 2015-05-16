@@ -6,7 +6,8 @@
   "scripts": {
     "test": "karma start --browsers PhantomJS",
     "start": "node server.js",
-    "test-debug": "karma start --browsers Chrome"
+    "test-debug": "karma start --browsers Chrome",
+    "dist": "webpack --config webpack-dist.config.js"
   },
   "author": "Ryan Lanciaux && Joel Lanciaux",
   "license": "MIT",
