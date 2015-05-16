@@ -7,6 +7,7 @@ import Flux from 'flux';
 import LocalActions from '../actions/local-action-creators';
 import DataStore from '../stores/data-store';
 import LocalDataPlugin from '../stores/local-data-plugin';
+import PositionPlugin from '../stores/position-plugin';
 
 class SortButton extends React.Component {
   constructor(props) {
@@ -33,11 +34,11 @@ class FakeGriddle extends React.Component {
     super(props);
 
     this.dispatcher = new Flux.Dispatcher();
-    this.dataStore = new DataStore(this.dispatcher, [LocalDataPlugin]);
+    this.dataStore = new DataStore(this.dispatcher, [LocalDataPlugin, PositionPlugin]);
     this.localActions = new LocalActions(this.dispatcher);
 
     this.state = {};
-    this.state.data = this.dataStore.getVisibleData();
+    this.state.data = this.dataStore.getRenderedData();
     this.state.hasNext = false;
     this.state.hasPrevious = false;
     //TODO: look into autobinding plugins
@@ -88,7 +89,11 @@ class FakeGriddle extends React.Component {
         </tr>
       });
 
-
+    var wrapperStyle = {
+      'height': '500px',
+      'width': '300px',
+      'overflow': 'scroll',
+    };
     var actionCreator = this.localActions;
     var keys = data.length > 0 ? Object.keys(data[0]) : null;
     var thead = !!keys ?
@@ -103,7 +108,7 @@ class FakeGriddle extends React.Component {
         </thead>
       : null;
     return (
-      <div>
+      <div style={wrapperStyle}>
         <input type='text' placeholder='filter' onChange={this.handleFilter} />
         <table>
           {thead}
