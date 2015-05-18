@@ -49,6 +49,7 @@ class FakeGriddle extends React.Component {
   }
 
   componentDidMount() {
+    debugger;
     if (this.props.data){
       this.localActions.loadData(this.props.data);
     }

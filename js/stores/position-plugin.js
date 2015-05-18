@@ -6,7 +6,7 @@ var defaultPositionState = {
   xScrollChangePosition: 0,
   yScrollChangePosition: 0,
   renderedStartDisplayIndex: 0,
-  renderedEndDisplayIndex: 10,
+  renderedEndDisplayIndex: 20,
   tableHeight: 400,
   tableWidth: 200,
   rowHeight: 25,
@@ -29,7 +29,7 @@ const PositionPlugin  = {
     }
   },
 
-  PrePatches: {
+  PostPatches: {
     GRIDDLE_LOADED_DATA(action, state, store) {
       return PositionPlugin.updateRenderedData(state, store);
     },
@@ -48,7 +48,8 @@ const PositionPlugin  = {
   },
 
   Helpers: {
-    getRenderedData() {
+    getRenderedData(state) {
+      state = state || this.state;
       return this.state.get('renderedData');
     }
   },
@@ -72,7 +73,7 @@ const PositionPlugin  = {
 
     // Inspired by : http://jsfiddle.net/vjeux/KbWJ2/9/
     let renderedStartDisplayIndex = Math.max(0, Math.floor(action.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
-    let renderedEndDisplayIndex = Math.min(renderedStartDisplayIndex + visibleRecordCount * 1.25, store.getVisibleData().length - 1) + 1;
+    let renderedEndDisplayIndex = Math.min(renderedStartDisplayIndex + visibleRecordCount * 1.25, store.getVisibleData(state).length - 1) + 1;
 
     return state
       .setIn(['position', 'renderedStartDisplayIndex'], renderedStartDisplayIndex)
@@ -84,7 +85,7 @@ const PositionPlugin  = {
   updateRenderedData(state, store) {
     let startDisplayIndex = state.getIn(['position', 'renderedStartDisplayIndex']); // -1
     return state
-      .set('renderedData', store.getVisibleData()
+      .set('renderedData', store.getVisibleData(state)
                             .skip(startDisplayIndex)
                             .take(state.getIn(['position', 'renderedEndDisplayIndex']) - startDisplayIndex));
   }

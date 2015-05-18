@@ -118,7 +118,9 @@ class DataStore extends StoreBoilerplate{
   /* HELPERS */
   get Helpers() {
     return {
-      getVisibleData() {
+      getVisibleData(state) {
+        state = state || this.state;
+
         return this.state.get('data');
       },
 
