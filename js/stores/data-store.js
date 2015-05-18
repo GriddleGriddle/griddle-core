@@ -110,6 +110,10 @@ class DataStore extends StoreBoilerplate{
 
       getState() {
         return this.state;
+      },
+
+      getPageProperties() {
+        return this.state.get('pageProperties');
       }
     }
   }
