@@ -31,7 +31,6 @@ const LocalDataPlugin  = {
       },
 
       GRIDDLE_GET_PAGE(action, state) {
-        debugger;
         return(LocalDataPlugin
           .getPage(state, action.pageNumber));
       },

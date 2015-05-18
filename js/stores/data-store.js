@@ -35,7 +35,7 @@ class DataStore extends StoreBoilerplate{
       var wireUpAction = (property) => {
         for (var actionType in plugin[property]) {
           if (_actionHandlers.hasOwnProperty(actionType)) {
-            _actionHandlers[actionType][property].push(plugin[plugin][actionType])
+            _actionHandlers[actionType][property].push(plugin[property][actionType])
           } else {
             const options = {};
             options[property] = plugin[property].length > 0 ? plugin[property][actionType] : [plugin[property][actionType]];
@@ -44,8 +44,8 @@ class DataStore extends StoreBoilerplate{
         }
       }
 
-      wireUpAction("prePatches");
-      wireUpAction("postPatches");
+      wireUpAction("PrePatches");
+      wireUpAction("PostPatches");
 
       //add the plugin's overrides
       for(var actionType in plugin.RegisteredCallbacks) {
@@ -66,13 +66,13 @@ class DataStore extends StoreBoilerplate{
       let overridden = false;
       let actionState = _this.state;
       let continueIfUpdatingState = function(method){
-        actionState = method(action, actionState);
+        actionState = method(action, actionState, _this);
         return !!actionState;
       }
 
       if(_actionHandlers.hasOwnProperty(action.actionType)){
         _actionHandlers[action.actionType]
-          .prePatches
+          .PrePatches
           .every(continueIfUpdatingState);
 
         // If the action is forcing a change not to result in an emit, return.
@@ -80,20 +80,20 @@ class DataStore extends StoreBoilerplate{
 
         if(!!_actionHandlers[action.actionType].override) {
           overridden = true;
-          actionState = _actionHandlers[action.actionType].override(action, _this.state);
+          actionState = _actionHandlers[action.actionType].override(action, _this.state, _this);
         }
 
         if (actionState === null) { return; }
 
         _actionHandlers[action.actionType]
-          .postPatches
+          .PostPatches
           .every(continueIfUpdatingState);
 
         if (actionState === null) { return; }
       }
 
       if(!overridden) {
-        actionState = _this.RegisteredCallbacks[action.actionType](action, _this.state);
+        actionState = _this.RegisteredCallbacks[action.actionType](action, _this.state, _this);
       }
 
       if (actionState === null) { return; }
@@ -130,7 +130,7 @@ class DataStore extends StoreBoilerplate{
 
   static createActionHandler(properties) {
     if(properties)
-      return {prePatches: (properties.prePatches || []), postPatches: (properties.postPatches || []), override: properties.override || null}
+      return {PrePatches: (properties.prePatches || []), PostPatches: (properties.postPatches || []), override: properties.override || null}
   }
 }
 module.exports = DataStore;

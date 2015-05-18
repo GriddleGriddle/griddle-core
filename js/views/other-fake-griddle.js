@@ -52,6 +52,8 @@ class FakeGriddle extends React.Component {
     if (this.props.data){
       this.localActions.loadData(this.props.data);
     }
+
+    this.gridScroll = this.gridScroll.bind(this);
   }
 
   handlePrevious() {
@@ -68,7 +70,7 @@ class FakeGriddle extends React.Component {
 
   dataChange() {
     this.setState({
-      data: this.dataStore.getVisibleData(),
+      data: this.dataStore.getRenderedData(),
       hasNext: this.dataStore.hasNext(),
       hasPrevious: this.dataStore.hasPrevious()
     });
@@ -108,7 +110,7 @@ class FakeGriddle extends React.Component {
         </thead>
       : null;
     return (
-      <div style={wrapperStyle}>
+      <div ref='scrollable' onScroll={this.gridScroll} style={wrapperStyle}>
         <input type='text' placeholder='filter' onChange={this.handleFilter} />
         <table>
           {thead}
@@ -119,6 +121,13 @@ class FakeGriddle extends React.Component {
         { this.state.hasPrevious ? <button onClick={this.handlePrevious}>PREVIOUS</button> : null }
         { this.state.hasNext ? <button onClick={this.handleNext}>NEXT</button> : null }
       </div>);
+  }
+
+  gridScroll() {
+    if (this.refs.scrollable) {
+      let scrollableNode = this.refs.scrollable.getDOMNode();
+      this.localActions.setScrollPosition(scrollableNode.scrollLeft, scrollableNode.scrollWidth, scrollableNode.scrollTop, scrollableNode.scrollHeight);
+    }
   }
 }
 

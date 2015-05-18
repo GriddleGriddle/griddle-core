@@ -1,4 +1,4 @@
-var AppDispatcher = require('../dispatcher/app-dispatcher');
+var AppDipatcher = require('../dispatcher/app-dispatcher');
 var Constants = require('../constants/constants');
 
 class LocalActions {
@@ -91,6 +91,18 @@ class LocalActions {
       column: column,
       change: change
     }
+
+    this.dispatcher.dispatch(action);
+  }
+
+  setScrollPosition(xScrollPosition, xScrollMax, yScrollPosition, yScrollMax) {
+    var action = {
+      actionType: Constants.XY_POSITION_CHANGED,
+      xScrollPosition: xScrollPosition,
+      xScrollMax: xScrollMax,
+      yScrollPosition: yScrollPosition,
+      yScrollMax: yScrollMax
+    };
 
     this.dispatcher.dispatch(action);
   }

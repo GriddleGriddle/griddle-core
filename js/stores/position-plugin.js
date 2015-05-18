@@ -6,7 +6,7 @@ var defaultPositionState = {
   xScrollChangePosition: 0,
   yScrollChangePosition: 0,
   renderedStartDisplayIndex: 0,
-  renderedEndDisplayIndex: 0,
+  renderedEndDisplayIndex: 10,
   tableHeight: 400,
   tableWidth: 200,
   rowHeight: 25,
@@ -14,78 +14,77 @@ var defaultPositionState = {
   infiniteScrollLoadTreshold: 50
 };
 
-class PositionPlugin extends StoreBoilerplate {
-  constructor(){
-    super();
-  }
-
+const PositionPlugin  = {
   initializeState(state) {
-    debugger;
     //default state modifications for this plugin
     return state
       .set('position', Immutable.fromJS(defaultPositionState))
       .set('renderedData', Immutable.fromJS([]));
-  }
+  },
 
-  get RegisteredCallbacks() {
-    return {
-      GRIDDLE_LOADED_DATA(action, state) {
-        return PositionPlugin.updateRenderedData(state);
-      },
-      GRIDDLE_NEXT_PAGE(action, state) {
-        return PositionPlugin.updateRenderedData(state);
-      },
-      GRIDDLE_PREVIOUS_PAGE(action, state) {
-        return PositionPlugin.updateRenderedData(state);
-      },
-      GRIDDLE_FILTERED(action, state) {
-        return PositionPlugin.updateRenderedData(state);
-      },
-      GRIDDLE_SORT(action, state) {
-        return PositionPlugin.updateRenderedData(state);
-      },
-      XY_POSITION_CHANGED(action, state) {
-        return PositionPlugin.updatePositionProperties(action, state);
-        return PositionPlugin.updateRenderedData(state);
-      }
-    };
-  }
+  RegisteredCallbacks: {
+    XY_POSITION_CHANGED(action, state, store) {
+      state = PositionPlugin.updatePositionProperties(action, state, store);
+      return state ? PositionPlugin.updateRenderedData(state, store) : null;
+    }
+  },
 
-  get Helpers() {
-    return {
-      getRenderedData() {
-        return this.state.get('renderedData');
-      }
-    };
-  }
+  PrePatches: {
+    GRIDDLE_LOADED_DATA(action, state, store) {
+      return PositionPlugin.updateRenderedData(state, store);
+    },
+    GRIDDLE_NEXT_PAGE(action, state, store) {
+      return PositionPlugin.updateRenderedData(state, store);
+    },
+    GRIDDLE_PREVIOUS_PAGE(action, state, store) {
+      return PositionPlugin.updateRenderedData(state, store);
+    },
+    GRIDDLE_FILTERED(action, state, store) {
+      return PositionPlugin.updateRenderedData(state, store);
+    },
+    GRIDDLE_SORT(action, state, store) {
+      return PositionPlugin.updateRenderedData(state, store);
+    }
+  },
 
-  static shouldUpdateDrawnRows(action, currentPosition) {
-    return Math.abs(action.yScrollPosition - currentPosition.yScrollChangePosition) >= currentPosition.rowHeight;
-  }
+  Helpers: {
+    getRenderedData() {
+      return this.state.get('renderedData');
+    }
+  },
 
-  static updatePositionProperties(action, state) {
-    var position = this.state.get('position');
+  shouldUpdateDrawnRows(action, state) {
+    let yScrollChangePosition = state.getIn(['position', 'yScrollChangePosition']);
+    let rowHeight = state.getIn(['position', 'rowHeight']);
 
-    if (PositionPlugin.shouldUpdateDrawnRows(action, position)) {
+    return Math.abs(action.yScrollPosition - yScrollChangePosition) >= rowHeight;
+  },
+
+  updatePositionProperties(action, state, store) {
+    if (!PositionPlugin.shouldUpdateDrawnRows(action, state)) {
       return null; // Indicate that this shouldn't result in an emit.
     }
+    let rowHeight = state.getIn(['position', 'rowHeight']);
+    let tableHeight = state.getIn(['position', 'tableHeight']);
 
-    var adjustedHeight = position.rowHeight;
-    var visibleRecordCount = Math.ceil(position.tableHeight / adjustedHeight);
+    var adjustedHeight = rowHeight;
+    var visibleRecordCount = Math.ceil(tableHeight / adjustedHeight);
 
     // Inspired by : http://jsfiddle.net/vjeux/KbWJ2/9/
-    position.renderedStartDisplayIndex = Math.max(0, Math.floor(action.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
-    position.renderedEndDisplayIndex = Math.min(position.renderedStartDisplayIndex + visibleRecordCount * 1.25, this.getVisibleData().length - 1) + 1;
+    let renderedStartDisplayIndex = Math.max(0, Math.floor(action.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
+    let renderedEndDisplayIndex = Math.min(renderedStartDisplayIndex + visibleRecordCount * 1.25, store.getVisibleData().length - 1) + 1;
 
     return state
       .setIn(['position', 'renderedStartDisplayIndex'], renderedStartDisplayIndex)
-      .setIn(['position', 'renderedEndDisplayIndex'], renderedEndDisplayIndex);
-  }
+      .setIn(['position', 'renderedEndDisplayIndex'], renderedEndDisplayIndex)
+      .setIn(['position', 'yScrollChangePosition'], action.yScrollPosition)
+      .setIn(['position', 'xScrollChangePosition'], action.xScrollPosition);
+  },
 
-  static updateRenderedData(state) {
-    let startDisplayIndex = state.getIn(['position', 'renderedStartDisplayIndex']) - 1;
+  updateRenderedData(state, store) {
+    let startDisplayIndex = state.getIn(['position', 'renderedStartDisplayIndex']); // -1
     return state
-      .set('renderedData', this.getVisibleData()
+      .set('renderedData', store.getVisibleData()
                             .skip(startDisplayIndex)
                             .take(state.getIn(['position', 'renderedEndDisplayIndex']) - startDisplayIndex));
   }
