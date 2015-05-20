@@ -5,7 +5,7 @@ const LocalDataPlugin  = {
   initializeState(state) {
     //default state modifications for this plugin
     return state
-      .setIn(['pageProperties', 'pageSize'], 60)
+      .setIn(['pageProperties', 'pageSize'], 10)
       .setIn(['pageProperties', 'currentPage'], 1)
       .setIn(['sortProperties', 'sortColumns'], [])
       .setIn(['sortProperties', 'sortAscending'], true)

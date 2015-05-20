@@ -4,10 +4,10 @@
   "description": "The core code used in the griddle-react grid. ",
   "main": "build/griddle.js",
   "scripts": {
-    "test": "karma start --browsers PhantomJS",
+    "test": "./node_modules/.bin/karma start --browsers PhantomJS",
     "start": "node server.js",
-    "test-debug": "karma start --browsers Chrome",
-    "dist": "webpack --config webpack-dist.config.js"
+    "test-debug": "./node_modules/.bin/karma start --browsers Chrome",
+    "dist": "./node_modules/.bin/webpack --config webpack-dist.config.js"
   },
   "author": "Ryan Lanciaux && Joel Lanciaux",
   "license": "MIT",
@@ -18,9 +18,10 @@
     "coffee-script": "^1.9.2",
     "jasmine-core": "^2.2.0",
     "jsx-loader": "~0.12.2",
-    "karma": "^0.12.31",
+    "karma": "^0.12.32",
     "karma-babel-preprocessor": "^5.0.1",
     "karma-chrome-launcher": "^0.1.8",
+    "karma-cli": "0.0.4",
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-webpack": "^1.5.0",
