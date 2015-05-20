@@ -7,13 +7,13 @@ const LocalDataPlugin  = {
     return state
       .setIn(['pageProperties', 'pageSize'], 60)
       .setIn(['pageProperties', 'currentPage'], 1)
-      .setIn(['sortProperties', 'sortColumns'], '[]')
-      .setIn(['sortProperties', 'sortAscending'], 'true')
+      .setIn(['sortProperties', 'sortColumns'], [])
+      .setIn(['sortProperties', 'sortAscending'], true)
       .set('filter', '')
       .set('filteredData', Immutable.fromJS([]));
   },
 
-  RegisteredCallbacks: {
+  registeredCallbacks: {
       GRIDDLE_LOADED_DATA(action, state) {
         //set state's data to this
         return state
@@ -73,7 +73,7 @@ const LocalDataPlugin  = {
       }
   },
 
-  Helpers: {
+  helpers: {
       getVisibleData(state) {
         state = state || this.state;
 

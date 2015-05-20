@@ -6,14 +6,15 @@
   "scripts": {
     "test": "karma start --browsers PhantomJS",
     "start": "node server.js",
-    "test-debug": "karma start --browsers Chrome"
+    "test-debug": "karma start --browsers Chrome",
+    "dist": "webpack --config webpack-dist.config.js"
   },
   "author": "Ryan Lanciaux && Joel Lanciaux",
   "license": "MIT",
   "devDependencies": {
-    "babel": "~4.7.16",
-    "babel-core": "~4.7.16",
-    "babel-loader": "~4.2.0",
+    "babel": "^5.4.2",
+    "babel-core": "^5.4.2",
+    "babel-loader": "^5.0.0",
     "coffee-script": "^1.9.2",
     "jasmine-core": "^2.2.0",
     "jsx-loader": "~0.12.2",
@@ -23,13 +24,12 @@
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-webpack": "^1.5.0",
+    "node-libs-browser": "^0.5.0",
     "phantomjs": "^1.9.16",
     "phantomjs-polyfill": "0.0.1",
     "react-draggable": "^0.6.0",
     "react-hot-loader": "~1.2.3",
-    "rewire": "^2.3.1",
-    "rewire-webpack": "^1.0.0",
-    "webpack": "~1.7.3",
+    "webpack": "^1.9.5",
     "webpack-dev-server": "~1.7.0"
   },
   "dependencies": {

@@ -22,8 +22,8 @@ class DataStore extends StoreBoilerplate{
     _this.state = new Immutable.fromJS(defaultGridState);
 
     //add the helper functions directly onto the object
-    Object.keys(_this.Helpers)
-      .forEach(key => this[key] = this.Helpers[key])
+    Object.keys(_this.helpers)
+      .forEach(key => this[key] = this.helpers[key])
 
     //we want to store plugins / overrides as the actiontype rather than the plugin name
     var _actionHandlers = [];
@@ -44,21 +44,21 @@ class DataStore extends StoreBoilerplate{
         }
       }
 
-      wireUpAction("PrePatches");
-      wireUpAction("PostPatches");
+      wireUpAction("prePatches");
+      wireUpAction("postPatches");
 
       //add the plugin's overrides
-      for(var actionType in plugin.RegisteredCallbacks) {
+      for(var actionType in plugin.registeredCallbacks) {
         if (_actionHandlers.hasOwnProperty(actionType)) {
-          _actionHandlers[actionType].override = plugin.RegisteredCallbacks[actionType];
+          _actionHandlers[actionType].override = plugin.registeredCallbacks[actionType];
         } else {
-          _actionHandlers[actionType] = DataStore.createActionHandler({override: plugin.RegisteredCallbacks[actionType]})
+          _actionHandlers[actionType] = DataStore.createActionHandler({override: plugin.registeredCallbacks[actionType]})
         }
       }
 
       //add the helpers to the object -- overriding anything that came before
-      Object.keys(!!plugin.Helpers && plugin.Helpers)
-        .forEach(key => this[key] = plugin.Helpers[key]);
+      Object.keys(!!plugin.helpers && plugin.helpers)
+        .forEach(key => this[key] = plugin.helpers[key]);
     });
 
     //register the action callbacks
@@ -72,7 +72,7 @@ class DataStore extends StoreBoilerplate{
 
       if(_actionHandlers.hasOwnProperty(action.actionType)){
         _actionHandlers[action.actionType]
-          .PrePatches
+          .prePatches
           .every(continueIfUpdatingState);
 
         // If the action is forcing a change not to result in an emit, return.
@@ -86,14 +86,14 @@ class DataStore extends StoreBoilerplate{
         if (actionState === null) { return; }
 
         _actionHandlers[action.actionType]
-          .PostPatches
+          .postPatches
           .every(continueIfUpdatingState);
 
         if (actionState === null) { return; }
       }
 
       if(!overridden) {
-        actionState = _this.RegisteredCallbacks[action.actionType](action, _this.state, _this);
+        actionState = _this.registeredCallbacks[action.actionType](action, _this.state, _this);
       }
 
       if (actionState === null) { return; }
@@ -103,7 +103,7 @@ class DataStore extends StoreBoilerplate{
     });
   }
 
-  get RegisteredCallbacks() {
+  get registeredCallbacks() {
     return {
       GRIDDLE_INITIALIZED(action, state){
       },
@@ -116,7 +116,7 @@ class DataStore extends StoreBoilerplate{
 
 
   /* HELPERS */
-  get Helpers() {
+  get helpers() {
     return {
       getVisibleData(state) {
         state = state || this.state;
@@ -126,13 +126,17 @@ class DataStore extends StoreBoilerplate{
 
       getState() {
         return this.state;
+      },
+
+      getPageProperties() {
+        return this.state.get('pageProperties');
       }
     }
   }
 
   static createActionHandler(properties) {
     if(properties)
-      return {PrePatches: (properties.prePatches || []), PostPatches: (properties.postPatches || []), override: properties.override || null}
+      return {prePatches: (properties.prePatches || []), postPatches: (properties.postPatches || []), override: properties.override || null}
   }
 }
 module.exports = DataStore;

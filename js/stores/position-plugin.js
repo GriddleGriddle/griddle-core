@@ -23,14 +23,14 @@ const PositionPlugin  = {
       .set('renderedData', Immutable.fromJS([]));
   },
 
-  RegisteredCallbacks: {
+  registeredCallbacks: {
     XY_POSITION_CHANGED(action, state, store) {
       state = PositionPlugin.updatePositionProperties(action, state, store);
       return state ? PositionPlugin.updateRenderedData(state, store) : null;
     }
   },
 
-  PostPatches: {
+  postPatches: {
     GRIDDLE_LOADED_DATA(action, state, store) {
       state = PositionPlugin.updatePositionProperties({ yScrollPosition: 0, xScrollPosition: 0, force: true}, state, store, true);
       return state ? PositionPlugin.updateRenderedData(state, store) : null;
@@ -49,7 +49,7 @@ const PositionPlugin  = {
     }
   },
 
-  Helpers: {
+  helpers: {
     getRenderedData(state) {
       state = state || this.state;
       return state.get('renderedData');

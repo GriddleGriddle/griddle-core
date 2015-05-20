@@ -1,5 +1,5 @@
 var React = require('react');
-var Faker = require('../js/views/fake-griddle');
+var Faker = require('../js/views/other-fake-griddle');
 
 describe("One", function(){
   it('does something', function(){

@@ -1,5 +1,4 @@
 var webpack = require('webpack');
-var rewirePlugin = require('rewire-webpack');
 
 module.exports = function(config) {
   config.set({
@@ -30,9 +29,7 @@ module.exports = function(config) {
           }
         ]
       },
-      plugins: [
-        new rewirePlugin()
-      ]
+      plugins: []
     },
 
     reporters: ['progress'],
