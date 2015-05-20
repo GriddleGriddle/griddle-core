@@ -8,6 +8,7 @@ import LocalActions from '../actions/local-action-creators';
 import DataStore from '../stores/data-store';
 import LocalDataPlugin from '../stores/local-data-plugin';
 import PositionPlugin from '../stores/position-plugin';
+import SpacerRow from './spacer-row';
 
 class SortButton extends React.Component {
   constructor(props) {
@@ -46,15 +47,13 @@ class FakeGriddle extends React.Component {
     this.handlePrevious = this.handlePrevious.bind(this);
     this.handleNext = this.handleNext.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.gridScroll = this.gridScroll.bind(this);
   }
 
   componentDidMount() {
-    debugger;
     if (this.props.data){
       this.localActions.loadData(this.props.data);
     }
-
-    this.gridScroll = this.gridScroll.bind(this);
   }
 
   handlePrevious() {
@@ -85,16 +84,17 @@ class FakeGriddle extends React.Component {
 
     var rows =
       _.map(data, (item) => {
-        return <tr>
+        return <tr key={item.id}>
           {_.map(_.keys(item), function(key){
-            return <td>{item[key]}</td>
+            return <td key={item.id + '-' + key}>{item[key]}</td>
           })}
         </tr>
       });
 
+    var positionData = this.dataStore.getPositionData();
     var wrapperStyle = {
-      'height': '500px',
-      'width': '300px',
+      'height': positionData.tableHeight + 'px',
+      'width': positionData.tableWidth + 'px',
       'overflow': 'scroll',
     };
     var actionCreator = this.localActions;
@@ -103,7 +103,7 @@ class FakeGriddle extends React.Component {
         <thead>
           {_.map(keys, function(key) {
             return (
-              <th>
+              <th key={'col-' + key}>
                 <SortButton column={key} action={actionCreator} />
               </th>);
           })}
@@ -116,7 +116,9 @@ class FakeGriddle extends React.Component {
         <table>
           {thead}
           <tbody>
+            <SpacerRow placement='top' positionData={positionData} />
             {rows}
+            <SpacerRow placement='bottom' positionData={positionData} />
           </tbody>
         </table>
         { this.state.hasPrevious ? <button onClick={this.handlePrevious}>PREVIOUS</button> : null }
