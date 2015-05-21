@@ -121,15 +121,19 @@ class DataStore extends StoreBoilerplate{
       getVisibleData(state) {
         state = state || this.state;
 
-        return this.state.get('data');
+        return state.get('data');
       },
 
-      getState() {
-        return this.state;
+      getState(state) {
+        state = state || this.state;
+
+        return state;
       },
 
-      getPageProperties() {
-        return this.state.get('pageProperties');
+      getPageProperties(state) {
+        state = state || this.state;
+
+        return state.get('pageProperties');
       }
     }
   }

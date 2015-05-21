@@ -88,7 +88,7 @@ const LocalDataPlugin  = {
         state = state || this.state;
 
         return state.getIn(['pageProperties', 'currentPage']) <
-          this.state.getIn(['pageProperties', 'maxPage']);
+          state.getIn(['pageProperties', 'maxPage']);
       },
 
       hasPrevious(state) {
