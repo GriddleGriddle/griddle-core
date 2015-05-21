@@ -7,6 +7,8 @@ import Flux from 'flux';
 import LocalActions from '../actions/local-action-creators';
 import DataStore from '../stores/data-store';
 import LocalDataPlugin from '../stores/local-data-plugin';
+import PositionPlugin from '../stores/position-plugin';
+import SpacerRow from './spacer-row';
 
 class SortButton extends React.Component {
   constructor(props) {
@@ -33,11 +35,11 @@ class FakeGriddle extends React.Component {
     super(props);
 
     this.dispatcher = new Flux.Dispatcher();
-    this.dataStore = new DataStore(this.dispatcher, [LocalDataPlugin]);
+    this.dataStore = new DataStore(this.dispatcher, [LocalDataPlugin, PositionPlugin]);
     this.localActions = new LocalActions(this.dispatcher);
 
     this.state = {};
-    this.state.data = this.dataStore.getVisibleData();
+    this.state.data = this.dataStore.getRenderedData();
     this.state.hasNext = false;
     this.state.hasPrevious = false;
     //TODO: look into autobinding plugins
@@ -45,6 +47,7 @@ class FakeGriddle extends React.Component {
     this.handlePrevious = this.handlePrevious.bind(this);
     this.handleNext = this.handleNext.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
+    this.gridScroll = this.gridScroll.bind(this);
   }
 
   componentDidMount() {
@@ -67,7 +70,7 @@ class FakeGriddle extends React.Component {
 
   dataChange() {
     this.setState({
-      data: this.dataStore.getVisibleData(),
+      data: this.dataStore.getRenderedData(),
       hasNext: this.dataStore.hasNext(),
       hasPrevious: this.dataStore.hasPrevious()
     });
@@ -81,21 +84,26 @@ class FakeGriddle extends React.Component {
 
     var rows =
       _.map(data, (item) => {
-        return <tr>
+        return <tr key={item.id}>
           {_.map(_.keys(item), function(key){
-            return <td>{item[key]}</td>
+            return <td key={item.id + '-' + key}>{item[key]}</td>
           })}
         </tr>
       });
 
-
+    var positionData = this.dataStore.getPositionData();
+    var wrapperStyle = {
+      'height': positionData.tableHeight + 'px',
+      'width': positionData.tableWidth + 'px',
+      'overflow': 'scroll',
+    };
     var actionCreator = this.localActions;
     var keys = data.length > 0 ? Object.keys(data[0]) : null;
     var thead = !!keys ?
         <thead>
           {_.map(keys, function(key) {
             return (
-              <th>
+              <th key={'col-' + key}>
                 <SortButton column={key} action={actionCreator} />
               </th>);
           })}
@@ -103,17 +111,26 @@ class FakeGriddle extends React.Component {
         </thead>
       : null;
     return (
-      <div>
+      <div ref='scrollable' onScroll={this.gridScroll} style={wrapperStyle}>
         <input type='text' placeholder='filter' onChange={this.handleFilter} />
         <table>
           {thead}
           <tbody>
+            <SpacerRow placement='top' positionData={positionData} />
             {rows}
+            <SpacerRow placement='bottom' positionData={positionData} />
           </tbody>
         </table>
         { this.state.hasPrevious ? <button onClick={this.handlePrevious}>PREVIOUS</button> : null }
         { this.state.hasNext ? <button onClick={this.handleNext}>NEXT</button> : null }
       </div>);
+  }
+
+  gridScroll() {
+    if (this.refs.scrollable) {
+      let scrollableNode = this.refs.scrollable.getDOMNode();
+      this.localActions.setScrollPosition(scrollableNode.scrollLeft, scrollableNode.scrollWidth, scrollableNode.scrollTop, scrollableNode.scrollHeight);
+    }
   }
 }
 

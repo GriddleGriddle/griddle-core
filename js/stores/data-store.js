@@ -35,7 +35,7 @@ class DataStore extends StoreBoilerplate{
       var wireUpAction = (property) => {
         for (var actionType in plugin[property]) {
           if (_actionHandlers.hasOwnProperty(actionType)) {
-            _actionHandlers[actionType][property].push(plugin[plugin][actionType])
+            _actionHandlers[actionType][property].push(plugin[property][actionType])
           } else {
             const options = {};
             options[property] = plugin[property].length > 0 ? plugin[property][actionType] : [plugin[property][actionType]];
@@ -64,28 +64,42 @@ class DataStore extends StoreBoilerplate{
     //register the action callbacks
     dispatcher.register((action) => {
       let overridden = false;
+      let actionState = _this.state;
+      let continueIfUpdatingState = function(method){
+        actionState = method(action, actionState, _this);
+        return !!actionState;
+      }
 
       if(_actionHandlers.hasOwnProperty(action.actionType)){
         _actionHandlers[action.actionType]
           .prePatches
-          .forEach(method => _this.state = method(action, _this.state));
+          .every(continueIfUpdatingState);
+
+        // If the action is forcing a change not to result in an emit, return.
+        if (actionState === null) { return; }
 
         if(!!_actionHandlers[action.actionType].override) {
           overridden = true;
-          _this.state = _actionHandlers[action.actionType].override(action, _this.state);
+          actionState = _actionHandlers[action.actionType].override(action, _this.state, _this);
         }
+
+        if (actionState === null) { return; }
 
         _actionHandlers[action.actionType]
           .postPatches
-          .forEach(method => _this.state = method(action, _this.state));
+          .every(continueIfUpdatingState);
+
+        if (actionState === null) { return; }
       }
 
       if(!overridden) {
-        _this.state = _this.registeredCallbacks[action.actionType](action, _this.state);
+        actionState = _this.registeredCallbacks[action.actionType](action, _this.state, _this);
       }
 
-       //TODO: there are some instances where we won't want to emit a change (aka state didn't change)
-       _this.emitChange();
+      if (actionState === null) { return; }
+
+      _this.state = actionState;
+      _this.emitChange();
     });
   }
 
@@ -104,7 +118,9 @@ class DataStore extends StoreBoilerplate{
   /* HELPERS */
   get helpers() {
     return {
-      getVisibleData() {
+      getVisibleData(state) {
+        state = state || this.state;
+
         return this.state.get('data');
       },
 

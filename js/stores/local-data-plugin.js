@@ -74,21 +74,27 @@ const LocalDataPlugin  = {
   },
 
   helpers: {
-      getVisibleData() {
+      getVisibleData(state) {
+        state = state || this.state;
+
         //get the max page / current page and the current page of data
-        const pageSize = this.state.getIn(['pageProperties', 'pageSize']);
-        const currentPage = this.state.getIn(['pageProperties', 'currentPage']);
-        return LocalDataPlugin.getDataSet(this.state)
+        const pageSize = state.getIn(['pageProperties', 'pageSize']);
+        const currentPage = state.getIn(['pageProperties', 'currentPage']);
+        return LocalDataPlugin.getDataSet(state)
           .skip(pageSize * (currentPage-1)).take(pageSize);
       },
 
-      hasNext() {
-        return this.state.getIn(['pageProperties', 'currentPage']) <
+      hasNext(state) {
+        state = state || this.state;
+
+        return state.getIn(['pageProperties', 'currentPage']) <
           this.state.getIn(['pageProperties', 'maxPage']);
       },
 
-      hasPrevious() {
-        return this.state.getIn(['pageProperties', 'currentPage']) > 1;
+      hasPrevious(state) {
+        state = state || this.state;
+
+        return state.getIn(['pageProperties', 'currentPage']) > 1;
       }
   },
 
