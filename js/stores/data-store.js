@@ -119,26 +119,37 @@ class DataStore extends StoreBoilerplate{
   /* HELPERS */
   get helpers() {
     return {
-      getVisibleData(state) {
-      state = state || this.state;
-
+      getVisibleData(state = this.state) {
         return state.get('data');
       },
 
-      getState(state) {
-        state = state || this.state;
-
+      getState(state = this.state) {
         return state;
       },
 
-      getPageProperties(state) {
-        state = state || this.state;
+      getPageProperties(state = this.state) {
 
         return state.get('pageProperties');
       },
 
+      getColumnTitles(state = this.state) {
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+          return state
+            .get('renderProperties')
+            .get('columnProperties')
+            .filter(column => !!column.get('displayName'))
+            .map(column => {
+              let col = {};
+              col[column.get('id')] = column.get('displayName');
+              return col;
+            }).toJSON();
+        }
+
+        return {}
+      },
+
       getDataColumns(state, data) {
-        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0){
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
           const keys = state.get('renderProperties').get('columnProperties').keySeq().toJSON();
           return data.map(item => item.filter((val, key) => {
             return keys.indexOf(key) > -1;
