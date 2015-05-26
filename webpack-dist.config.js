@@ -2,12 +2,11 @@ var webpack = require('webpack');
 
 var exports = {
   plugins: [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({ output: {comments: false }})
   ],
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
+  watch: true,
   output: {
     path: __dirname + '/build/',
     filename: 'griddle.js',
@@ -17,7 +16,7 @@ var exports = {
   entry: './js/module',
   module: {
     loaders: [
-      { test: /\.jsx?$/, loaders: ['babel'], exclude: /node_modules/ }
+      { test: /\.jsx?$/, loaders: ['babel?{"plugins":["babel-plugin-object-assign"]}'], exclude: /node_modules/ }
     ]
   }
 };

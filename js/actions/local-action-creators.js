@@ -14,10 +14,11 @@ class LocalActions {
     this.dispatcher.dispatch({actionType: Constants.GRIDDLE_REMOVED});
   }
 
-  loadData(data){
+  loadData(data, properties){
     var action = {
       actionType: Constants.GRIDDLE_LOADED_DATA,
-      data: data
+      data,
+      properties
     }
 
     this.dispatcher.dispatch(action);

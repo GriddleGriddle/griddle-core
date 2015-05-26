@@ -58,7 +58,7 @@ class DataStore extends StoreBoilerplate{
 
       //add the helpers to the object -- overriding anything that came before
       Object.keys(!!plugin.helpers && plugin.helpers)
-        .forEach(key => this[key] = plugin.helpers[key]);
+        .forEach(key => this[key] = plugin.helpers[key].bind(this));
     });
 
     //register the action callbacks
@@ -109,7 +109,8 @@ class DataStore extends StoreBoilerplate{
       },
 
       GRIDDLE_LOADED_DATA(action, state){
-        return state.set('data', Immutable.fromJS(action.data));
+        return state.set('data', Immutable.fromJS(action.data))
+          .set('renderProperties', Immutable.fromJS(action.properties));
       }
     }
   }
@@ -118,22 +119,44 @@ class DataStore extends StoreBoilerplate{
   /* HELPERS */
   get helpers() {
     return {
-      getVisibleData(state) {
-        state = state || this.state;
-
+      getVisibleData(state = this.state) {
         return state.get('data');
       },
 
-      getState(state) {
-        state = state || this.state;
-
+      getState(state = this.state) {
         return state;
       },
 
-      getPageProperties(state) {
-        state = state || this.state;
+      getPageProperties(state = this.state) {
 
         return state.get('pageProperties');
+      },
+
+      getColumnTitles(state = this.state) {
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+          return state
+            .get('renderProperties')
+            .get('columnProperties')
+            .filter(column => !!column.get('displayName'))
+            .map(column => {
+              let col = {};
+              col[column.get('id')] = column.get('displayName');
+              return col;
+            }).toJSON();
+        }
+
+        return {}
+      },
+
+      getDataColumns(state, data) {
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+          const keys = state.get('renderProperties').get('columnProperties').keySeq().toJSON();
+          return data.map(item => item.filter((val, key) => {
+            return keys.indexOf(key) > -1;
+          }));
+        }
+
+        return data;
       }
     }
   }
@@ -142,5 +165,6 @@ class DataStore extends StoreBoilerplate{
     if(properties)
       return {prePatches: (properties.prePatches || []), postPatches: (properties.postPatches || []), override: properties.override || null}
   }
+
 }
 module.exports = DataStore;

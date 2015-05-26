@@ -18,6 +18,7 @@ const LocalDataPlugin  = {
         //set state's data to this
         return state
           .set('data', Immutable.fromJS(action.data))
+          .set('renderProperties', Immutable.fromJS(action.properties))
           .setIn(
             ['pageProperties', 'maxPage'],
             LocalDataPlugin.getPageCount(
@@ -80,8 +81,12 @@ const LocalDataPlugin  = {
         //get the max page / current page and the current page of data
         const pageSize = state.getIn(['pageProperties', 'pageSize']);
         const currentPage = state.getIn(['pageProperties', 'currentPage']);
-        return LocalDataPlugin.getDataSet(state)
+        let data =  LocalDataPlugin.getDataSet(state)
           .skip(pageSize * (currentPage-1)).take(pageSize);
+
+        data = this.getDataColumns(state, data);
+
+        return data;
       },
 
       hasNext(state) {
