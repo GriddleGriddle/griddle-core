@@ -145,7 +145,17 @@ class DataStore extends StoreBoilerplate{
             }).toJSON();
         }
 
-        return {}
+        return {};
+      },
+
+      getColumnProperties(state = this.state) {
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+          return state
+            .get('renderProperties')
+            .get('columnProperties').toJSON();
+        }
+
+        return {};
       },
 
       getDataColumns(state, data) {
