@@ -2,7 +2,7 @@
 var StoreBoilerplate = require('./store-boilerplate');
 var Constants = require('../constants/constants');
 var Immutable = require('immutable');
-
+var MAX_SAFE_INTEGER = require('max-safe-integer');
 
 var defaultGridState = {
   data: [],
@@ -163,7 +163,7 @@ class DataStore extends StoreBoilerplate{
           const keys = state
             .get('renderProperties')
             .get('columnProperties')
-            .sortBy(col => col.get('order'))
+            .sortBy(col => col.get('order')||MAX_SAFE_INTEGER)
             .keySeq()
             .toJSON();
 
