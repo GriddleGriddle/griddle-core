@@ -39,6 +39,7 @@
     "flux": "~2.0.1",
     "immutable": "^3.7.2",
     "lodash": "~3.5.0",
+    "max-safe-integer": "^1.0.0",
     "object-assign": "~2.0.0",
     "react": "~0.13.1"
   }
