@@ -145,15 +145,33 @@ class DataStore extends StoreBoilerplate{
             }).toJSON();
         }
 
-        return {}
+        return {};
+      },
+
+      getColumnProperties(state = this.state) {
+        if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+          return state
+            .get('renderProperties')
+            .get('columnProperties').toJSON();
+        }
+
+        return {};
       },
 
       getDataColumns(state, data) {
         if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
-          const keys = state.get('renderProperties').get('columnProperties').keySeq().toJSON();
-          return data.map(item => item.filter((val, key) => {
-            return keys.indexOf(key) > -1;
-          }));
+          const keys = state
+            .get('renderProperties')
+            .get('columnProperties')
+            .sortBy(col => col.get('order'))
+            .keySeq()
+            .toJSON();
+
+          return data
+            .map(item => item
+              .filter((val, key) => keys.indexOf(key) > -1 )
+              .sortBy((val, key) => keys.indexOf(key))
+            );
         }
 
         return data;
