@@ -111,16 +111,40 @@ class DataStore extends StoreBoilerplate{
       GRIDDLE_LOADED_DATA(action, state){
         return state.set('data', Immutable.fromJS(action.data))
           .set('renderProperties', Immutable.fromJS(action.properties));
+      },
+
+      GRIDDLE_TOGGLE_COLUMN(action, state) {
+        const toggleColumn = function(columnId, fromProperty, toProperty) {
+          if(state.get('renderProperties').get(fromProperty) &&
+            state.get('renderProperties').get(fromProperty).has(columnId)) {
+              const columnValue = state.getIn(['renderProperties', fromProperty, columnId])
+              // const otherState = .getIn(['renderProperties', fromProperty])
+                // .remove(columnId)
+              return state
+                .setIn(['renderProperties', toProperty, columnId], columnValue)
+                .removeIn(['renderProperties', fromProperty, columnId]);
+            }
+        }
+
+        //check to see if the column is in hiddenColumnProperties
+        //if it is move it to columnProperties
+        const hidden = toggleColumn(action.columnId, 'hiddenColumnProperties', 'columnProperties');
+
+        //if it is not check to make sure it's in columnProperties and move to hiddenColumnProperties
+        const column = toggleColumn(action.columnId, 'columnProperties', 'hiddenColumnProperties');
+
+        //if it's neither just return state for now
+        return hidden || column || state;
       }
     }
   }
-
 
   /* HELPERS */
   get helpers() {
     return {
       getVisibleData(state = this.state) {
-        return state.get('data');
+        const data =  state.get('data');
+        return this.getDataColumns(state, data);
       },
 
       getState(state = this.state) {
@@ -158,6 +182,21 @@ class DataStore extends StoreBoilerplate{
         return {};
       },
 
+      getVisibleColumns(state = this.state) {
+        if(this.state.get('data').size === 0) {
+          return new Immutable.fromJS([]);
+        }
+      },
+
+      getAllPossibleColumns(state = this.state) {
+        if(this.state.get('data').size === 0) {
+          return new Immutable.fromJS([]);
+        }
+
+        return this.state.get('data').get(0).keySeq();
+      },
+
+      //TODO: consider moving state after data so that we can assign state = this.state by default
       getDataColumns(state, data) {
         if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
           const keys = state
