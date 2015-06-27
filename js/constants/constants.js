@@ -3,7 +3,7 @@ var keyMirror = require('react/lib/keyMirror');
 /*
   It should be noted that the action types that are like
   GRIDDLE_FILTER mean that the operation has started.
-  Past tense action types mean that the operation 
+  Past tense action types mean that the operation
   has completed.
 */
 module.exports = keyMirror({
@@ -28,6 +28,7 @@ module.exports = keyMirror({
   GRIDDLE_INITIALIZE: null,
   GRIDDLE_INITIALIZED: null,
   GRIDDLE_REMOVED: null,
+  GRIDDLE_TOGGLE_COLUMN: null,
   XY_POSITION_CHANGE: null,
   XY_POSITION_CHANGED: null,
   TABLE_DIMENSIONS_CHANGED: null,

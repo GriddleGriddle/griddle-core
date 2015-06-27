@@ -107,6 +107,15 @@ class LocalActions {
 
     this.dispatcher.dispatch(action);
   }
+
+  toggleColumn(columnId) {
+    var action = {
+      actionType: Constants.GRIDDLE_TOGGLE_COLUMN,
+      columnId: columnId
+    };
+
+    this.dispatcher.dispatch(action);
+  }
 }
 
 export default LocalActions;
