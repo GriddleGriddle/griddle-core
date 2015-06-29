@@ -50,16 +50,18 @@ const LocalDataPlugin  = {
 
       GRIDDLE_FILTERED(action, state) {
         if(action.filter === "") {
-        return state
-          .set('filteredData', Immutable.fromJS([]))
-          .setIn(['pageProperties', 'currentPage'], 1)
-          .setIn(
-            ['pageProperties', 'maxPage'],
-            LocalDataPlugin.getPageCount(
-              //use getDataSet to make sure we're not getting rid of sort/etc
-              LocalDataPlugin.getDataSet(state).length,
-              state.getIn(['pageProperties', 'pageSize'])))
-          .set('filter', '');
+           const newState = state
+             .set('filteredData', Immutable.fromJS([]))
+             .setIn(['pageProperties', 'currentPage'], 1)
+             .set('filter', '')
+
+            return newState
+              .setIn(
+                ['pageProperties', 'maxPage'],
+                LocalDataPlugin.getPageCount(
+                  //use getDataSet to make sure we're not getting rid of sort/etc
+                  LocalDataPlugin.getDataSet(newState).length,
+                  newState.getIn(['pageProperties', 'pageSize'])));
         }
 
         return LocalDataPlugin.filter(state, action.filter);
@@ -126,16 +128,20 @@ const LocalDataPlugin  = {
             return row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
           })
         })
+    
+     //TODO: Merge this with the filter settings in GRIDDLE_FILTERED because they are the same
+     const newState = state
+       .set('filteredData', filtered)
+       .set('filter', filter)
+       .setIn(['pageProperties', 'currentPage'], 1)
 
-    return state
-      .set('filteredData', filtered)
-      .set('filter', filter)
-      .setIn(['pageProperties', 'currentPage'], 1)
+     return newState
       .setIn(
         ['pageProperties', 'maxPage'],
         LocalDataPlugin.getPageCount(
-          LocalDataPlugin.getDataSet(state).length,
-          state.getIn(['pageProperties', 'pageSize'])));
+          //use getDataSet to make sure we're not getting rid of sort/etc
+          LocalDataPlugin.getDataSet(newState).length,
+          newState.getIn(['pageProperties', 'pageSize'])));
   },
 
   sortByColumns(state, columns, sortAscending=true) {
