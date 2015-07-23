@@ -3,4 +3,4 @@
   "plugins": [
     "babel-plugin-object-assign"
   ]
-}
+ }

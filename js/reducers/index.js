@@ -1,4 +1,5 @@
-import dataReducer from './data-reducer';
-import localReducer from './local-reducer';
+import * as data from './data-reducer';
+import * as local from './local-reducer';
 
-export {default as griddle} from './griddle-reducer';
+export {data as data}
+export {local as local}

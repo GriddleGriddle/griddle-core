@@ -36,12 +36,13 @@
     "webpack-dev-server": "^1.9.0"
   },
   "dependencies": {
+    "immutable": "^3.7.2",
+    "lodash.assign": "^3.2.0",
+    "max-safe-integer": "^1.0.0",
+    "object-assign": "~2.0.0",
+    "raw-loader": "^0.5.1",
     "react": "^0.13.3",
     "react-redux": "^0.2.1",
-    "redux": "^1.0.0-rc",
-    "raw-loader": "^0.5.1",
-    "immutable": "^3.7.2",
-    "max-safe-integer": "^1.0.0",
-    "object-assign": "~2.0.0"
+    "redux": "^1.0.0-rc"
   }
 }
