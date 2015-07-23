@@ -11,7 +11,6 @@ import * as GriddleActions from '../actions/local-actions';
 export default class GriddleContainer extends Component {
   render() {
     const { state, dispatch } = this.props;
-    debugger;
     return (
       <Griddle griddle={state.griddle}
         {...bindActionCreators(GriddleActions, dispatch)} />
