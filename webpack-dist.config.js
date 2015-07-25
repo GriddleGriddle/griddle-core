@@ -2,31 +2,23 @@ var webpack = require('webpack');
 
 module.exports = {
   devtool: 'eval',
-  entry: [
-    'webpack-dev-server/client?http://localhost:3000',
-    'webpack/hot/only-dev-server',
-    './js/index'
-  ],
+  entry: './js/module',
   output: {
-    path: __dirname + '/build/',,
+    path: __dirname + '/build/',
     filename: 'griddle.js',
-    publicPath: '/build/'
+    publicPath: '/build/',
+    libraryTarget: 'commonjs2'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoErrorsPlugin()
   ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['', '.js', '.jsx']
   },
   module: {
     loaders: [{
       test: /\.js$/,
-      loaders: ['react-hot', 'babel'],
-      exclude: /node_modules/,
-    }, {
-      test: /\.js$/,
       loaders: ['babel'],
-    }]
+      exclude: /node_modules/,
+    } ]
   }
 };

@@ -8,8 +8,11 @@ const helpers = Object.assign({}, HelperContainer.data, HelperContainer.local);
 
 export function GRIDDLE_LOADED_DATA(state, action) {
   //set state's data to this
-  return state
-  .set('data', Immutable.fromJS(action.data))
+  const tempState = state
+  .set('data', Immutable.fromJS(action.data));
+
+  return tempState
+  .set('visibleData', helpers.getVisibleData(state))
   .set('renderProperties', Immutable.fromJS(action.properties))
   .setIn(
     ['pageProperties', 'maxPage'],
@@ -17,6 +20,7 @@ export function GRIDDLE_LOADED_DATA(state, action) {
       action.data.length,
       state.getIn(['pageProperties', 'pageSize'])));
 }
+
 
 export function GRIDDLE_SET_PAGE_SIZE(state, action) {
   return state
