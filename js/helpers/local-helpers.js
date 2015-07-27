@@ -1,34 +1,24 @@
-export function getVisibleData(state) {
-  state = state || this.state;
+import * as DataHelpers from './data-helpers';
 
+export function getVisibleData(state) {
   //get the max page / current page and the current page of data
   const pageSize = state.getIn(['pageProperties', 'pageSize']);
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
-  let data =  this.getDataSet(state)
+  let data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
-  data = this.getDataColumns(state, data);
+  data = DataHelpers.getDataColumns(state, data);
 
   return data;
 }
 
 export function hasNext(state) {
-  state = state || this.state;
-
   return state.getIn(['pageProperties', 'currentPage']) <
     state.getIn(['pageProperties', 'maxPage']);
 }
 
 export function hasPrevious(state) {
-  state = state || this.state;
-
   return state.getIn(['pageProperties', 'currentPage']) > 1;
-}
-
-//static helper methods
-export function getPageCount(total, pageSize) {
-  const calc = total / pageSize;
-  return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
 }
 
 export function getDataSet(state) {
@@ -54,14 +44,13 @@ export function filter(state, filter) {
      .set('filteredData', filtered)
      .set('filter', filter)
      .setIn(['pageProperties', 'currentPage'], 1)
-
-   return newState
+   return updateVisibleData(newState
     .setIn(
       ['pageProperties', 'maxPage'],
-      this.getPageCount(
+      DataHelpers.getPageCount(
         //use getDataSet to make sure we're not getting rid of sort/etc
-        this.getDataSet(newState).length,
-        newState.getIn(['pageProperties', 'pageSize'])));
+        getDataSet(newState).length,
+        newState.getIn(['pageProperties', 'pageSize']))));
 }
 
 export function sortByColumns(state, columns, sortAscending=true) {
@@ -97,21 +86,33 @@ export function sortByColumns(state, columns, sortAscending=true) {
 
   //if filter is set we need to filter
   if(!!state.get('filter')) {
-    sorted = this.filter(sorted, sorted.get('filter'));
+    sorted = filter(sorted, sorted.get('filter'));
   }
 
-  return sorted;
+
+  return updateVisibleData(sorted);
+}
+
+/*
+  This function is used to remove some boiler plate that occurs in many of the reducers
+*/
+export function updateVisibleData(state) {
+  return state
+    .set('visibleData', getVisibleData(state))
+    .set('hasNext', hasNext(state))
+    .set('hasPrevious', hasPrevious(state));
 }
 
 export function getPage(state, pageNumber) {
-  const maxPage = this.getPageCount(
-    this.getDataSet(state).length,
+  const maxPage = DataHelpers.getPageCount(
+    getDataSet(state).length,
     state.getIn(['pageProperties', 'pageSize']));
 
   if(pageNumber >= 1 && pageNumber <= maxPage) {
-    return state
-      .setIn(['pageProperties', 'currentPage'], pageNumber)
-      .setIn(['pageProperties', 'maxPage'], maxPage);
+    return updateVisibleData(
+      state
+        .setIn(['pageProperties', 'currentPage'], pageNumber)
+        .setIn(['pageProperties', 'maxPage'], maxPage));
   }
 
   return state;

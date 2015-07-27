@@ -17,10 +17,18 @@ export function GRIDDLE_TOGGLE_COLUMN(state, action) {
     if(state.get('renderProperties').get(fromProperty) &&
       state.get('renderProperties').get(fromProperty).has(columnId)) {
         const columnValue = state.getIn(['renderProperties', fromProperty, columnId])
-
         return state
           .setIn(['renderProperties', toProperty, columnId], columnValue)
           .removeIn(['renderProperties', fromProperty, columnId]);
       }
   }
+  //check to see if the column is in hiddenColumnProperties
+  //if it is move it to columnProperties
+  const hidden = toggleColumn(action.columnId, 'hiddenColumnProperties', 'columnProperties');
+
+  //if it is not check to make sure it's in columnProperties and move to hiddenColumnProperties
+  const column = toggleColumn(action.columnId, 'columnProperties', 'hiddenColumnProperties');
+
+  //if it's neither just return state for now
+  return hidden || column || state;
 }

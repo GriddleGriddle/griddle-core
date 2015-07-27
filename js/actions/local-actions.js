@@ -36,7 +36,7 @@ export function setPageSize(pageSize) {
 
 export function sort(column){
   return {
-    actionType: types.GRIDDLE_SORT,
+    type: types.GRIDDLE_SORT,
     sortColumns: [column]
   };
 }
@@ -56,7 +56,7 @@ export function loadNext(){
 
 export function loadPrevious(){
   return {
-    types: types.GRIDDLE_PREVIOUS_PAGE
+    type: types.GRIDDLE_PREVIOUS_PAGE
   };
 }
 

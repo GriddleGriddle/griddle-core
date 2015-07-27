@@ -2,8 +2,8 @@
 import Immutable from 'immutable';
 import pick from '../utils/pick';
 import extend from 'lodash.assign';
-
 const initialState = Immutable.fromJS({});
+import * as types from '../constants/action-types';
 
 function combineAndOverrideReducers(containers) {
   containers.unshift({});

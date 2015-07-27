@@ -4,8 +4,8 @@ export default Immutable.fromJS({
   data: [],
   visibleData: [],
   columnTitles: [],
-  columnProperties: {},
   allColumns: [],
+  renderProperties: {},
   hasNext: false,
   hasPrevious: false,
   pageProperties: {

@@ -1,7 +1,8 @@
+import MAX_SAFE_INTEGER from 'max-safe-integer';
 
 export function getVisibleData(state = this.state) {
   const data =  state.get('data');
-  return this.getDataColumns(state, data);
+  return getDataColumns(state, data);
 }
 
 export function getState(state = this.state) {
@@ -11,6 +12,11 @@ export function getState(state = this.state) {
 export function getPageProperties(state = this.state) {
 
   return state.get('pageProperties');
+}
+
+export function getPageCount(total, pageSize) {
+  const calc = total / pageSize;
+  return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
 }
 
 export function getColumnTitles(state = this.state) {
