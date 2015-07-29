@@ -5,6 +5,11 @@ export function getVisibleData(state = this.state) {
   return getDataColumns(state, data);
 }
 
+export function updateVisibleData(state) {
+  return state
+    .set('visibleData', getVisibleData(state));
+}
+
 export function getState(state = this.state) {
   return state;
 }

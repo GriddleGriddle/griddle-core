@@ -6,6 +6,7 @@ const initialState = Immutable.fromJS({});
 import * as types from '../constants/action-types';
 
 function combineAndOverrideReducers(containers) {
+  if(!containers) { return {}; }
   containers.unshift({});
   let griddleReducers = extend.apply(this, containers);
 
@@ -24,15 +25,16 @@ function combineInitialState(states) {
 }
 
 //TODO: maybe add helpers in here too and override them on add. idk
-export default function buildGriddleReducer(initialStates, reducers) {
+export default function buildGriddleReducer(initialStates, reducers, helpers) {
     const griddleState = combineInitialState(initialStates);
     const griddleReducers = combineAndOverrideReducers(reducers);
+    const griddleHelpers = combineAndOverrideReducers(helpers);
 
     //TODO: Decrease the inception
-    return function griddleReducer(state = griddleState, action) {
+    return function griddleReducer(state = griddleState, action, helpers = griddleHelpers) {
       return griddleReducers[action.type] ?
-        griddleReducers[action.type](state, action) :
-        griddleState;
+        griddleReducers[action.type](state, action, helpers) :
+        state;
     }
 }
 

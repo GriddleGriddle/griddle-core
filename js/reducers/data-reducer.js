@@ -5,14 +5,14 @@ import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 
-export function GRIDDLE_INITIALIZED(state, action) {}
+export function GRIDDLE_INITIALIZED(state, action, helpers) {}
 
-export function GRIDDLE_LOADED_DATA(state, action) {
+export function GRIDDLE_LOADED_DATA(state, action, helpers) {
   return state.set('data', Immutable.fromJS(action.data))
     .set('renderProperties', Immutable.fromJS(action.properties));
 }
 
-export function GRIDDLE_TOGGLE_COLUMN(state, action) {
+export function GRIDDLE_TOGGLE_COLUMN(state, action, helpers) {
   const toggleColumn = function(columnId, fromProperty, toProperty) {
     if(state.get('renderProperties').get(fromProperty) &&
       state.get('renderProperties').get(fromProperty).has(columnId)) {
@@ -22,6 +22,7 @@ export function GRIDDLE_TOGGLE_COLUMN(state, action) {
           .removeIn(['renderProperties', fromProperty, columnId]);
       }
   }
+
   //check to see if the column is in hiddenColumnProperties
   //if it is move it to columnProperties
   const hidden = toggleColumn(action.columnId, 'hiddenColumnProperties', 'columnProperties');
@@ -30,5 +31,5 @@ export function GRIDDLE_TOGGLE_COLUMN(state, action) {
   const column = toggleColumn(action.columnId, 'columnProperties', 'hiddenColumnProperties');
 
   //if it's neither just return state for now
-  return hidden || column || state;
+  return helpers.updateVisibleData(hidden || column || state);
 }
