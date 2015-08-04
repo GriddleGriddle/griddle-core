@@ -17,7 +17,7 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
 
   //set state's data to this
   const tempState = state
-  .set('data', Immutable.fromJS(action.data))
+  .set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
   .set('allColumns', columns)
   .set('renderProperties', Immutable.fromJS(action.properties))
   .setIn(

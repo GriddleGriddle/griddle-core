@@ -19,6 +19,13 @@ export function getPageProperties(state = this.state) {
   return state.get('pageProperties');
 }
 
+export function addKeyToRows(data) {
+  let key = 0;
+  const getKey = (() => key++);
+
+  return data.map(row => row.set('griddleKey', getKey()));
+}
+
 export function getPageCount(total, pageSize) {
   const calc = total / pageSize;
   return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
@@ -76,7 +83,6 @@ export function getDataColumns(state, data) {
 
     return data
       .map(item => item
-        .filter((val, key) => keys.indexOf(key) > -1 )
         .sortBy((val, key) => keys.indexOf(key))
       );
   }

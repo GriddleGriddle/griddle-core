@@ -8,7 +8,7 @@ import MAX_SAFE_INTEGER from 'max-safe-integer';
 export function GRIDDLE_INITIALIZED(state, action, helpers) {}
 
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {
-  return state.set('data', Immutable.fromJS(action.data))
+  return state.set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
     .set('renderProperties', Immutable.fromJS(action.properties));
 }
 
