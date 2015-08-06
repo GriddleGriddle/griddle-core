@@ -53,7 +53,8 @@ export function GRIDDLE_SET_PAGE_SIZE(state, action, helpers) {
 
       return helpers.updateVisibleData(stateWithMaxPage);
 }
-
+export function GRIDDLE_LOADED_DATA_BEFORE(state, action, helpers) {console.log("HI FROM LOCAL"); return state; }
+export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {console.log("BYE FROM LOCAL"); return state; }
 export function GRIDDLE_GET_PAGE(state, action, helpers) {
   return(helpers
     .getPage(state, action.pageNumber));
