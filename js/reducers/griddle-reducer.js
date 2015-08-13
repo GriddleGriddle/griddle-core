@@ -9,7 +9,7 @@ function combineAndOverrideReducers(containers) {
   if(!containers) { return {}; }
   containers.unshift({});
   let griddleReducers = extend.apply(this, containers);
-
+  containers.shift();
   return griddleReducers;
 }
 
