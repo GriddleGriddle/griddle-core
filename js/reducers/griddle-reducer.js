@@ -93,13 +93,31 @@ function combineInitialState(states) {
   return griddleState;
 }
 
+//TODO: This is not the most efficient way to do this.
+function buildReducerWithHooks(reducers, reducer) {
+  const filteredReducerEndings = ['BEFORE', 'AFTER', 'BEFORE_REDUCE', 'AFTER_REDUCE'];
+
+  const validKeys = Object.keys(reducer).filter(key => {
+    return !filteredReducerEndings.some(reducerEnding => key.endsWith(reducerEnding))
+  });
+
+  const preReduce = getReducersByWordEnding(reducers, "BEFORE_REDUCE").BEFORE_REDUCE;
+  const postReduce = getReducersByWordEnding(reducers, "AFTER_REDUCE").AFTER_REDUCE;
+
+  let retVal = {};
+  validKeys.forEach(key => retVal[key] = wrapReducer(postReduce, wrapReducer(preReduce, reducer[key])));
+debugger;
+  return extend(reducer, retVal);
+}
+
 //TODO: maybe add helpers in here too and override them on add. idk
 export default function buildGriddleReducer(initialStates, reducers, helpers) {
     const beforeReducers = getBeforeReducers(reducers);
     const afterReducers = getAfterReducers(reducers);
     const griddleReducers = combineAndOverrideReducers(reducers);
 
-    const finalReducer = wrapReducers(beforeReducers, griddleReducers, afterReducers);
+    const wrappedReducers = buildReducerWithHooks(reducers, wrapReducers(beforeReducers, griddleReducers, afterReducers));
+    const finalReducer = wrappedReducers;
 
     const griddleState = combineInitialState(initialStates);
     const griddleHelpers = combineAndOverrideReducers(helpers);
