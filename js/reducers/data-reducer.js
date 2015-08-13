@@ -8,6 +8,16 @@ import MAX_SAFE_INTEGER from 'max-safe-integer';
 export function GRIDDLE_LOADED_DATA_BEFORE(state, action, helpers) {console.log("HI FROM DATA"); return state; }
 export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {console.log("BYE FROM DATA"); return state; }
 
+export function BEFORE_REDUCE(state, action, helpers) {
+  console.log("DATA BEFORE REDUCE");
+  return state;
+}
+
+export function AFTER_REDUCE(state, action, helpers) {
+  console.log("DATA AFTER REDUCE");
+  return state;
+}
+
 export function GRIDDLE_INITIALIZED(state, action, helpers) {}
 
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {

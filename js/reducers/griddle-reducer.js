@@ -58,8 +58,13 @@ function wrapReducer(next, previous) {
     next;
 }
 
+//TODO: Maybe this is dumb becuase it's just wrapping a typeof
+function isFunction(item) {
+  return typeof(item) === 'function';
+}
+
 function isFunctionOrUndefined(item) {
-  return typeof(item) === 'function' || typeof(item) === 'undefined';
+  return isFunction(item) || typeof(item) === 'undefined';
 }
 
 function wrapReducers(...reducers) {
