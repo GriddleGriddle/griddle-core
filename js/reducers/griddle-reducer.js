@@ -106,7 +106,7 @@ function buildReducerWithHooks(reducers, reducer) {
 
   let retVal = {};
   validKeys.forEach(key => retVal[key] = wrapReducer(postReduce, wrapReducer(preReduce, reducer[key])));
-debugger;
+
   return extend(reducer, retVal);
 }
 

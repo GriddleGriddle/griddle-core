@@ -6,8 +6,7 @@ import * as HelperContainer from '../helpers';
 
 export function AFTER_REDUCE(state, action, helpers) {
   console.log("LOCAL AFTER REDUCE");
-  debugger;
-  return state.set('visibleData', []);
+  return state;
 }
 /*
   The handler that happens when data is loaded.
