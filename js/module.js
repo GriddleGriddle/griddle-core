@@ -1,5 +1,11 @@
+import * as reducers from './reducers';
+import * as states from './initialStates/index';
+import GriddleReducer from './reducers/griddle-reducer';
+import * as GriddleActions from './actions/local-actions';
+import * as GriddleHelpers from './helpers';
 
-module.exports = {}
-module.exports.LocalActions = require('./actions/local-action-creators');
-module.exports.DataStore = require('./stores/data-store');
-module.exports.LocalDataPlugin = require('./stores/local-data-plugin');
+export { reducers as Reducers }
+export { states as States }
+export { GriddleActions as GriddleActions };
+export { GriddleReducer as GriddleReducer };
+export {GriddleHelpers as GriddleHelpers}

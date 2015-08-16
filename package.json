@@ -9,14 +9,16 @@
     "test-debug": "./node_modules/.bin/karma start --browsers Chrome",
     "dist": "./node_modules/.bin/webpack --config webpack-dist.config.js"
   },
-  "author": "Ryan Lanciaux && Joel Lanciaux",
+  "author": "GriddleGriddle",
   "license": "MIT",
   "devDependencies": {
-    "babel": "^5.4.2",
-    "babel-core": "^5.4.2",
-    "babel-loader": "^5.0.0",
-    "babel-plugin-object-assign": "^1.1.0",
-    "coffee-script": "^1.9.2",
+    "babel": "^5.5.8",
+    "babel-core": "5.6.18",
+    "babel-eslint": "^3.1.15",
+    "babel-loader": "^5.1.4",
+    "babel-plugin-object-assign": "^1.2.0",
+    "eslint": "^0.23",
+    "eslint-plugin-react": "^2.3.0",
     "jasmine-core": "^2.2.0",
     "jsx-loader": "~0.12.2",
     "karma": "^0.12.32",
@@ -29,18 +31,19 @@
     "node-libs-browser": "^0.5.0",
     "phantomjs": "^1.9.16",
     "phantomjs-polyfill": "0.0.1",
-    "react-draggable": "^0.6.0",
-    "react-hot-loader": "~1.2.3",
-    "webpack": "^1.9.5",
-    "webpack-dev-server": "~1.7.0"
+    "react-hot-loader": "~1.2.7",
+    "webpack": "^1.9.11",
+    "webpack-dev-server": "^1.9.0"
   },
   "dependencies": {
-    "eventemitter3": "~0.1.6",
-    "flux": "~2.0.1",
     "immutable": "^3.7.2",
-    "lodash": "~3.5.0",
+    "lodash.assign": "^3.2.0",
+    "lodash.pick": "^3.1.0",
     "max-safe-integer": "^1.0.0",
     "object-assign": "~2.0.0",
-    "react": "~0.13.1"
+    "raw-loader": "^0.5.1",
+    "react": "^0.13.3",
+    "react-redux": "^0.2.1",
+    "redux": "^1.0.0-rc"
   }
 }

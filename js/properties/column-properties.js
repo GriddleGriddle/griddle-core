@@ -1,5 +1,3 @@
-var _ = require('lodash');
-
 class ColumnProperties{
   constructor (columnMetadata = {}, horizontalOffset, tableWidth){
     this.columnMetadata = columnMetadata;

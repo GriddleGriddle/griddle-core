@@ -1,24 +1,24 @@
 var webpack = require('webpack');
 
-var exports = {
-  plugins: [
-  ],
-  resolve: {
-    extensions: ['', '.js', '.jsx']
-  },
-  watch: true,
+module.exports = {
+  devtool: 'eval',
+  entry: './js/module',
   output: {
     path: __dirname + '/build/',
     filename: 'griddle.js',
     publicPath: '/build/',
     libraryTarget: 'commonjs2'
   },
-  entry: './js/module',
+  plugins: [
+  ],
+  resolve: {
+    extensions: ['', '.js', '.jsx']
+  },
   module: {
-    loaders: [
-      { test: /\.jsx?$/, loaders: ['babel?{"plugins":["babel-plugin-object-assign"]}'], exclude: /node_modules/ }
-    ]
+    loaders: [{
+      test: /\.js$/,
+      loaders: ['babel'],
+      exclude: /node_modules/,
+    } ]
   }
 };
-
-module.exports = exports;
