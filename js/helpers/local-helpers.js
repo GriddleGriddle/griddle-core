@@ -35,7 +35,7 @@ export function filter(state, filter) {
     .filter(row  => {
       return Object.keys(row.toJSON())
         .some(key => {
-          return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1 
+          return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
         })
       })
 
@@ -44,13 +44,13 @@ export function filter(state, filter) {
      .set('filteredData', filtered)
      .set('filter', filter)
      .setIn(['pageProperties', 'currentPage'], 1)
-   return updateVisibleData(newState
+   return newState
     .setIn(
       ['pageProperties', 'maxPage'],
       DataHelpers.getPageCount(
         //use getDataSet to make sure we're not getting rid of sort/etc
         getDataSet(newState).length,
-        newState.getIn(['pageProperties', 'pageSize']))));
+        newState.getIn(['pageProperties', 'pageSize'])));
 }
 
 export function sortByColumns(state, columns, sortAscending=true) {
@@ -90,17 +90,7 @@ export function sortByColumns(state, columns, sortAscending=true) {
   }
 
 
-  return updateVisibleData(sorted);
-}
-
-/*
-  This function is used to remove some boiler plate that occurs in many of the reducers
-*/
-export function updateVisibleData(state) {
-  return state
-    .set('visibleData', getVisibleData(state))
-    .set('hasNext', hasNext(state))
-    .set('hasPrevious', hasPrevious(state));
+  return sorted;
 }
 
 export function getPage(state, pageNumber) {
@@ -109,10 +99,9 @@ export function getPage(state, pageNumber) {
     state.getIn(['pageProperties', 'pageSize']));
 
   if(pageNumber >= 1 && pageNumber <= maxPage) {
-    return updateVisibleData(
-      state
+    return state
         .setIn(['pageProperties', 'currentPage'], pageNumber)
-        .setIn(['pageProperties', 'maxPage'], maxPage));
+        .setIn(['pageProperties', 'maxPage'], maxPage);
   }
 
   return state;

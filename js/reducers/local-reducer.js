@@ -30,10 +30,14 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
       action.data.length,
       state.getIn(['pageProperties', 'pageSize'])));
 
-  return tempState
-  .set('visibleData', helpers.getVisibleData(tempState))
-  .set('hasNext', helpers.hasNext(tempState))
-  .set('hasPrevious', helpers.hasPrevious(tempState));
+  return tempState;
+}
+
+export function AFTER_REDUCE(state, action, helpers) {
+   return state
+    .set('visibleData', helpers.getVisibleData(state))
+    .set('hasNext', helpers.hasNext(state))
+    .set('hasPrevious', helpers.hasPrevious(state));
 }
 
 /*
@@ -55,10 +59,12 @@ export function GRIDDLE_SET_PAGE_SIZE(state, action, helpers) {
           state.get('data').length,
           action.pageSize));
 
-      return helpers.updateVisibleData(stateWithMaxPage);
+      return stateWithMaxPage;
 }
-export function GRIDDLE_LOADED_DATA_BEFORE(state, action, helpers) {console.log("HI FROM LOCAL"); return state; }
-export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {console.log("BYE FROM LOCAL"); return state; }
+
+//TODO: Move the helper function to the method body and call this
+//      from next / previous. This will be easier since we have
+//      the AFTER_REDUCE stuff now.
 export function GRIDDLE_GET_PAGE(state, action, helpers) {
   return(helpers
     .getPage(state, action.pageNumber));
@@ -83,14 +89,13 @@ export function GRIDDLE_FILTERED(state, action, helpers) {
       .setIn(['pageProperties', 'currentPage'], 1)
       .set('filter', '')
 
-      return helpers.updateVisibleData(
-        newState
-          .setIn(
-            ['pageProperties', 'maxPage'],
-            helpers.getPageCount(
-              //use getDataSet to make sure we're not getting rid of sort/etc
-              helpers.getDataSet(newState).length,
-              newState.getIn(['pageProperties', 'pageSize']))));
+      return newState
+        .setIn(
+          ['pageProperties', 'maxPage'],
+          helpers.getPageCount(
+            //use getDataSet to make sure we're not getting rid of sort/etc
+            helpers.getDataSet(newState).length,
+            newState.getIn(['pageProperties', 'pageSize'])));
   }
 
   return helpers.filter(state, action.filter, helpers);
