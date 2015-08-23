@@ -4,12 +4,11 @@ export function getVisibleData(state) {
   //get the max page / current page and the current page of data
   const pageSize = state.getIn(['pageProperties', 'pageSize']);
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
-  let data =  getDataSet(state)
+  const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
-  data = DataHelpers.getDataColumns(state, data);
-
-  return data;
+  const columns = DataHelpers.getDataColumns(state, data);
+  return DataHelpers.getSortedColumns(data, columns);
 }
 
 export function hasNext(state) {

@@ -5,11 +5,8 @@ import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 
-export function GRIDDLE_LOADED_DATA_BEFORE(state, action, helpers) {console.log("HI FROM DATA"); return state; }
-export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {console.log("BYE FROM DATA"); return state; }
-
+//TODO: Dumb bug requires this to be here for things to work
 export function BEFORE_REDUCE(state, action, helpers) {
-  console.log("DATA BEFORE REDUCE");
   return state;
 }
 
