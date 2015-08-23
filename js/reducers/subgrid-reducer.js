@@ -8,7 +8,7 @@ import extend from 'lodash.assign';
 
 export function AFTER_REDUCE(state, action, helpers) {
   const data = state.get('visibleData');
-  const factory = ((settings) => { return {...settings, depth : settings.depth +1, visible: true }});
+  const factory = ((settings) => { return {...settings, depth : settings.depth +1, visible: false }});
 
   const flattenedData = data.flatMap(FlatMapHelper, {settings: {parentId: null, depth: 0, expanded: false, visible: true}, factory });
 
@@ -19,6 +19,11 @@ export function AFTER_REDUCE(state, action, helpers) {
 
   return state
     .set('visibleData', helpers.getSortedColumns(flattenedData, columns))
+}
+
+export function GRIDDLE_ROW_EXPANDED(state, action, helpers) {
+  debugger;
+  return state;
 }
 
 export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {
