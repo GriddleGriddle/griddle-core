@@ -9,14 +9,14 @@ import extend from 'lodash.assign';
 
 /*
 OVERALL TODO:
-  Update expanded in child rows.
+  fix column order
 */
 export function AFTER_REDUCE(state, action, helpers) {
   const data = state.get('visibleData');
   const columns = helpers.getDataColumns(state, data);
   const properties = getProperties(columns);
   columns.push(properties.childrenPropertyName);
-debugger;
+
   return state
     .set('visibleData', helpers.getSortedColumns(data, columns))
 }
