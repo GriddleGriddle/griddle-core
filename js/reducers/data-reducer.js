@@ -11,7 +11,6 @@ export function BEFORE_REDUCE(state, action, helpers) {
 }
 
 export function AFTER_REDUCE(state, action, helpers) {
-  console.log("DATA AFTER REDUCE");
   return state;
 }
 
