@@ -1,9 +1,11 @@
 import * as DataHelpers from './data-helpers';
 
 export function getVisibleData(state) {
+
   //get the max page / current page and the current page of data
   const pageSize = state.getIn(['pageProperties', 'pageSize']);
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
+
   const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
@@ -21,8 +23,8 @@ export function hasPrevious(state) {
 }
 
 export function getDataSet(state) {
-  if(!!state.get('filter')){
-    return state.get('filteredData');
+  if(state.get('filter') && state.get('filter') !== '') {
+    return filterData(state.get('data'), state.get('filter'));
   }
 
   return state.get('data');
@@ -35,24 +37,6 @@ export function filterData(data, filter) {
           return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
         })
       })
-}
-
-export function filter(state, filter) {
-  //TODO: We need to support filtering by specific columns
-  var filtered = filterData(state.get('data'), filter);
-
-   //TODO: Merge this with the filter settings in GRIDDLE_FILTERED because they are the same
-   const newState = state
-     .set('filteredData', filtered)
-     .set('filter', filter)
-     .setIn(['pageProperties', 'currentPage'], 1)
-   return newState
-    .setIn(
-      ['pageProperties', 'maxPage'],
-      DataHelpers.getPageCount(
-        //use getDataSet to make sure we're not getting rid of sort/etc
-        getDataSet(newState).length,
-        newState.getIn(['pageProperties', 'pageSize'])));
 }
 
 export function sortByColumns(state, columns, sortAscending=true) {

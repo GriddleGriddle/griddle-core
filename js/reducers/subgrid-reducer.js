@@ -11,10 +11,20 @@ import extend from 'lodash.assign';
 OVERALL TODO:
   fix column order
 */
+
+function transform(data, state, childrenPropertyName = 'children') {
+  let currentData = data;
+  if(state.get('filter') && state.get('filter') !== '') {
+    currentData = filterChildren(data, state.get('filter'), childrenPropertyName);
+  }
+
+  return currentData;
+}
+
 export function AFTER_REDUCE(state, action, helpers) {
-  const data = state.get('visibleData');
   const columns = helpers.getDataColumns(state, data);
   const properties = getProperties(columns);
+  const data = transform(state.get('visibleData'), state, properties.childrenPropertyName);
   columns.push(properties.childrenPropertyName);
 
   return state
@@ -22,7 +32,7 @@ export function AFTER_REDUCE(state, action, helpers) {
 }
 
 //TODO: Make this more efficient where it'll stop when it finds the record it's looking for
-function toggleExpanded(data, griddleKey, childrenPropertyName) {
+function toggleExpanded(data, griddleKey, childrenPropertyName = 'children') {
   return data.map(row => {
     let children = row.get(childrenPropertyName);
 
@@ -77,15 +87,6 @@ function filterChildrenData(rows, filter, childrenPropertyName = 'children') {
     return hasMatch;
   });
   return values;
-}
-
-export function GRIDDLE_FILTERED_AFTER(state, action, helpers) {
-  //map all rows to rows but set children to match the filter
-  const columns = helpers.getDataColumns(state, state.get('data'));
-  const properties = getProperties(columns);
-
-const filteredData = filterChildren(state.get('filteredData'), action.filter, properties.childrenPropertyName);
-  return state.set('filteredData', filteredData);
 }
 
 export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {
