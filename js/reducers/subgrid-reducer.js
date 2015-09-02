@@ -47,6 +47,47 @@ export function GRIDDLE_ROW_TOGGLED(state, action, helpers) {
   return state.set('data', toggleExpanded(state.get('data'), action.griddleKey, properties.childrenPropertyName));
 }
 
+//TODO: This is almost the same as the filterChildrenData method but not applying the filter method :/
+function filterChildren(rows, filter, childrenPropertyName = 'children') {
+  return rows.map(row => {
+    let children = row.get(childrenPropertyName);
+
+    if(children && children.size > 0) {
+      children = filterChildrenData(row.get(childrenPropertyName), filter, childrenPropertyName)
+    }
+
+    return row
+      .set(childrenPropertyName, children)
+  });
+}
+
+function filterChildrenData(rows, filter, childrenPropertyName = 'children') {
+  const values = rows.filter(row => {
+    let children = row.get(childrenPropertyName);
+
+    if(children && children.size > 0) {
+      children = filterChildrenData(row.get(childrenPropertyName), filter, childrenPropertyName)
+    }
+
+    const hasMatch = (children && children.length > 0) || (Object.keys(row.toJSON())
+      .some(key => {
+        return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
+      }));
+
+    return hasMatch;
+  });
+  return values;
+}
+
+export function GRIDDLE_FILTERED_AFTER(state, action, helpers) {
+  //map all rows to rows but set children to match the filter
+  const columns = helpers.getDataColumns(state, state.get('data'));
+  const properties = getProperties(columns);
+
+const filteredData = filterChildren(state.get('filteredData'), action.filter, properties.childrenPropertyName);
+  return state.set('filteredData', filteredData);
+}
+
 export function GRIDDLE_LOADED_DATA_AFTER(state, action, helpers) {
   const data = state.get('data');
 

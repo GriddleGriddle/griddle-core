@@ -28,15 +28,18 @@ export function getDataSet(state) {
   return state.get('data');
 }
 
-export function filter(state, filter) {
-  //TODO: We need to support filtering by specific columns
-  var filtered = state.get('data')
-    .filter(row  => {
+export function filterData(data, filter) {
+    return data.filter(row  => {
       return Object.keys(row.toJSON())
         .some(key => {
           return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
         })
       })
+}
+
+export function filter(state, filter) {
+  //TODO: We need to support filtering by specific columns
+  var filtered = filterData(state.get('data'), filter);
 
    //TODO: Merge this with the filter settings in GRIDDLE_FILTERED because they are the same
    const newState = state
