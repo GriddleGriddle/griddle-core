@@ -7,6 +7,5 @@ export default Immutable.fromJS({
     sortColumns: [],
     sortAscending: true
   },
-  filter: '',
-  filteredData: Immutable.fromJS([])
+  filter: ''
 });
