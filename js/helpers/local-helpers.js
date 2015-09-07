@@ -39,14 +39,8 @@ export function filterData(data, filter) {
       })
 }
 
-export function sortByColumns(state, columns, sortAscending=true) {
-  if(columns.length === 0 || !state.get('data')) { return state; }
-
-  //TODO: this should compare the whole array
-  const reverse = state.getIn(['sortProperties', 'sortAscending']) === true && state.getIn(['sortProperties', 'sortColumns'])[0] === columns[0];
-  let sorted = state.set(
-    'data',
-    state.get('data').sort(
+export function getSortedData(data, columns, sortAscending = true) {
+  return data.sort(
     (original, newRecord) => {
       original = (!!original.get(columns[0]) && original.get(columns[0])) || "";
       newRecord = (!!newRecord.get(columns[0]) && newRecord.get(columns[0])) || "";
@@ -56,25 +50,34 @@ export function sortByColumns(state, columns, sortAscending=true) {
       if(original === newRecord) {
         return 0;
       } else if (original > newRecord) {
-        return 1;
+        return sortAscending ? 1 : -1;
       }
       else {
-        return -1;
+        return sortAscending ? -1 : 1;
       }
-    })
+    });
+}
+
+export function sortByColumns(state, columns, sortAscending = null) {
+  if(columns.length === 0 || !state.get('data')) { return state; }
+
+  //TODO: Clean this up -- all the ! logic is kind of silly for reverse / not reverse etc.
+  const reverse = sortAscending !== null ?
+    sortAscending :
+    (state.getIn(['sortProperties', 'sortAscending']) === true && state.getIn(['sortProperties', 'sortColumns'])[0] === columns[0]);
+
+  let sorted = state.set(
+    'data',
+    getSortedData(state.get('data'), columns, !reverse)
   )
   .setIn(['sortProperties', 'sortAscending'], !reverse)
   .setIn(['sortProperties', 'sortColumns'], columns);
 
-  if(reverse){
-    sorted = sorted.set('data', sorted.get('data').reverse());
-  }
-
   //if filter is set we need to filter
+  //TODO: filter the data when it's being sorted
   if(!!state.get('filter')) {
     sorted = filter(sorted, sorted.get('filter'));
   }
-
 
   return sorted;
 }

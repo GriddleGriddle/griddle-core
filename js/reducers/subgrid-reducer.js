@@ -11,6 +11,9 @@ import extend from 'lodash.assign';
 OVERALL TODO:
   fix column order
 */
+function hasChildren(record, childrenPropertyName = 'children') {
+  return (record.get(childrenPropertyName) && record.get(childrenPropertyName).size > 0)
+}
 
 function transform(data, state, childrenPropertyName = 'children') {
   let currentData = data;
@@ -21,14 +24,35 @@ function transform(data, state, childrenPropertyName = 'children') {
   return currentData;
 }
 
+function sortChildren(data, state, helpers, childrenPropertyName = 'children') {
+  const sortColumns = state.getIn(['sortProperties', 'sortColumns']);
+  const sortAscending = state.getIn(['sortProperties', 'sortAscending']);
+
+  if(!sortColumns || !helpers) { console.log("returned data"); return data; }
+  //TODO: can get rid of this layer -- was an artifact of moving stuff around
+  const getSortedRows = (data, sort = false) => {
+    const mappedData = data.map((row, index) => {
+      return hasChildren(row) && row.get('expanded') === true ?
+        row.set('children', getSortedRows(row.get('children'), true)) :
+        row
+    });
+
+    return sort ? helpers.getSortedData(mappedData, sortColumns, sortAscending) : mappedData;
+  }
+
+  return getSortedRows(data)
+}
+
 export function AFTER_REDUCE(state, action, helpers) {
   const columns = helpers.getDataColumns(state, data);
   const properties = getProperties(columns);
   const data = transform(state.get('visibleData'), state, properties.childrenPropertyName);
+
+
   columns.push(properties.childrenPropertyName);
 
   return state
-    .set('visibleData', helpers.getSortedColumns(data, columns))
+    .set('visibleData', sortChildren(helpers.getSortedColumns(data, columns), state, helpers, properties.childrenPropertyName));
 }
 
 //TODO: Make this more efficient where it'll stop when it finds the record it's looking for
