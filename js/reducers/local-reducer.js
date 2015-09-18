@@ -2,7 +2,6 @@
 
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
-import * as HelperContainer from '../helpers';
 
 export function AFTER_REDUCE(state, action, helpers) {
   console.log("LOCAL AFTER REDUCE");
