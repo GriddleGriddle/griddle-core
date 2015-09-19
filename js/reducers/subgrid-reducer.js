@@ -74,6 +74,7 @@ function toggleExpanded(data, griddleKey, childrenPropertyName = 'children') {
 }
 
 export function GRIDDLE_ROW_TOGGLED(state, action, helpers) {
+  //TODO: Shouldn't this be { griddleKey } = action;
   const griddleKey = { action }
   const columns = helpers.getDataColumns(state, state.get('data'));
   const properties = getProperties(columns);
