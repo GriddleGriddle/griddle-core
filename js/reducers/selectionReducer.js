@@ -26,7 +26,6 @@ function selectRow(data, rowTemplateFunction, childrenPropertyName = 'children')
 }
 
 export function GRIDDLE_ROW_SELECTION_TOGGLED(state, action, helpers) {
-  debugger;
   const { griddleKey } = action;
   const columns = helpers.getDataColumns(state, state.get('data'));
   const properties = getProperties(columns);
