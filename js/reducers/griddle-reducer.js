@@ -5,7 +5,7 @@ import extend from 'lodash.assign';
 const initialState = Immutable.fromJS({});
 import * as types from '../constants/action-types';
 
-function combineAndOverrideReducers(containers) {
+export function combineAndOverrideReducers(containers) {
   if(!containers) { return {}; }
   containers.unshift({});
   let griddleReducers = extend.apply(this, containers);
@@ -17,7 +17,7 @@ function combineAndOverrideReducers(containers) {
   This method creates a pipeline of reducers. This is mainly
   used for the before / after reducers
 */
-function getReducersByWordEnding(reducers, ending) {
+export function getReducersByWordEnding(reducers, ending) {
   return reducers.reduce((previous, current) => {
     const keys = Object.keys(current).filter((name) => name.endsWith(ending));
 
@@ -42,16 +42,16 @@ function getReducersByWordEnding(reducers, ending) {
   }, {});
 }
 
-function getBeforeReducers(reducers) {
+export function getBeforeReducers(reducers) {
   return getReducersByWordEnding(reducers, "BEFORE");
 }
 
-function getAfterReducers(reducers) {
+export function getAfterReducers(reducers) {
   return getReducersByWordEnding(reducers, "AFTER");
 }
 
 //feed the result of previous reducer into next
-function wrapReducer(next, previous) {
+export function wrapReducer(next, previous) {
   //if previous reducer exists -- return the result of wrapper as state to next
   return previous && typeof(previous) === 'function' && typeof(next) === 'function' ?
     (state, action, helpers) => next(previous(state, action, helpers), action, helpers) :
@@ -82,7 +82,7 @@ function wrapReducers(...reducers) {
   return finalReducer;
 }
 
-function combineInitialState(states) {
+export function combineInitialState(states) {
   //TODO: Do this in a better way
   let griddleState = initialState;
 
