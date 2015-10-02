@@ -143,8 +143,8 @@ describe('GriddleReducer', () => {
     it('combines the reducers with before_reduce / after_reduce', () => {
       const base = {
         DO_SOMETHING: (state) => state.set('example', `${state.get('example')} middle`),
-        BEFORE_REDUCE: (state) => state.set('example', `before ${state.get('example')} `),
-        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')}after`)
+        BEFORE_REDUCE: (state) => state.set('example', `before ${state.get('example')}`),
+        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')} after`)
       }
       
       const state = Immutable.fromJS({example: 'hi'})
