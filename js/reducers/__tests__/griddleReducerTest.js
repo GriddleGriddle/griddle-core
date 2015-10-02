@@ -4,7 +4,8 @@ import GriddleReducer, {
   getAfterReducers,
   getReducersByWordEnding,
   wrapReducer,
-  combineInitialState
+  combineInitialState,
+  buildReducerWithHooks
 } from '../griddle-reducer'
 
 import Immutable from 'immutable';
@@ -136,5 +137,43 @@ describe('GriddleReducer', () => {
       expect(states.get('two')).toEqual('second');
       expect(states.get('three')).toEqual('third');
     });
+  });
+
+  describe('buildReducerWithHooks', () => {
+    it('combines the reducers with before_reduce / after_reduce', () => {
+      const base = {
+        DO_SOMETHING: (state) => state.set('example', `${state.get('example')} middle`),
+        BEFORE_REDUCE: (state) => state.set('example', `before ${state.get('example')} `),
+        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')}after`)
+      }
+      
+      const state = Immutable.fromJS({example: 'hi'})
+      const reducer = buildReducerWithHooks([base], base)
+      expect(reducer.DO_SOMETHING(state).get('example')).toEqual('before hi middle after');
+    });
+
+    it('combines the reducers in the correct order', () => {
+      const base = {
+        DO_SOMETHING: (state) => state.set('example', `${state.get('example')}`),
+        BEFORE_REDUCE: (state) => state.set('example', `firstBefore ${state.get('example')}`),
+        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')} firstAfter`)
+      }
+
+      const second = {
+        BEFORE_REDUCE: (state) => state.set('example', `secondBefore ${state.get('example')}`),
+        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')} secondAfter`)
+      }
+
+       const third = {
+        BEFORE_REDUCE: (state) => state.set('example', `thirdBefore ${state.get('example')}`),
+        AFTER_REDUCE: (state) => state.set('example', `${state.get('example')} thirdAfter`)
+      }
+
+      const state = Immutable.fromJS({example: 'hi'})
+      const reducer = buildReducerWithHooks([base, second, third], base)
+        expect(reducer.DO_SOMETHING(state).get('example'))
+           //the before filters should be last first
+          .toEqual('thirdBefore secondBefore firstBefore hi firstAfter secondAfter thirdAfter');
+    })
   })
 });

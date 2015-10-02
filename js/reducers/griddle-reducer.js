@@ -94,7 +94,7 @@ export function combineInitialState(states) {
 }
 
 //TODO: This is not the most efficient way to do this.
-function buildReducerWithHooks(reducers, reducer) {
+export function buildReducerWithHooks(reducers, reducer) {
   const filteredReducerEndings = ['BEFORE', 'AFTER', 'BEFORE_REDUCE', 'AFTER_REDUCE'];
 
   const validKeys = Object.keys(reducer).filter(key => {
