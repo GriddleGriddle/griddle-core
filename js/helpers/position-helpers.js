@@ -30,8 +30,8 @@ export function updatePositionProperties(action, state, helpers, force) {
   let visibleDataLength = helpers.getDataSet(state).count();
 
   // Inspired by : http://jsfiddle.net/vjeux/KbWJ2/9/
-  let renderedStartDisplayIndex = Math.max(0, Math.floor(action.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25);
-  let renderedEndDisplayIndex = Math.min(renderedStartDisplayIndex + visibleRecordCount * 1.25, visibleDataLength - 1) + 1;
+  let renderedStartDisplayIndex = Math.max(0, Math.floor(Math.floor(action.yScrollPosition / adjustedHeight) - visibleRecordCount * 0.25));
+  let renderedEndDisplayIndex = Math.min(Math.floor(renderedStartDisplayIndex + visibleRecordCount * 1.25), visibleDataLength - 1) + 1;
 
   return state
     .setIn(['currentPosition', 'renderedStartDisplayIndex'], renderedStartDisplayIndex)
@@ -42,7 +42,7 @@ export function updatePositionProperties(action, state, helpers, force) {
 }
 
 export function updateRenderedData(state, helpers) {
-  let startDisplayIndex = state.getIn(['currentPosition', 'renderedStartDisplayIndex']); // -1
+  let startDisplayIndex = state.getIn(['currentPosition', 'renderedStartDisplayIndex']);
   return state
     .set('renderedData', helpers.getDataSet(state)
                           .skip(startDisplayIndex)
