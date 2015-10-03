@@ -53,7 +53,7 @@ function getAfterReducers(reducers) {
 //feed the result of previous reducer into next
 function wrapReducer(next, previous) {
   //if previous reducer exists -- return the result of wrapper as state to next
-  return previous && typeof(previous) === 'function' && typeof(next) === 'function' ? 
+  return previous && typeof(previous) === 'function' && typeof(next) === 'function' ?
     (state, action, helpers) => next(previous(state, action, helpers), action, helpers) :
     next;
 }
@@ -69,13 +69,13 @@ function isFunctionOrUndefined(item) {
 
 function wrapReducers(...reducers) {
   const finalReducer = reducers.reduce((previous, current) => {
-    //get all reducer methods and either set the prop 
+    //get all reducer methods and either set the prop
     for(var key in current) {
       if(isFunctionOrUndefined(current[key]) && isFunctionOrUndefined(previous[key])){
         previous[key] = wrapReducer(current[key], previous[key]);
       }
     }
-    
+
     return previous;
   }, {});
 

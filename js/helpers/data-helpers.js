@@ -1,8 +1,10 @@
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 
-export function getVisibleData(state = this.state) {
+export function getVisibleData(state) {
   const data =  state.get('data');
-  return getDataColumns(state, data);
+
+  const columns = getDataColumns(state, data);
+  return getSortedColumns(data, columns);
 }
 
 export function updateVisibleData(state) {
@@ -10,11 +12,11 @@ export function updateVisibleData(state) {
     .set('visibleData', getVisibleData(state));
 }
 
-export function getState(state = this.state) {
+export function getState(state) {
   return state;
 }
 
-export function getPageProperties(state = this.state) {
+export function getPageProperties(state) {
 
   return state.get('pageProperties');
 }
@@ -31,7 +33,7 @@ export function getPageCount(total, pageSize) {
   return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
 }
 
-export function getColumnTitles(state = this.state) {
+export function getColumnTitles(state) {
   if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
     return state
       .get('renderProperties')
@@ -47,7 +49,7 @@ export function getColumnTitles(state = this.state) {
   return {};
 }
 
-export function getColumnProperties(state = this.state) {
+export function getColumnProperties(state) {
   if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
     return state
       .get('renderProperties')
@@ -57,13 +59,13 @@ export function getColumnProperties(state = this.state) {
   return {};
 }
 
-export function getVisibleColumns(state = this.state) {
+export function getVisibleColumns(state) {
   if(this.state.get('data').size === 0) {
     return new Immutable.fromJS([]);
   }
 }
 
-export function getAllPossibleColumns(state = this.state) {
+export function getAllPossibleColumns(state) {
   if(this.state.get('data').size === 0) {
     return new Immutable.fromJS([]);
   }
@@ -71,7 +73,11 @@ export function getAllPossibleColumns(state = this.state) {
   return this.state.get('data').get(0).keySeq();
 }
 
-//TODO: consider moving state after data so that we can assign state = this.state by default
+export function getSortedColumns(data, columns) {
+  return data
+    .map(item => item.sortBy((val, key) => columns.indexOf(key)));
+}
+
 export function getDataColumns(state, data) {
   if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
     const keys = state
@@ -81,11 +87,8 @@ export function getDataColumns(state, data) {
       .keySeq()
       .toJSON();
 
-    return data
-      .map(item => item
-        .sortBy((val, key) => keys.indexOf(key))
-      );
+    return keys;
   }
 
-  return data;
+  return [];
 }

@@ -1,15 +1,16 @@
 import * as DataHelpers from './data-helpers';
 
 export function getVisibleData(state) {
+
   //get the max page / current page and the current page of data
   const pageSize = state.getIn(['pageProperties', 'pageSize']);
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
-  let data =  getDataSet(state)
+
+  const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
-  data = DataHelpers.getDataColumns(state, data);
-
-  return data;
+  const columns = DataHelpers.getDataColumns(state, data);
+  return DataHelpers.getSortedColumns(data, columns);
 }
 
 export function hasNext(state) {
@@ -22,45 +23,24 @@ export function hasPrevious(state) {
 }
 
 export function getDataSet(state) {
-  if(!!state.get('filter')){
-    return state.get('filteredData');
+  if(state.get('filter') && state.get('filter') !== '') {
+    return filterData(state.get('data'), state.get('filter'));
   }
 
   return state.get('data');
 }
 
-export function filter(state, filter) {
-  //TODO: We need to support filtering by specific columns
-  var filtered = state.get('data')
-    .filter(row  => {
+export function filterData(data, filter) {
+    return data.filter(row  => {
       return Object.keys(row.toJSON())
         .some(key => {
-          return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1 
+          return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
         })
       })
-
-   //TODO: Merge this with the filter settings in GRIDDLE_FILTERED because they are the same
-   const newState = state
-     .set('filteredData', filtered)
-     .set('filter', filter)
-     .setIn(['pageProperties', 'currentPage'], 1)
-   return updateVisibleData(newState
-    .setIn(
-      ['pageProperties', 'maxPage'],
-      DataHelpers.getPageCount(
-        //use getDataSet to make sure we're not getting rid of sort/etc
-        getDataSet(newState).length,
-        newState.getIn(['pageProperties', 'pageSize']))));
 }
 
-export function sortByColumns(state, columns, sortAscending=true) {
-  if(columns.length === 0 || !state.get('data')) { return state; }
-
-  //TODO: this should compare the whole array
-  const reverse = state.getIn(['sortProperties', 'sortAscending']) === true && state.getIn(['sortProperties', 'sortColumns'])[0] === columns[0];
-  let sorted = state.set(
-    'data',
-    state.get('data').sort(
+export function getSortedData(data, columns, sortAscending = true) {
+  return data.sort(
     (original, newRecord) => {
       original = (!!original.get(columns[0]) && original.get(columns[0])) || "";
       newRecord = (!!newRecord.get(columns[0]) && newRecord.get(columns[0])) || "";
@@ -70,37 +50,36 @@ export function sortByColumns(state, columns, sortAscending=true) {
       if(original === newRecord) {
         return 0;
       } else if (original > newRecord) {
-        return 1;
+        return sortAscending ? 1 : -1;
       }
       else {
-        return -1;
+        return sortAscending ? -1 : 1;
       }
-    })
+    });
+}
+
+export function sortByColumns(state, columns, sortAscending = null) {
+  if(columns.length === 0 || !state.get('data')) { return state; }
+
+  //TODO: Clean this up -- all the ! logic is kind of silly for reverse / not reverse etc.
+  const reverse = sortAscending !== null ?
+    sortAscending :
+    (state.getIn(['sortProperties', 'sortAscending']) === true && state.getIn(['sortProperties', 'sortColumns'])[0] === columns[0]);
+
+  let sorted = state.set(
+    'data',
+    getSortedData(state.get('data'), columns, !reverse)
   )
   .setIn(['sortProperties', 'sortAscending'], !reverse)
   .setIn(['sortProperties', 'sortColumns'], columns);
 
-  if(reverse){
-    sorted = sorted.set('data', sorted.get('data').reverse());
-  }
-
   //if filter is set we need to filter
+  //TODO: filter the data when it's being sorted
   if(!!state.get('filter')) {
     sorted = filter(sorted, sorted.get('filter'));
   }
 
-
-  return updateVisibleData(sorted);
-}
-
-/*
-  This function is used to remove some boiler plate that occurs in many of the reducers
-*/
-export function updateVisibleData(state) {
-  return state
-    .set('visibleData', getVisibleData(state))
-    .set('hasNext', hasNext(state))
-    .set('hasPrevious', hasPrevious(state));
+  return sorted;
 }
 
 export function getPage(state, pageNumber) {
@@ -109,10 +88,9 @@ export function getPage(state, pageNumber) {
     state.getIn(['pageProperties', 'pageSize']));
 
   if(pageNumber >= 1 && pageNumber <= maxPage) {
-    return updateVisibleData(
-      state
+    return state
         .setIn(['pageProperties', 'currentPage'], pageNumber)
-        .setIn(['pageProperties', 'maxPage'], maxPage));
+        .setIn(['pageProperties', 'maxPage'], maxPage);
   }
 
   return state;
