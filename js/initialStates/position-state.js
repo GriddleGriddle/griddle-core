@@ -9,7 +9,7 @@ export default Immutable.fromJS({
     visibleDataLength: 20,
     tableHeight: 500,
     tableWidth: 300,
-    rowHeight: 25,
+    rowHeight: 15,
     defaultColumnWidth: 80,
     infiniteScrollLoadTreshold: 50
   },
