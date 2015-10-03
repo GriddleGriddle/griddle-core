@@ -1,4 +1,12 @@
-import * as DataHelpers from './data-helpers';
+import {
+  getPageCount,
+  getDataColumns,
+  getSortedColumns,
+  addKeyToRows
+} from './data-helpers';
+
+export { addKeyToRows as addKeyToRows };
+export { getPageCount as getPageCount };
 
 export function getVisibleData(state) {
 
@@ -9,8 +17,8 @@ export function getVisibleData(state) {
   const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
-  const columns = DataHelpers.getDataColumns(state, data);
-  return DataHelpers.getSortedColumns(data, columns);
+  const columns = getDataColumns(state, data);
+  return getSortedColumns(data, columns);
 }
 
 export function hasNext(state) {
@@ -83,7 +91,7 @@ export function sortByColumns(state, columns, sortAscending = null) {
 }
 
 export function getPage(state, pageNumber) {
-  const maxPage = DataHelpers.getPageCount(
+  const maxPage = getPageCount(
     getDataSet(state).length,
     state.getIn(['pageProperties', 'pageSize']));
 

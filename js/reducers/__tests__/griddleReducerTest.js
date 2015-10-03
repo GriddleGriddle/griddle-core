@@ -141,6 +141,7 @@ describe('GriddleReducer', () => {
 
   describe('buildReducerWithHooks', () => {
     it('combines the reducers with before_reduce / after_reduce', () => {
+      //TODO: switch this to use the reducers defined above
       const base = {
         DO_SOMETHING: (state) => state.set('example', `${state.get('example')} middle`),
         BEFORE_REDUCE: (state) => state.set('example', `before ${state.get('example')}`),
@@ -174,6 +175,6 @@ describe('GriddleReducer', () => {
         expect(reducer.DO_SOMETHING(state).get('example'))
            //the before filters should be last first
           .toEqual('thirdBefore secondBefore firstBefore hi firstAfter secondAfter thirdAfter');
-    })
-  })
+    });
+  });
 });
