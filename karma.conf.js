@@ -6,7 +6,8 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
     files: [
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
-      './test/**/*.js'
+      'node_modules/babel-core/browser-polyfill.js',
+      './js/**/__tests__/*.js'              
     ],
     exclude: [
       'node_modules/**.*.js'

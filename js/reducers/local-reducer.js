@@ -24,7 +24,6 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
     helpers.getPageCount(
       action.data.length,
       state.getIn(['pageProperties', 'pageSize'])));
-
   return tempState;
 }
 
