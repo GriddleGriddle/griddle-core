@@ -1,23 +1,11 @@
 import Immutable from 'immutable';
-import { 
+import {
   GRIDDLE_ROW_SELECTION_TOGGLED,
 } from '../selectionReducer';
 
 import extend from 'lodash.assign';
 
-const getMethod = (options) => {
-  if(!options.method) {
-    throw "Need a method to call"
-  }
-
-  const combined = extend({state: Immutable.fromJS({}), payload: {}, helpers: {}, method: null}, options);
-  const { state, payload, helpers, method } = combined;
-  return method.call(this, state, payload, helpers);
-}
-
-const reducer = (options, method) => {
-  return getMethod(extend(options, { method }));
-}
+import { getMethod, getReducer } from './testHelpers';
 
 describe('Selection reducer', () => {
   it('selects a row when not currently selected', () => {
@@ -28,7 +16,7 @@ describe('Selection reducer', () => {
       {one: "ichi", two: "ni", three: "san", griddleKey: 4, selected: false},
     ];
 
-    const state = reducer({
+    const state = getReducer({
       state: Immutable.fromJS({ data: defaultData }),
       payload: { griddleKey: 3 },
       helpers: {
@@ -47,7 +35,7 @@ describe('Selection reducer', () => {
       {one: "ichi", two: "ni", three: "san", griddleKey: 4 },
     ];
 
-    const state = reducer({
+    const state = getReducer({
       state: Immutable.fromJS({ data: defaultData }),
       payload: { griddleKey: 3 },
       helpers: {
