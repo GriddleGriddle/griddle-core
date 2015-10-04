@@ -70,7 +70,8 @@ describe('after reduce', () => {
   }
 
   const defaultHelpers = extend(Helpers, {
-    getDataSet: (state) => { return state; }
+    getDataSet: (state) => { return state; },
+    getVisibleData: (state) => { return state; }
   });
 
   it('sets visible data', () => {
@@ -81,5 +82,33 @@ describe('after reduce', () => {
 
     const state = afterReduce({ helpers });
     expect(state.get('visibleData')).toEqual(visibleData);
-  })
+  });
+
+  it('sets has next', () => {
+    const helpers = extend({}, defaultHelpers, {
+      hasNext: (state) => { return true; },
+    });
+
+    const state = afterReduce({ helpers });
+    expect(state.get('hasNext')).toEqual(true);
+  });
+
+  it('sets has previous', () => {
+    const helpers = extend({}, defaultHelpers, {
+      hasPrevious: (state) => { return true; },
+    });
+
+    const state = afterReduce({ helpers });
+    expect(state.get('hasPrevious')).toEqual(true);
+  });
+
+  it('sets max page', () => {
+    const helpers = extend({}, defaultHelpers, {
+      getPageCount: (state) => { return 3}
+    });
+
+    const state = afterReduce({ helpers });
+    expect(state.getIn(['pageProperties', 'maxPage'])).toEqual(3);
+  });
+
 });
