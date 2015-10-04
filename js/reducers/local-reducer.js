@@ -70,15 +70,20 @@ export function GRIDDLE_GET_PAGE(state, action, helpers) {
 }
 
 export function GRIDDLE_NEXT_PAGE(state, action, helpers) {
+  const currentPage = state.getIn(['pageProperties', 'currentPage']);
+  const maxPage = state.getIn(['pageProperties', 'maxPage']);
+
   return(helpers
     .getPage(state,
-    state.getIn(['pageProperties', 'currentPage']) + 1));
+      currentPage < maxPage ? currentPage + 1 : currentPage));
 }
 
 export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
+  const currentPage = state.getIn(['pageProperties', 'currentPage']);
+
   return(helpers
       .getPage(state,
-      state.getIn(['pageProperties', 'currentPage']) - 1));
+        currentPage > 0 ? currentPage - 1 : currentPage ));
 }
 
 export function GRIDDLE_FILTERED(state, action, helpers) {
