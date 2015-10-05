@@ -1,5 +1,3 @@
-'use strict';
-
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 

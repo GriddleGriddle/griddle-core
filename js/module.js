@@ -4,14 +4,15 @@ import GriddleReducer from './reducers/griddle-reducer';
 import * as GriddleActions from './actions/local-actions';
 import * as SubgridActions from './actions/subgrid-actions';
 import * as SelectionActions from './actions/selection-actions';
+import * as PositionActions from './actions/position-actions';
 import * as GriddleHelpers from './helpers';
 import extend from 'lodash.assign';
 
-const GridActions = extend(GriddleActions, SubgridActions, SelectionActions);
+const GridActions = extend(GriddleActions, SubgridActions, SelectionActions, PositionActions);
 console.log(Object.keys(GridActions));
 
-export { reducers as Reducers }
-export { states as States }
+export { reducers as Reducers };
+export { states as States };
 export { GridActions as GriddleActions };
 export { GriddleReducer as GriddleReducer };
-export {GriddleHelpers as GriddleHelpers}
+export { GriddleHelpers as GriddleHelpers };

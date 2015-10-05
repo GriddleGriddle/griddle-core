@@ -1,5 +1,3 @@
-'use strict';
-
 export function XY_POSITION_CHANGED(state, action, helpers) {
   state = helpers.updatePositionProperties(action, state, helpers);
   return helpers.updateRenderedData(state, helpers);
