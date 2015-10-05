@@ -5,7 +5,7 @@ import {
 
 import extend from 'lodash.assign';
 
-import { getMethod, getReducer } from './testHelpers';
+import { getMethod, getReducer } from './testUtils';
 
 describe('Selection reducer', () => {
   it('selects a row when not currently selected', () => {
@@ -45,5 +45,4 @@ describe('Selection reducer', () => {
 
     expect(state.get('data').get(2).get('selected')).toEqual(false);
   });
-
-})
+});
