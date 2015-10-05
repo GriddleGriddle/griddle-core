@@ -7,10 +7,11 @@ module.exports = function(config) {
     files: [
       './node_modules/phantomjs-polyfill/bind-polyfill.js',
       'node_modules/babel-core/browser-polyfill.js',
-      './js/**/__tests__/*.js'              
+      './js/**/__tests__/*.js'
     ],
     exclude: [
-      'node_modules/**.*.js'
+      'node_modules/**.*.js',
+      './js/**/__tests__/*Utils.js' 
     ],
     preprocessors: {
       './js/**/*.js': ['webpack'],

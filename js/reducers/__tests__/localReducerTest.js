@@ -13,6 +13,7 @@ import LocalReducer, {
 
 import extend from 'lodash.assign';
 
+//TODO: Import the testHelpers instead of using this directly
 const getMethod = (options) => {
   if(!options.method) {
     throw "Need a method to call"
