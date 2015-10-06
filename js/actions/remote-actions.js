@@ -2,13 +2,7 @@ import * as types from '../constants/action-types';
 import * as localActions from './local-actions';
 import request from 'superagent';
 
-function startLoading() {
-  return {
-    type: types.GRIDDLE_START_LOADING
-  };
-}
-
-function loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, successCallback) {
+function loadPageAjax(remoteConfig, tableState, successCallback) {
   dispatch => {
     // Indicate that our AJAX request is starting.
     dispatch(startLoading());
@@ -20,8 +14,10 @@ function loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDire
 
     // If the request needs to be constructed differently, pass to the override function.
     if (formatRequest) {
-      loadRequest = formatRequest(loadRequest, page, pageSize, filter, sortColumn, sortDirection);
+      loadRequest = formatRequest(loadRequest, tableState);
     } else {
+      const { page, pageSize, filter, sortColumn, sortDirection } = tableState;
+
       // Add parameters
       loadRequest = loadRequest.query({ page: page,
                                         pageSize: pageSize,
@@ -47,7 +43,7 @@ function loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDire
         }
 
         // Dispatch the success
-        successCallback(res);
+        successCallback(successResponse);
       } else {
         let errorResponse = res.body;
 
@@ -63,11 +59,17 @@ function loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDire
   }
 }
 
-function remoteError(err, response) {
+export function remoteError(err, response) {
   // TODO: Include a little more information about this error.
 
   return {
     type: types.GRIDDLE_REMOTE_ERROR
+  };
+}
+
+export function startLoading() {
+  return {
+    type: types.GRIDDLE_START_LOADING
   };
 }
 
@@ -81,114 +83,163 @@ export function initializeGrid() {
   }
 }
 
-export function filterData(filter) {
+export function filterData(response, filter) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_REPLACE_DATA,
-          page: page,
-          data: data
-        });
-
-        // Execute the filter.
-        dispatch(localActions.filterData(filter));
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_REPLACE_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
     });
+
+    // Execute the filter.
+    dispatch(localActions.filterData(filter));
   };
 }
 
-export function setPageSize(pageSize) {
+export function filterDataRemote(remoteConfig, tableState) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_REPLACE_DATA,
-          page: page,
-          data: data
-        });
-
-        // Set the page size.
-        dispatch(localActions.setPageSize(pageSize));
-    });
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(filterData(response, tableState.filter));
+    }));
   };
 }
 
-export function sort(remoteConfig, page, pageSize, filter, sortColumn, sortDirection){
+export function setPageSize(response, pageSize) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_REPLACE_DATA,
-          page: page,
-          data: data
-        });
-
-        // Finish the sort.
-        dispatch(localActions.sort(sortColumn));
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_REPLACE_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
     });
+
+    // Set the page size.
+    dispatch(localActions.setPageSize(pageSize));
   };
 }
 
-export function addSortColumn(remoteConfig, page, pageSize, filter, sortColumn, sortDirection){
+export function setPageSizeRemote(remoteConfig, tableState) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_REPLACE_DATA,
-          page: page,
-          data: data
-        });
-
-        // Finish the sort.
-        dispatch(localActions.addSortColumn(sortColumn));
-    });
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(setPageSize(response, tableState.pageSize));
+    }));
   };
 }
 
-export function loadNext(remoteConfig, page, pageSize, filter, sortColumn, sortDirection){
+export function sort(response, sortColumn) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_APPEND_DATA,
-          page: page,
-          data: data
-        });
-
-        // Load the next page, now that we have the data.
-        dispatch(localActions.loadNext());
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_REPLACE_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
     });
+
+    // Finish the sort.
+    dispatch(localActions.sort(sortColumn));
+  };
+}
+
+export function sortRemote(remoteConfig, tableState) {
+  return dispatch => {
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(sort(response, tableState.sortColumn));
+    }));
+  };
+}
+
+export function addSortColumn(response, sortColumn) {
+  return dispatch => {
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_REPLACE_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
+    });
+
+    // Finish the sort.
+    dispatch(localActions.addSortColumn(sortColumn));
+  };
+}
+
+export function addSortColumnRemote(remoteConfig, tableState) {
+  return dispatch => {
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(addSortColumn(response, tableState.sortColumn));
+    }));
+  };
+}
+
+export function loadNext(response) {
+  return dispatch => {
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_APPEND_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
+    });
+
+    // Load the next page, now that we have the data.
+    dispatch(localActions.loadNext());
   }
 }
 
-export function loadPrevious(remoteConfig, page, pageSize, filter, sortColumn, sortDirection){
+export function loadNextRemote(remoteConfig, tableState) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_PREPEND_DATA,
-          page: page,
-          data: data
-        });
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(loadNext(response));
+    }));
+  }
+}
 
-        // Load the previous page, now that we have the data.
-        dispatch(localActions.loadPrevious());
+export function loadPrevious(response) {
+  return dispatch => {
+    // Append the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_PREPEND_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
     });
+
+    // Load the previous page, now that we have the data.
+    dispatch(localActions.loadPrevious());
   };
 }
 
-export function loadPage(remoteConfig, page, pageSize, filter, sortColumn, sortDirection){
+export function loadPreviousRemote(remoteConfig, tableState) {
   return dispatch => {
-    dispatch(loadPageAjax(remoteConfig, page, pageSize, filter, sortColumn, sortDirection, (data) => {
-        // Append the data.
-        dispatch({
-          type: types.GRIDDLE_REMOTE_REPLACE_DATA,
-          page: page,
-          data: data
-        });
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(loadPrevious(response));
+    }));
+  };
+}
 
-        // Load the specified page, now that we have the data.
-        dispatch(localActions.loadPage(page));
+export function loadPage(response) {
+  return dispatch => {
+    // Replace the data.
+    dispatch({
+      type: types.GRIDDLE_REMOTE_REPLACE_DATA,
+      currentPage: response.page,
+      maxPage: response.maxPage,
+      data: response.data
     });
+
+    // Load the specified page, now that we have the data.
+    dispatch(localActions.loadPage(response.page));
+  };
+}
+
+export function loadPageRemote(remoteConfig, tableState) {
+  return dispatch => {
+    dispatch(makeRequest(remoteConfig, tableState, (response) => {
+      dispatch(loadPage(response));
+    }));
   };
 }
