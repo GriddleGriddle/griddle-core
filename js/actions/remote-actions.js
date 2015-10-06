@@ -2,7 +2,7 @@ import * as types from '../constants/action-types';
 import * as localActions from './local-actions';
 import request from 'superagent';
 
-function loadPageAjax(remoteConfig, tableState, successCallback) {
+function loadPageAjax(remoteConfig, tableState, successDispatch) {
   dispatch => {
     // Indicate that our AJAX request is starting.
     dispatch(startLoading());
@@ -43,7 +43,7 @@ function loadPageAjax(remoteConfig, tableState, successCallback) {
         }
 
         // Dispatch the success
-        successCallback(successResponse);
+        dispatch(successDispatch);
       } else {
         let errorResponse = res.body;
 
@@ -99,11 +99,9 @@ export function filterData(response, filter) {
 }
 
 export function filterDataRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(filterData(response, tableState.filter));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return filterData(response, tableState.filter);
+  });
 }
 
 export function setPageSize(response, pageSize) {
@@ -122,11 +120,9 @@ export function setPageSize(response, pageSize) {
 }
 
 export function setPageSizeRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(setPageSize(response, tableState.pageSize));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return setPageSize(response, tableState.pageSize);
+  });
 }
 
 export function sort(response, sortColumn) {
@@ -145,11 +141,9 @@ export function sort(response, sortColumn) {
 }
 
 export function sortRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(sort(response, tableState.sortColumn));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return sort(response, tableState.sortColumn);
+  });
 }
 
 export function addSortColumn(response, sortColumn) {
@@ -168,11 +162,9 @@ export function addSortColumn(response, sortColumn) {
 }
 
 export function addSortColumnRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(addSortColumn(response, tableState.sortColumn));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return addSortColumn(response, tableState.sortColumn);
+  });
 }
 
 export function loadNext(response) {
@@ -191,11 +183,9 @@ export function loadNext(response) {
 }
 
 export function loadNextRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(loadNext(response));
-    }));
-  }
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return loadNext(response);
+  });
 }
 
 export function loadPrevious(response) {
@@ -214,11 +204,9 @@ export function loadPrevious(response) {
 }
 
 export function loadPreviousRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(loadPrevious(response));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return loadPrevious(response);
+  });
 }
 
 export function loadPage(response) {
@@ -237,9 +225,7 @@ export function loadPage(response) {
 }
 
 export function loadPageRemote(remoteConfig, tableState) {
-  return dispatch => {
-    dispatch(makeRequest(remoteConfig, tableState, (response) => {
-      dispatch(loadPage(response));
-    }));
-  };
+  return makeRequest(remoteConfig, tableState, (response) => {
+    return loadPage(response);
+  });
 }
