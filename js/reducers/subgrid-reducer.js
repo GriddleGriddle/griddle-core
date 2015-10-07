@@ -48,7 +48,6 @@ export function AFTER_REDUCE(state, action, helpers) {
   const properties = getProperties(columns);
   const data = transform(state.get('visibleData'), state, properties.childrenPropertyName);
 
-
   columns.push(properties.childrenPropertyName);
 
   return state
@@ -74,12 +73,11 @@ function toggleExpanded(data, griddleKey, childrenPropertyName = 'children') {
 }
 
 export function GRIDDLE_ROW_TOGGLED(state, action, helpers) {
-  //TODO: Shouldn't this be { griddleKey } = action;
-  const griddleKey = { action }
+  const { griddleKey } = action;
   const columns = helpers.getDataColumns(state, state.get('data'));
   const properties = getProperties(columns);
 
-  return state.set('data', toggleExpanded(state.get('data'), action.griddleKey, properties.childrenPropertyName));
+  return state.set('data', toggleExpanded(state.get('data'), griddleKey, properties.childrenPropertyName));
 }
 
 //TODO: This is almost the same as the filterChildrenData method but not applying the filter method :/
