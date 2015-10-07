@@ -28,7 +28,7 @@ function sortChildren(data, state, helpers, childrenPropertyName = 'children') {
   const sortColumns = state.getIn(['sortProperties', 'sortColumns']);
   const sortAscending = state.getIn(['sortProperties', 'sortAscending']);
 
-  if(!sortColumns || !helpers) { console.log("returned data"); return data; }
+  if(!sortColumns || !helpers) { return data; }
   //TODO: can get rid of this layer -- was an artifact of moving stuff around
   const getSortedRows = (data, sort = false) => {
     const mappedData = data.map((row, index) => {
