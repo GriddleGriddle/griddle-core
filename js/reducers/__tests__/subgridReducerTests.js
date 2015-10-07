@@ -77,5 +77,35 @@ describe('SubgridReducer', () => {
     
     expect(state.get('visibleData').toJSON()).toEqual(defaultData);
   });
+
+  it('expands row', () => {
+      const state = getReducer({
+      state: Immutable.fromJS({ data: defaultData, visibleData: defaultData }),
+      helpers: {
+        getDataColumns: (state, data) => ['one', 'two', 'three', 'children']
+      },
+      payload: { griddleKey: 1 }
+    }, GRIDDLE_ROW_TOGGLED)
+    
+    expect(state.get('data').get(0).get('expanded')).toEqual(true);
+  });
+
+  it('collapses expanded row', () => {
+      const getDataColumns = (state, data) => ['one', 'two', 'three', 'children'];
+      const state = getReducer({
+      state: Immutable.fromJS({ data: defaultData, visibleData: defaultData }),
+      helpers: { getDataColumns },
+      payload: { griddleKey: 1 }
+    }, GRIDDLE_ROW_TOGGLED)
+    
+      const state2 = getReducer({
+      state,
+      helpers: { getDataColumns },
+      payload: { griddleKey: 1 }
+    }, GRIDDLE_ROW_TOGGLED)
+
+    expect(state.get('data').get(0).get('expanded')).toEqual(true);
+    expect(state2.get('data').get(0).get('expanded')).toEqual(false);
+  });
 });
 
