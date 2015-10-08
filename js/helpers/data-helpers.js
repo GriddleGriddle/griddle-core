@@ -18,7 +18,6 @@ export function getState(state) {
 }
 
 export function getPageProperties(state) {
-
   return state.get('pageProperties');
 }
 
