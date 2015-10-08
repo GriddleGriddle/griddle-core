@@ -14,24 +14,7 @@ import {
   getDataColumns
 } from '../data-helpers';
 
-const getBasicState = () => {
-  return Immutable.fromJS({
-    data: [
-      { one: 'one', two: 'two' },
-      { one: 'three', two: 'four' }
-    ],
-    renderProperties: {
-      columnProperties: {
-        one: { id: 'one', displayName: 'One', order: 2 },
-        two: { id: 'two', displayName: 'Two', order: 1 }
-      }
-    },
-    pageProperties: {
-      property1: 'one',
-      property2: 'two'
-    }
-  });
-}
+import { getBasicState } from './stateUtils';
 
 describe('data helpers', () => {
   describe('getVisibleData', () => {

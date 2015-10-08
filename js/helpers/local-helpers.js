@@ -66,6 +66,7 @@ export function getSortedData(data, columns, sortAscending = true) {
     });
 }
 
+//TODO: Consider renaming sortAscending here to sortDescending
 export function sortByColumns(state, columns, sortAscending = null) {
   if(columns.length === 0 || !state.get('data')) { return state; }
 
@@ -92,7 +93,7 @@ export function sortByColumns(state, columns, sortAscending = null) {
 
 export function getPage(state, pageNumber) {
   const maxPage = getPageCount(
-    getDataSet(state).length,
+    getDataSet(state).size,
     state.getIn(['pageProperties', 'pageSize']));
 
   if(pageNumber >= 1 && pageNumber <= maxPage) {
