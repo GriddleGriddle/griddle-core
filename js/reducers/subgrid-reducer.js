@@ -3,7 +3,6 @@
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
-import FlatMapHelper from '../helpers/flat-map-helper';
 import * as DataHelper from '../helpers/data-helpers';
 import extend from 'lodash.assign';
 
