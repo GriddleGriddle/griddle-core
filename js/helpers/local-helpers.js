@@ -8,15 +8,24 @@ import {
 export { addKeyToRows as addKeyToRows };
 export { getPageCount as getPageCount };
 
-export function getVisibleData(state) {
+export function getDataSet(state) {
+  if(state.get('filter') && state.get('filter') !== '') {
+    return filterData(state.get('data'), state.get('filter'));
+  }
 
+  return state.get('data');
+}
+
+export function getPageData(state, pageSize, currentPage) {
+  return getDataSet(state).skip(pageSize * (currentPage - 1)).take(pageSize);
+}
+
+export function getVisibleData(state) {
   //get the max page / current page and the current page of data
   const pageSize = state.getIn(['pageProperties', 'pageSize']);
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
 
-  const data =  getDataSet(state)
-    .skip(pageSize * (currentPage-1)).take(pageSize);
-
+  const data = getPageData(state, pageSize, currentPage);
   const columns = getDataColumns(state, data);
   return getSortedColumns(data, columns);
 }
@@ -30,28 +39,20 @@ export function hasPrevious(state) {
   return state.getIn(['pageProperties', 'currentPage']) > 1;
 }
 
-export function getDataSet(state) {
-  if(state.get('filter') && state.get('filter') !== '') {
-    return filterData(state.get('data'), state.get('filter'));
-  }
-
-  return state.get('data');
-}
-
 export function filterData(data, filter) {
-    return data.filter(row  => {
-      return Object.keys(row.toJSON())
-        .some(key => {
-          return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
-        })
-      })
+  return data.filter(row => {
+    return Object.keys(row.toJSON())
+      .some(key => {
+        return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1;
+      });
+  });
 }
 
 export function getSortedData(data, columns, sortAscending = true) {
   return data.sort(
     (original, newRecord) => {
-      original = (!!original.get(columns[0]) && original.get(columns[0])) || "";
-      newRecord = (!!newRecord.get(columns[0]) && newRecord.get(columns[0])) || "";
+      original = (!!original.get(columns[0]) && original.get(columns[0])) || '';
+      newRecord = (!!newRecord.get(columns[0]) && newRecord.get(columns[0])) || '';
 
       //TODO: This is about the most cheezy sorting check ever.
       //Make it be able to sort for dates / monetary / regex / whatever
