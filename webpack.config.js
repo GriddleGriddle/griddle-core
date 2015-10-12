@@ -1,5 +1,12 @@
 var webpack = require('webpack');
 
+var reactExternal = {
+  root: 'React',
+  commonjs2: 'react',
+  commonjs: 'react',
+  amd: 'react'
+};
+
 module.exports = {
   devtool: 'eval',
   entry: [
@@ -18,6 +25,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['', '.js']
+  },
+  externals: {
+    'react': reactExternal
   },
   module: {
     loaders: [
