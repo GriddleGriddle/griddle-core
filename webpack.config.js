@@ -17,7 +17,8 @@ module.exports = {
   output: {
     path: __dirname + '/build/',
     filename: 'griddle.js',
-    publicPath: '/build/'
+    publicPath: '/build/',
+    libraryTarget: 'umd'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),

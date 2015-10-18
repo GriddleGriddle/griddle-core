@@ -14,7 +14,7 @@ module.exports = {
     path: __dirname + '/build/',
     filename: 'griddle.js',
     publicPath: '/build/',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'umd'
   },
   plugins: [
   ],
