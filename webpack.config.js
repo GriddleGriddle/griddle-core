@@ -1,5 +1,12 @@
 var webpack = require('webpack');
 
+var reactExternal = {
+  root: 'React',
+  commonjs2: 'react',
+  commonjs: 'react',
+  amd: 'react'
+};
+
 module.exports = {
   devtool: 'eval',
   entry: [
@@ -10,7 +17,8 @@ module.exports = {
   output: {
     path: __dirname + '/build/',
     filename: 'griddle.js',
-    publicPath: '/build/'
+    publicPath: '/build/',
+    libraryTarget: 'umd'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -18,6 +26,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['', '.js']
+  },
+  externals: {
+    'react': reactExternal
   },
   module: {
     loaders: [
