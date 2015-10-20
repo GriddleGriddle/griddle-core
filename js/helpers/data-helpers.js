@@ -12,12 +12,12 @@ export function updateVisibleData(state) {
     .set('visibleData', getVisibleData(state));
 }
 
+//why? Assuming this is carry-over from old flux?
 export function getState(state) {
   return state;
 }
 
 export function getPageProperties(state) {
-
   return state.get('pageProperties');
 }
 
@@ -50,7 +50,7 @@ export function getColumnTitles(state) {
 }
 
 export function getColumnProperties(state) {
-  if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+  if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
     return state
       .get('renderProperties')
       .get('columnProperties').toJSON();
@@ -59,18 +59,13 @@ export function getColumnProperties(state) {
   return {};
 }
 
-export function getVisibleColumns(state) {
-  if(this.state.get('data').size === 0) {
-    return new Immutable.fromJS([]);
-  }
-}
-
+//TODO: Determine if this should stay here
 export function getAllPossibleColumns(state) {
-  if(this.state.get('data').size === 0) {
+  if(state.get('data').size === 0) {
     return new Immutable.fromJS([]);
   }
 
-  return this.state.get('data').get(0).keySeq();
+  return state.get('data').get(0).keySeq();
 }
 
 export function getSortedColumns(data, columns) {

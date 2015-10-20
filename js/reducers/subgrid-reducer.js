@@ -3,7 +3,6 @@
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
-import FlatMapHelper from '../helpers/flat-map-helper';
 import * as DataHelper from '../helpers/data-helpers';
 import extend from 'lodash.assign';
 
@@ -28,7 +27,7 @@ function sortChildren(data, state, helpers, childrenPropertyName = 'children') {
   const sortColumns = state.getIn(['sortProperties', 'sortColumns']);
   const sortAscending = state.getIn(['sortProperties', 'sortAscending']);
 
-  if(!sortColumns || !helpers) { console.log("returned data"); return data; }
+  if(!sortColumns || !helpers) { return data; }
   //TODO: can get rid of this layer -- was an artifact of moving stuff around
   const getSortedRows = (data, sort = false) => {
     const mappedData = data.map((row, index) => {
@@ -47,7 +46,6 @@ export function AFTER_REDUCE(state, action, helpers) {
   const columns = helpers.getDataColumns(state, data);
   const properties = getProperties(columns);
   const data = transform(state.get('visibleData'), state, properties.childrenPropertyName);
-
 
   columns.push(properties.childrenPropertyName);
 
@@ -74,12 +72,11 @@ function toggleExpanded(data, griddleKey, childrenPropertyName = 'children') {
 }
 
 export function GRIDDLE_ROW_TOGGLED(state, action, helpers) {
-  //TODO: Shouldn't this be { griddleKey } = action;
-  const griddleKey = { action }
+  const { griddleKey } = action;
   const columns = helpers.getDataColumns(state, state.get('data'));
   const properties = getProperties(columns);
 
-  return state.set('data', toggleExpanded(state.get('data'), action.griddleKey, properties.childrenPropertyName));
+  return state.set('data', toggleExpanded(state.get('data'), griddleKey, properties.childrenPropertyName));
 }
 
 //TODO: This is almost the same as the filterChildrenData method but not applying the filter method :/
