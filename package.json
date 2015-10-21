@@ -5,7 +5,7 @@
   "main": "build/griddle.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start --browsers PhantomJS",
-    "start": "node server.js",
+    "start": "./node_modules/.bin/webpack --config webpack-dist.config.js --watch",
     "test-debug": "./node_modules/.bin/karma start --browsers Chrome",
     "dist": "./node_modules/.bin/webpack --config webpack-dist.config.js",
     "watch": "./node_modules/.bin/webpack --config webpack-dist.config.js --watch"
