@@ -67,25 +67,6 @@ export function loadPage(number){
   };
 }
 
-export function resizeColumn(column, change) {
-  return {
-    type: types.COLUMN_RESIZE,
-    gridId,
-    column,
-    change
-  };
-}
-
-export function setScrollPosition(xScrollPosition, xScrollMax, yScrollPosition, yScrollMax) {
-  return {
-    type: types.XY_POSITION_CHANGED,
-    xScrollPosition,
-    xScrollMax,
-    yScrollPosition,
-    yScrollMax
-  };
-}
-
 export function toggleColumn(columnId) {
   return {
     type: types.GRIDDLE_TOGGLE_COLUMN,

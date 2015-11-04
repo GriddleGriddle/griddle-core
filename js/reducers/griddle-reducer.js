@@ -3,7 +3,6 @@ import Immutable from 'immutable';
 import pick from 'lodash.pick';
 import extend from 'lodash.assign';
 const initialState = Immutable.fromJS({});
-import * as types from '../constants/action-types';
 
 export function combineAndOverrideReducers(containers) {
   if(!containers) { return {}; }
