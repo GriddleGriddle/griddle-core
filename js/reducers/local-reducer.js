@@ -27,15 +27,17 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
 }
 
 export function AFTER_REDUCE(state, action, helpers) {
-   return state
+  const tempState = state
     .set('visibleData', helpers.getVisibleData(state))
-    .set('hasNext', helpers.hasNext(state))
     .setIn(
       ['pageProperties', 'maxPage'],
       helpers.getPageCount(
         helpers.getDataSet(state).size,
         state.getIn(['pageProperties', 'pageSize'])))
-    .set('hasPrevious', helpers.hasPrevious(state));
+
+  return tempState
+    .set('hasNext', helpers.hasNext(tempState))
+    .set('hasPrevious', helpers.hasPrevious(tempState));
 }
 
 /*
@@ -87,7 +89,9 @@ export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
 
 export function GRIDDLE_FILTERED(state, action, helpers) {
   //TODO: Just set the filter and let the visible data handle what is actually shown + next / previous
-  return state.set('filter', action.filter);
+  return state
+    .set('filter', action.filter)
+    .setIn(['pageProperties','currentPage'], 1);
 }
 
 //TODO: This is a really simple sort, for now
