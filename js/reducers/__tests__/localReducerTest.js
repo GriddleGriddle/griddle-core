@@ -204,6 +204,11 @@ describe('localDataReducer', () => {
     it('sets the filter', () => {
       const state = reducer({ payload: { filter: 'test' }}, GRIDDLE_FILTERED);
       expect(state.get('filter')).toEqual('test');
+    });
+
+    it('sets the first page when filtering', () => {
+      const state = reducer({ payload: { filter: 'test'}}, GRIDDLE_FILTERED);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(1);
     })
   });
 
