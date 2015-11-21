@@ -1,6 +1,6 @@
 {
   "name": "griddle-core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The core code used in the griddle-react grid. ",
   "main": "build/griddle.js",
   "scripts": {
