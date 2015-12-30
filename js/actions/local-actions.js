@@ -1,8 +1,9 @@
 import * as types from '../constants/action-types';
 
-export function initializeGrid(){
+export function initializeGrid(properties){
   return {
-    type: types.GRIDDLE_INITIALIZED
+    type: types.GRIDDLE_INITIALIZED,
+    properties
   };
 }
 
@@ -15,8 +16,7 @@ export function removeGrid() {
 export function loadData(data, properties) {
   return {
     type: types.GRIDDLE_LOADED_DATA,
-    data,
-    properties
+    data
   };
 }
 

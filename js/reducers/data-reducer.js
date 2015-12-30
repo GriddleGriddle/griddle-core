@@ -14,11 +14,12 @@ export function AFTER_REDUCE(state, action, helpers) {
   return state;
 }
 
-export function GRIDDLE_INITIALIZED(state, action, helpers) {}
+export function GRIDDLE_INITIALIZED(state, action, helpers) {
+  return state.set('renderProperties', Immutable.fromJS(action.properties));
+}
 
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {
-  return state.set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
-    .set('renderProperties', Immutable.fromJS(action.properties));
+  return state.set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)));
 }
 
 export function GRIDDLE_TOGGLE_COLUMN(state, action, helpers) {

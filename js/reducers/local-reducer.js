@@ -17,7 +17,6 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
   const tempState = state
   .set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
   .set('allColumns', columns)
-  .set('renderProperties', Immutable.fromJS(action.properties))
   .setIn(
     ['pageProperties', 'maxPage'],
     helpers.getPageCount(
