@@ -91,9 +91,13 @@ export function sortByColumns(state, columns, sortAscending = null) {
   return sorted;
 }
 
+export function getDataSetSize(state) {
+  return getDataSet(state).size;
+}
+
 export function getPage(state, pageNumber) {
   const maxPage = getPageCount(
-    getDataSet(state).size,
+    getDataSetSize(state),
     state.getIn(['pageProperties', 'pageSize']));
 
   if(pageNumber >= 1 && pageNumber <= maxPage) {

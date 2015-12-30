@@ -31,7 +31,7 @@ export function AFTER_REDUCE(state, action, helpers) {
     .setIn(
       ['pageProperties', 'maxPage'],
       helpers.getPageCount(
-        helpers.getDataSet(state).size,
+        helpers.getDataSetSize(state),
         state.getIn(['pageProperties', 'pageSize'])))
 
   return tempState
