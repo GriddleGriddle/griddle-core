@@ -4,6 +4,7 @@ import {
   getSortedColumns,
   addKeyToRows
 } from './data-helpers';
+import Immutable from 'immutable';
 
 export { addKeyToRows as addKeyToRows };
 export { getPageCount as getPageCount };
@@ -66,21 +67,25 @@ export function getSortedData(data, columns, sortAscending = true) {
     });
 }
 
-//TODO: Consider renaming sortAscending here to sortDescending
-export function sortByColumns(state, columns, sortAscending = null) {
-  if(columns.length === 0 || !state.get('data')) { return state; }
 
-  //TODO: Clean this up -- all the ! logic is kind of silly for reverse / not reverse etc.
-  const reverse = sortAscending !== null ?
-    sortAscending :
-    (state.getIn(['sortProperties', 'sortAscending']) === true && state.getIn(['sortProperties', 'sortColumns'])[0] === columns[0]);
+//TODO: Consider renaming sortAscending here to sortDescending
+export function updateSortColumns(state, columns, sortAscending = null) {
+  if(columns.length === 0) { return state; }
+
+  const reverse = sortAscending !== null ? sortAscending :
+    (state.getIn(['pageProperties', 'sortAscending']) === true && state.getIn(['pageProperties', 'sortColumns'])[0] === columns[0]);
+
+  return state.setIn(['pageProperties', 'sortAscending'], !reverse)
+              .setIn(['pageProperties', 'sortColumns'], columns);
+}
+
+export function sortDataByColumns(state) {
+  if(!state.get('data')) { return state; }
 
   let sorted = state.set(
     'data',
-    getSortedData(state.get('data'), columns, !reverse)
-  )
-  .setIn(['sortProperties', 'sortAscending'], !reverse)
-  .setIn(['sortProperties', 'sortColumns'], columns);
+    getSortedData(state.get('data'), state.getIn(['pageProperties', 'sortColumns']), state.getIn(['pageProperties', 'sortAscending']))
+  );
 
   //if filter is set we need to filter
   //TODO: filter the data when it's being sorted

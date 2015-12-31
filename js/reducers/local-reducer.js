@@ -98,5 +98,9 @@ export function GRIDDLE_FILTERED(state, action, helpers) {
 export function GRIDDLE_SORT(state, action, helpers) {
   if(!action.sortColumns || action.sortColumns.length < 1) { return state }
 
-  return helpers.sortByColumns(state, action.sortColumns)
+  // Update the sort columns
+  let tempState = helpers.updateSortColumns(state, action.sortColumns);
+
+  // Sort the data
+  return helpers.sortDataByColumns(tempState, action.sortColumns)
 }
