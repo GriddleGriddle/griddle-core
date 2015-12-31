@@ -23,6 +23,14 @@ describe('data helpers', () => {
       const results = getVisibleData(state);
       expect(results.toJSON()).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
     });
+
+    it('only gets data for visible columns', () => {
+      const columnProperties = getBasicState().getIn(['renderProperties', 'columnProperties']).filterNot(col => col.get('id') === 'one');
+      const state = getBasicState().setIn(['renderProperties', 'columnProperties'], columnProperties);
+      const results = getVisibleData(state);
+
+      expect(results.toJSON()).toEqual([{two: 'two'}, {two: 'four'}]);
+    })
   });
 
   describe('updateVisibleData', () => {
@@ -121,6 +129,14 @@ describe('data helpers', () => {
 
       expect(dataColumns).toEqual(['two', 'one']);
     });
+
+    it('gets only the visible columns', () => {
+      const columnProperties = getBasicState().getIn(['renderProperties', 'columnProperties']).filterNot(col => col.get('id') === 'one');
+      const state = getBasicState().setIn(['renderProperties', 'columnProperties'], columnProperties);
+      const dataColumns = getDataColumns(state);
+
+      expect(dataColumns).toEqual(['two']);
+    })
   });
 });
 
