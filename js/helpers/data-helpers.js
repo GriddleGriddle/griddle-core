@@ -1,10 +1,11 @@
 import MAX_SAFE_INTEGER from 'max-safe-integer';
+import Immutable from 'immutable';
 
 export function getVisibleData(state) {
   const data =  state.get('data');
 
   const columns = getDataColumns(state, data);
-  return getSortedColumns(data, columns);
+  return getVisibleDataColumns(getSortedColumns(data, columns), columns);
 }
 
 export function updateVisibleData(state) {
@@ -73,11 +74,23 @@ export function getSortedColumns(data, columns) {
     .map(item => item.sortBy((val, key) => columns.indexOf(key)));
 }
 
+//From Immutable docs - https://github.com/facebook/immutable-js/wiki/Predicates
+function keyInArray(keys) {
+  var keySet = Immutable.Set(keys); 
+  return function (v, k) {
+    return keySet.has(k);
+  }
+}
+
+export function getVisibleDataColumns(data, columns) {
+  return data.map(d => d.filter(keyInArray(columns)));
+}
+
 export function getDataColumns(state, data) {
   if(state.get('renderProperties') && state.get('renderProperties').get('columnProperties').size !== 0) {
+
     const keys = state
-      .get('renderProperties')
-      .get('columnProperties')
+      .getIn(['renderProperties', 'columnProperties'])
       .sortBy(col => col.get('order')||MAX_SAFE_INTEGER)
       .keySeq()
       .toJSON();
