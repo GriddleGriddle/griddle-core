@@ -136,6 +136,15 @@ describe('data helpers', () => {
       const dataColumns = getDataColumns(state);
 
       expect(dataColumns).toEqual(['two']);
+    });
+
+    it('gets all columns if visible columns is empty', () => {
+      const columnProperties = getBasicState().getIn(['renderProperties', 'columnProperties']).filterNot(col => (col.get('id') === 'one' || col.get('id') === 'two'));
+      const state = getBasicState().setIn(['renderProperties', 'columnProperties'], columnProperties);
+      const dataColumns = getDataColumns(state);
+
+      //this needs to be one, two because it's not checking the order property
+      expect(dataColumns).toEqual(['one', 'two']);
     })
   });
 });

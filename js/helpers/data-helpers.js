@@ -98,5 +98,5 @@ export function getDataColumns(state, data) {
     return keys;
   }
 
-  return [];
+  return getAllPossibleColumns(state).toJSON();
 }
