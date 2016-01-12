@@ -2,6 +2,7 @@ import {
   getPageCount,
   getDataColumns,
   getSortedColumns,
+  getVisibleDataColumns,
   addKeyToRows
 } from './data-helpers';
 import Immutable from 'immutable';
@@ -19,7 +20,8 @@ export function getVisibleData(state) {
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
   const columns = getDataColumns(state, data);
-  return getSortedColumns(data, columns);
+
+  return getVisibleDataColumns(getSortedColumns(data, columns), columns);
 }
 
 export function hasNext(state) {
