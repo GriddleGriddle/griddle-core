@@ -19,7 +19,6 @@ export function getVisibleData(state) {
     .skip(pageSize * (currentPage-1)).take(pageSize);
 
   const columns = getDataColumns(state, data);
-
   return getVisibleDataColumns(getSortedColumns(data, columns), columns);
 }
 
