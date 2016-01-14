@@ -33,3 +33,6 @@ docs/html
 .lock-wscript
 
 .DS_Store
+
+# Node Env config
+.node-version
