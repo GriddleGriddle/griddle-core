@@ -73,4 +73,3 @@ export function toggleColumn(columnId) {
     columnId
   };
 }
-
