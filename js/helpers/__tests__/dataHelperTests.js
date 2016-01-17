@@ -16,12 +16,17 @@ import {
 
 import { getBasicState } from './stateUtils';
 
+const withoutMetadata = (item) => {
+  delete item["__metadata"];
+  return item;
+}
+
 describe('data helpers', () => {
   describe('getVisibleData', () => {
     it('gets visible data', () => {
       const state = getBasicState();
       const results = getVisibleData(state);
-      expect(results.toJSON()).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
+      expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
     });
 
     it('only gets data for visible columns', () => {
@@ -29,7 +34,7 @@ describe('data helpers', () => {
       const state = getBasicState().setIn(['renderProperties', 'columnProperties'], columnProperties);
       const results = getVisibleData(state);
 
-      expect(results.toJSON()).toEqual([{two: 'two'}, {two: 'four'}]);
+      expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two'}, {two: 'four'}]);
     })
   });
 
@@ -38,7 +43,7 @@ describe('data helpers', () => {
       const state = getBasicState();
       const nextState = updateVisibleData(state);
 
-      expect(state.get('data').toJSON()).toEqual(nextState.get('visibleData').toJSON());
+      expect(state.get('data').toJSON().map(withoutMetadata)).toEqual(nextState.get('visibleData').toJSON().map(withoutMetadata));
     });
   });
 

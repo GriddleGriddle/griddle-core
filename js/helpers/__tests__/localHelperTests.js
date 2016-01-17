@@ -11,6 +11,12 @@ import {
   getPage
 } from '../local-helpers';
 
+//TODO: Make this a method in a utils because it's shared with dataHelperTests
+const withoutMetadata = (item) => {
+  delete item["__metadata"];
+  return item;
+}
+
 import { getBasicState } from './stateUtils';
 
 describe('localHelpers', () => {
@@ -19,7 +25,7 @@ describe('localHelpers', () => {
     const visibleData = getVisibleData(state);
 
     expect(visibleData.size).toEqual(state.getIn(['pageProperties', 'pageSize']));
-    expect(visibleData.toJSON()).toEqual([{two: 'two', one: 'one'}]);
+    expect(visibleData.toJSON().map(withoutMetadata)).toEqual([{two: 'two', one: 'one'}]);
   });
 
   describe('hasNext', () => {

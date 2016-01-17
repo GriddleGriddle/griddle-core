@@ -76,14 +76,23 @@ export function getSortedColumns(data, columns) {
 
 //From Immutable docs - https://github.com/facebook/immutable-js/wiki/Predicates
 function keyInArray(keys) {
-  var keySet = Immutable.Set(keys); 
+  var keySet = Immutable.Set(keys);
   return function (v, k) {
     return keySet.has(k);
   }
 }
 
 export function getVisibleDataColumns(data, columns) {
-  return data.map(d => d.filter(keyInArray(columns)));
+  if (data.size < 1) {
+    return data;
+  }
+
+  const metadataColumns = data.get(0).keySeq().toArray().filter(item => columns.indexOf(item) < 0);
+
+  const metadata = data.map(d => new Immutable.Map({__metadata: d.filter(keyInArray(metadataColumns))}));
+  const result = data.map(d => d.filter(keyInArray(columns)));
+
+  return result.mergeDeep(metadata);
 }
 
 export function getDataColumns(state, data) {
