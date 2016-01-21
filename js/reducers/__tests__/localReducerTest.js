@@ -50,15 +50,6 @@ describe('localDataReducer', () => {
       expect(state.get('allColumns')).toEqual(['one', 'two', 'three'])
     });
 
-    it('sets the properties', () => {
-      const renderProperties = {property1: "one", property2: "two"};
-
-      const helpers = extend(Helpers, { addKeyToRows:  (state) => {return state} });
-      const state = loadData({ helpers, payload: { data: defaultData, properties: renderProperties }});
-
-      expect(state.get('renderProperties').toJSON()).toEqual(renderProperties)
-    });
-
     it('sets max page', () => {
       const helpers = extend(Helpers, {
         addKeyToRows: (state) => {return state},

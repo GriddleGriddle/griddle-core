@@ -3,6 +3,7 @@ import { getMethod, getReducer } from './testUtils';
 import extend from 'lodash.assign';
 
 import {
+  GRIDDLE_INITIALIZED,
   GRIDDLE_LOADED_DATA,
   GRIDDLE_TOGGLE_COLUMN
 } from '../data-reducer';
@@ -15,6 +16,16 @@ const defaultData = [
 ];
 
 describe('DataReducer', () => {
+  describe('GRIDDLE_INITIALIZED', () => {
+    const state = getReducer({
+      payload: { properties: { property1: "one" } },
+    }, GRIDDLE_INITIALIZED);
+
+    it('set the render properties', () => {
+      expect(state.get('renderProperties').toJSON()).toEqual({ property1: "one" });
+    });
+  });
+
   describe('GRIDDLE_LOADED_DATA', () => {
     const state = getReducer({
       payload: { data: defaultData, properties: { property1: "one" } },
@@ -26,10 +37,6 @@ describe('DataReducer', () => {
     it('runs addKeyToRows', () => {
       //if data is immutable, it called the addKeyToRows method here
       expect(state.get('data').toJSON()).toEqual(defaultData)
-    });
-
-    it('set the render properties', () => {
-      expect(state.get('renderProperties').toJSON()).toEqual({ property1: "one" });
     });
   });
 
