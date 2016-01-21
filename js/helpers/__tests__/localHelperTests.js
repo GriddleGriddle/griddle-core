@@ -7,7 +7,8 @@ import {
   getDataSet,
   filterData,
   getSortedData,
-  sortByColumns,
+  updateSortColumns,
+  sortDataByColumns,
   getPage
 } from '../local-helpers';
 
@@ -93,30 +94,34 @@ describe('localHelpers', () => {
   describe('getSortedData', () => {
     it('sorts the data', () => {
       const state = getBasicState();
-      const sortedData = getSortedData(state.get('data'), ['two']);
+      const updatedState = updateSortColumns(state, ['two']);
+      const sortedData = sortDataByColumns(updatedState);
 
-      expect(sortedData.toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
+      expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
     });
 
     it('sorts in reverse order when sortAscending = false', () => {
       const state = getBasicState();
-      const sortedData = getSortedData(state.get('data'), ['one'], false);
+      const updatedState = updateSortColumns(state, ['two'], false);
+      const sortedData = sortDataByColumns(updatedState);
 
-      expect(sortedData.toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
+      expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
     });
   });
 
-  describe('sortByColumns', () => {
+  describe('updateSortColumns', () => {
     it('sorts the data', () => {
       const state = getBasicState();
-      const sortedByColumns = sortByColumns(state, ['two']);
+      const updatedState = updateSortColumns(state, ['two']);
+      const sortedByColumns = sortDataByColumns(updatedState);
+
       expect(sortedByColumns.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
     });
 
     it('sorts in reverse order when sortAscending = false', () => {
       const state = getBasicState();
-      const sortDescending = true;
-      const sortedData = sortByColumns(state, ['one'], sortDescending);
+      const updatedState = updateSortColumns(state, ['two'], false);
+      const sortedData = sortDataByColumns(updatedState);
 
       expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
     });
