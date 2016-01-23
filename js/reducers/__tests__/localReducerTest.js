@@ -69,7 +69,10 @@ describe('localDataReducer', () => {
 
     const defaultHelpers = extend(Helpers, {
       getDataSet: (state) => { return state; },
-      getVisibleData: (state) => { return state; }
+      getVisibleData: (state) => { return state; },
+      hasNext: (state) => { return true; },
+      hasPrevious: (state) => { return true; },
+      getDataSetSize: (state) => { return state.count(); }
     });
 
     it('sets visible data', () => {
@@ -214,11 +217,11 @@ describe('localDataReducer', () => {
       expect(state.toJSON()).toEqual({});
     });
 
-    it('calls sortByColumns when sort column present', () => {
+    it('calls sortDataByColumns when sort column present', () => {
       let count = 0;
 
       const helpers = extend(Helpers,
-        { sortByColumns: (state, pageNumber) => count++ });
+        { sortDataByColumns: (state, pageNumber) => count++ });
       const payload = { sortColumns: ['one'] };
       const state = reducer({ helpers, payload }, GRIDDLE_SORT)
 
