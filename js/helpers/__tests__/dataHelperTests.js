@@ -2,6 +2,7 @@ import Immutable from 'immutable';
 
 import {
   getVisibleData,
+  getVisibleDataColumns,
   updateVisibleData,
   getState,
   getPageProperties,
@@ -37,6 +38,23 @@ describe('data helpers', () => {
       expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two'}, {two: 'four'}]);
     })
   });
+
+  describe('getVisibleDataColumns', () => {
+    it('gets data for the given columns', () => {
+      const state = getBasicState();
+      const results = getVisibleDataColumns(state.get('data'), ['one', 'two']);
+
+      expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
+    });
+
+    //test for the columns that are made up from thin air
+    it('gets null for magic column', () => {
+      const state = getBasicState();
+      const results = getVisibleDataColumns(state.get('data'), ['one', 'onepointfive', 'two']);
+
+      expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two', onepointfive: null,  one: 'one'}, {two: 'four', onepointfive: null,  one: 'three'}]);
+    });
+  })
 
   describe('updateVisibleData', () => {
     it('sets visible data', () => {
