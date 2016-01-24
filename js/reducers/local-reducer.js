@@ -21,7 +21,8 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
     ['pageProperties', 'maxPage'],
     helpers.getPageCount(
       action.data.length,
-      state.getIn(['pageProperties', 'pageSize'])));
+      state.getIn(['pageProperties', 'pageSize'])))
+  .set('loading', false);
   return tempState;
 }
 

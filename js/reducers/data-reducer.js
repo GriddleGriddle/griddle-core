@@ -19,7 +19,8 @@ export function GRIDDLE_INITIALIZED(state, action, helpers) {
 }
 
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {
-  return state.set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)));
+  return state.set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
+              .set('loading', false);
 }
 
 export function GRIDDLE_TOGGLE_COLUMN(state, action, helpers) {
