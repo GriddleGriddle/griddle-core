@@ -13,13 +13,14 @@ import LocalReducer, {
 
 import extend from 'lodash.assign';
 
+const initialState = {renderProperties: {columnProperties: null}};
 //TODO: Import the testHelpers instead of using this directly
 const getMethod = (options) => {
   if(!options.method) {
     throw "Need a method to call"
   }
 
-  const combined = extend({state: Immutable.fromJS({}), payload: {}, helpers: {}, method: null}, options);
+  const combined = extend({state: Immutable.fromJS(initialState), payload: {}, helpers: {}, method: null}, options);
   const { state, payload, helpers, method } = combined;
   return method.call(this, state, payload, helpers);
 }
@@ -214,7 +215,7 @@ describe('localDataReducer', () => {
     it('returns the state when no sort columns are present', () => {
       const state = reducer({}, GRIDDLE_SORT);
 
-      expect(state.toJSON()).toEqual({});
+      expect(state.toJSON()).toEqual(initialState);
     });
 
     it('calls sortDataByColumns when sort column present', () => {

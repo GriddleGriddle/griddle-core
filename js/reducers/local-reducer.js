@@ -102,6 +102,8 @@ export function GRIDDLE_SORT(state, action, helpers) {
   // Update the sort columns
   let tempState = helpers.updateSortColumns(state, action.sortColumns);
 
+  const columnProperties = state.get('renderProperties').get('columnProperties');
+
   // Sort the data
-  return helpers.sortDataByColumns(tempState, action.sortColumns)
+  return helpers.sortDataByColumns(tempState, action.sortColumns, columnProperties)
 }
