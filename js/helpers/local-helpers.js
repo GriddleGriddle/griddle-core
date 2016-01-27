@@ -123,7 +123,7 @@ export function sortDataByColumns(state) {
     allColumnProperties.get(sortColumns[0]) :
     null;
 
-  const sortType = columnProperties && columnProperties.hasOwnProperty('sortType') && columnProperties.sortType;
+  const sortType = (columnProperties && columnProperties.get('sortType')) || null;
   let sorted = state.set(
     'data',
     getSortedData(

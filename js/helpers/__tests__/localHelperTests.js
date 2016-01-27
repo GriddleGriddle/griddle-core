@@ -115,7 +115,7 @@ describe('localHelpers', () => {
           {one: '7/20/1982', two: '8/21/2015'}]))
         .setIn(
           ['renderProperties', 'columnProperties', 'two'],
-          { sortType: 'date', id: 'two', displayName: 'Two'})
+          new Immutable.Map({ sortType: 'date', id: 'two', displayName: 'Two'}))
 
       const updatedState = updateSortColumns(state, ['two']);
 
@@ -132,11 +132,10 @@ describe('localHelpers', () => {
           {one: '7/20/1982', two: '8/21/2015'}]))
         .setIn(
           ['renderProperties', 'columnProperties', 'two'],
-          { sortType: 'date', id: 'two', displayName: 'Two'})
+          new Immutable.Map({ sortType: 'date', id: 'two', displayName: 'Two'}))
 
       const updatedState = updateSortColumns(state, ['two'], false);
 
-      console.log(updatedState.getIn(['pageProperties', 'sortAscending']))
       const sortedData = sortDataByColumns(updatedState);
 
       expect(sortedData.get('data').toJSON())
