@@ -94,7 +94,7 @@ describe('localHelpers', () => {
   describe('getSortedData', () => {
     it('sorts the data', () => {
       const state = getBasicState();
-      const updatedState = updateSortColumns(state, ['two']);
+      const updatedState = updateSortColumns(state, ['two'], true);
       const sortedData = sortDataByColumns(updatedState);
 
       expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
@@ -105,8 +105,44 @@ describe('localHelpers', () => {
       const updatedState = updateSortColumns(state, ['two'], false);
       const sortedData = sortDataByColumns(updatedState);
 
-      expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
+      expect(sortedData.get('data').toJSON()).toEqual([{one: 'one', two: 'two'}, {one: 'three', two: 'four'}]);
     });
+
+    it('sorts by date', () => {
+      const state = getBasicState()
+        .set('data', Immutable.fromJS([
+          {one: '1/1/1900', two: '1/5/2016'},
+          {one: '7/20/1982', two: '8/21/2015'}]))
+        .setIn(
+          ['renderProperties', 'columnProperties', 'two'],
+          { sortType: 'date', id: 'two', displayName: 'Two'})
+
+      const updatedState = updateSortColumns(state, ['two']);
+
+      const sortedData = sortDataByColumns(updatedState);
+
+      expect(sortedData.get('data').toJSON())
+        .toEqual([{one: '7/20/1982', two: '8/21/2015'}, {one: '1/1/1900', two: '1/5/2016'}]);
+    });
+
+    it('sorts by date descending', () => {
+      const state = getBasicState()
+        .set('data', Immutable.fromJS([
+          {one: '1/1/1900', two: '1/5/2016'},
+          {one: '7/20/1982', two: '8/21/2015'}]))
+        .setIn(
+          ['renderProperties', 'columnProperties', 'two'],
+          { sortType: 'date', id: 'two', displayName: 'Two'})
+
+      const updatedState = updateSortColumns(state, ['two'], false);
+
+      console.log(updatedState.getIn(['pageProperties', 'sortAscending']))
+      const sortedData = sortDataByColumns(updatedState);
+
+      expect(sortedData.get('data').toJSON())
+        .toEqual([{one: '1/1/1900', two: '1/5/2016'}, {one: '7/20/1982', two: '8/21/2015'}]);
+    });
+
   });
 
   describe('updateSortColumns', () => {
@@ -123,7 +159,7 @@ describe('localHelpers', () => {
       const updatedState = updateSortColumns(state, ['two'], false);
       const sortedData = sortDataByColumns(updatedState);
 
-      expect(sortedData.get('data').toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
+      expect(sortedData.get('data').toJSON()).toEqual([{one: 'one', two: 'two'}, {one: 'three', two: 'four'}]);
     });
   });
 

@@ -49,11 +49,26 @@ export function filterData(data, filter) {
       })
 }
 
-export function getSortedData(data, columns, sortAscending = true) {
+export function dateSort(data, column, sortAscending = true) {
   return data.sort(
     (original, newRecord) => {
-      original = (!!original.get(columns[0]) && original.get(columns[0])) || "";
-      newRecord = (!!newRecord.get(columns[0]) && newRecord.get(columns[0])) || "";
+      original = (!!original.get(column) && new Date(original.get(column))) || null;
+      newRecord = (!!newRecord.get(column) && new Date(newRecord.get(column))) || null;
+      if(original.getTime() === newRecord.getTime()) {
+        return 0;
+      } else if (original > newRecord) {
+        return sortAscending ?  1 : -1;
+      } else {
+        return sortAscending ? -1 : 1;
+      }
+    })
+}
+
+export function defaultSort(data, column, sortAscending = true) {
+  return data.sort(
+    (original, newRecord) => {
+      original = (!!original.get(column) && original.get(column)) || "";
+      newRecord = (!!newRecord.get(column) && newRecord.get(column)) || "";
 
       //TODO: This is about the most cheezy sorting check ever.
       //Make it be able to sort for dates / monetary / regex / whatever
@@ -68,24 +83,55 @@ export function getSortedData(data, columns, sortAscending = true) {
     });
 }
 
+export function sortTypes(type) {
+  return {
+    "default": defaultSort,
+    "date": dateSort,
+  }
+}
+
+export function getSortByType(type) {
+  const sortType = sortTypes();
+  return sortType.hasOwnProperty(type) ? sortType[type] : defaultSort
+}
+
+export function getSortedData(data, columns, sortAscending = true, sortType = "default") {
+  return getSortByType(sortType)(data, columns[0], sortAscending);
+}
 
 //TODO: Consider renaming sortAscending here to sortDescending
 export function updateSortColumns(state, columns, sortAscending = null) {
   if(columns.length === 0) { return state; }
 
-  const reverse = sortAscending !== null ? sortAscending :
-    (state.getIn(['pageProperties', 'sortAscending']) === true && state.getIn(['pageProperties', 'sortColumns'])[0] === columns[0]);
+  const shouldSortAscending = sortAscending !== null ?
+    sortAscending :
+    !(state.getIn(['pageProperties', 'sortAscending']) === true &&
+      state.getIn(['pageProperties', 'sortColumns'])[0] === columns[0]);
 
-  return state.setIn(['pageProperties', 'sortAscending'], !reverse)
+  return state.setIn(['pageProperties', 'sortAscending'], shouldSortAscending)
               .setIn(['pageProperties', 'sortColumns'], columns);
 }
 
 export function sortDataByColumns(state) {
   if(!state.get('data')) { return state; }
 
+  //TODO: Clean this up
+  const allColumnProperties = state.getIn(['renderProperties', 'columnProperties']);
+  const sortColumns = state.getIn(['pageProperties', 'sortColumns']);
+  //TODO: Make sort for more than just the first column
+  const columnProperties = sortColumns && sortColumns.length > 0 ?
+    allColumnProperties.get(sortColumns[0]) :
+    null;
+
+  const sortType = columnProperties && columnProperties.hasOwnProperty('sortType') && columnProperties.sortType;
   let sorted = state.set(
     'data',
-    getSortedData(state.get('data'), state.getIn(['pageProperties', 'sortColumns']), state.getIn(['pageProperties', 'sortAscending']))
+    getSortedData(
+      state.get('data'),
+      sortColumns,
+      state.getIn(['pageProperties', 'sortAscending']),
+      sortType
+    )
   );
 
   //if filter is set we need to filter
