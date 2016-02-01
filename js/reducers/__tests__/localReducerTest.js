@@ -222,7 +222,7 @@ describe('localDataReducer', () => {
       let count = 0;
 
       const helpers = extend(Helpers,
-        { sortDataByColumns: (state, pageNumber) => count++ });
+        { sortDataByColumns: (state, pageNumber) => new Immutable.Map({count: count++ }) });
       const payload = { sortColumns: ['one'] };
       const state = reducer({ helpers, payload }, GRIDDLE_SORT)
 
