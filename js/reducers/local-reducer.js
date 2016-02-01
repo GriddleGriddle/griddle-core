@@ -49,6 +49,7 @@ export function AFTER_REDUCE(state, action, helpers) {
 */
 export function GRIDDLE_SET_PAGE_SIZE(state, action, helpers) {
   const pageSizeState = state
+    .setIn(['pageProperties', 'currentPage'], 1)
     .setIn(['pageProperties', 'pageSize'],
       action.pageSize);
 
@@ -56,7 +57,7 @@ export function GRIDDLE_SET_PAGE_SIZE(state, action, helpers) {
       .setIn(
         ['pageProperties', 'maxPage'],
         helpers.getPageCount(
-          state.get('data').size,
+          pageSizeState.get('data').size,
           action.pageSize));
 
       return stateWithMaxPage;
