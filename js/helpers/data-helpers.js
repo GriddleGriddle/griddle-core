@@ -99,8 +99,8 @@ export function getVisibleDataColumns(data, columns) {
     .reduce((original, item) => { original[item] = null; return original}, {})
 
   //combine the metadata and the "magic" columns
-  const extra = data.map(d => new Immutable.Map(
-    extend(magicColumns, {__metadata: d.filter(keyInArray(metadataColumns))})
+  const extra = data.map((d, i) => new Immutable.Map(
+    extend(magicColumns, {__metadata: d.filter(keyInArray(metadataColumns)).set('index', i)})
   ));
 
   const result = data.map(d => d.filter(keyInArray(columns)));

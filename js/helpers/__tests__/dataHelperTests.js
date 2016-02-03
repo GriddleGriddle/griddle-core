@@ -37,6 +37,14 @@ describe('data helpers', () => {
 
       expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two'}, {two: 'four'}]);
     })
+
+    it('gets the index', () => {
+      const columnProperties = getBasicState().getIn(['renderProperties', 'columnProperties']).filterNot(col => col.get('id') === 'one');
+      const state = getBasicState().setIn(['renderProperties', 'columnProperties'], columnProperties);
+      const results = getVisibleData(state);
+
+      expect(results.toJSON().every((r, i) => r.__metadata.index === i)).toEqual(true)
+    });
   });
 
   describe('getVisibleDataColumns', () => {
