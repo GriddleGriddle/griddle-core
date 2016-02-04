@@ -90,13 +90,13 @@ export function sortTypes(type) {
   }
 }
 
-export function getSortByType(type) {
-  const sortType = sortTypes();
+export function getSortByType(type, helpers) {
+  const sortType = ((helpers && helpers.sortTypes)||sortTypes)();
   return sortType.hasOwnProperty(type) ? sortType[type] : defaultSort
 }
 
-export function getSortedData(data, columns, sortAscending = true, sortType = "default") {
-  return getSortByType(sortType)(data, columns[0], sortAscending);
+export function getSortedData(data, columns, helpers, sortAscending = true, sortType = "default") {
+  return getSortByType(sortType, helpers)(data, columns[0], sortAscending, helpers);
 }
 
 //TODO: Consider renaming sortAscending here to sortDescending
@@ -112,7 +112,7 @@ export function updateSortColumns(state, columns, sortAscending = null) {
               .setIn(['pageProperties', 'sortColumns'], columns);
 }
 
-export function sortDataByColumns(state) {
+export function sortDataByColumns(state, helpers) {
   if(!state.get('data')) { return state; }
 
   //TODO: Clean this up
@@ -126,9 +126,10 @@ export function sortDataByColumns(state) {
   const sortType = (columnProperties && columnProperties.get('sortType')) || null;
   let sorted = state.set(
     'data',
-    getSortedData(
+    (helpers && helpers.getSortedData||getSortedData)(
       state.get('data'),
       sortColumns,
+      helpers,
       state.getIn(['pageProperties', 'sortAscending']),
       sortType
     )
