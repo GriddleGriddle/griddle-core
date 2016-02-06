@@ -10,6 +10,7 @@ import Immutable from 'immutable';
     Data,
     Pagination buttons
     visible data
+    it should sort the data if a sort is specified
 */
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {
   const columns = action.data.length > 0 ? Object.keys(action.data[0]) : [];
@@ -23,7 +24,15 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
       action.data.length,
       state.getIn(['pageProperties', 'pageSize'])))
   .set('loading', false);
-  return tempState;
+
+  const columnProperties = tempState.get('renderProperties').get('columnProperties');
+
+  return columnProperties ?
+     helpers
+      .sortDataByColumns(tempState, helpers)
+      .setIn(['pageProperties', 'currentPage'], 1) :
+    tempState;
+
 }
 
 export function AFTER_REDUCE(state, action, helpers) {
