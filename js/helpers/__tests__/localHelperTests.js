@@ -2,6 +2,7 @@ import Immutable from 'immutable';
 
 import {
   getVisibleData,
+  getOriginalData,
   hasNext,
   hasPrevious,
   getDataSet,
@@ -27,6 +28,14 @@ describe('localHelpers', () => {
 
     expect(visibleData.size).toEqual(state.getIn(['pageProperties', 'pageSize']));
     expect(visibleData.toJSON().map(withoutMetadata)).toEqual([{two: 'two', one: 'one'}]);
+  });
+
+  it('gets original data', () => {
+    const state = getBasicState();
+    const data = getOriginalData(state);
+
+    expect(data.size).toEqual(state.getIn(['pageProperties', 'pageSize']));
+    expect(data.toJSON()).toEqual([{two: 'two', one: 'one'}]);
   });
 
   describe('hasNext', () => {

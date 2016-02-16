@@ -18,9 +18,17 @@ export function getVisibleData(state) {
 
   const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
-
   const columns = getDataColumns(state, data);
   return getVisibleDataColumns(getSortedColumns(data, columns), columns);
+}
+
+export function getOriginalData(state) {
+  //get the max page / current page and the current page of data
+  const pageSize = state.getIn(['pageProperties', 'pageSize']);
+  const currentPage = state.getIn(['pageProperties', 'currentPage']);
+
+  return getDataSet(state)
+    .skip(pageSize * (currentPage-1)).take(pageSize);
 }
 
 export function hasNext(state) {

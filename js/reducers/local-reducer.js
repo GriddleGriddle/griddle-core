@@ -38,6 +38,7 @@ export function GRIDDLE_LOADED_DATA(state, action, helpers) {
 export function AFTER_REDUCE(state, action, helpers) {
   const tempState = state
     .set('visibleData', helpers.getVisibleData(state))
+    .set('originalData', helpers.getOriginalData(state))
     .setIn(
       ['pageProperties', 'maxPage'],
       helpers.getPageCount(

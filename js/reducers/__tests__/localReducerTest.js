@@ -71,6 +71,7 @@ describe('localDataReducer', () => {
     const defaultHelpers = extend(Helpers, {
       getDataSet: (state) => { return state; },
       getVisibleData: (state) => { return state; },
+      getOriginalData: (state) => { return state; },
       hasNext: (state) => { return true; },
       hasPrevious: (state) => { return true; },
       getDataSetSize: (state) => { return state.count(); }
