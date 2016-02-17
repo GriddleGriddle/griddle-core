@@ -2,6 +2,7 @@
 
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
+import reselect from 'reselect';
 
 /*
   The handler that happens when data is loaded.
@@ -81,6 +82,7 @@ export function GRIDDLE_GET_PAGE(state, action, helpers) {
     .getPage(state, action.pageNumber));
 }
 
+
 export function GRIDDLE_NEXT_PAGE(state, action, helpers) {
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
   const maxPage = state.getIn(['pageProperties', 'maxPage']);
@@ -119,3 +121,5 @@ export function GRIDDLE_SORT(state, action, helpers) {
     .sortDataByColumns(tempState, helpers)
     .setIn(['pageProperties', 'currentPage'], 1)
 }
+
+

@@ -37,6 +37,7 @@
     "immutable": "^3.7.2",
     "lodash.assign": "^3.2.0",
     "lodash.pick": "^3.1.0",
-    "max-safe-integer": "^1.0.0"
+    "max-safe-integer": "^1.0.0",
+    "reselect": "^2.0.3"
   }
 }
