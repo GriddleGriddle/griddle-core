@@ -43,7 +43,7 @@ export function get3ColState() {
   });
 }
 
-fdescribe('localSelectors', () => {
+describe('localSelectors', () => {
   var initialState;
 
   beforeEach(() => {
@@ -174,6 +174,28 @@ fdescribe('localSelectors', () => {
 
       const visibleColumns = selectors.visibleColumnsSelector(state);
       expect(visibleColumns).toEqual(['one', 'two', 'three'])
+    })
+  })
+
+  describe('visible data', () => {
+    it ('gets visible data', () => {
+      const state = withRenderProperties(get3ColState());
+
+      const data = selectors.getVisibleData(state);
+      expect(data).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
+    })
+
+    it('gets magic columns', () => {
+      const state = withRenderProperties(get3ColState()).setIn(['renderProperties', 'columnProperties', 'three'], 
+        new Immutable.Map({id: 'madeup', title: 'magic'})
+      );
+
+      const data = selectors.getVisibleData(state);
+
+      expect(data).toEqual([
+        {two: 'two', onepointfive: null,  one: 'one'},
+        {two: 'four', onepointfive: null,  one: 'three'}
+      ]);
     })
   })
 })

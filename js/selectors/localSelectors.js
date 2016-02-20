@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import { createSelector } from 'reselect';
+import sortUtils from '../utils/sortUtils';
 
 //gets the full dataset currently tracked by griddle
 export const dataSelector = state => state.get('data');
@@ -15,6 +16,12 @@ export const maxPageSelector = state => state.getIn(['pageProperties', 'maxPage'
 
 //what's the current selector
 export const filterSelector = state => state.get('filter')||'';
+
+//gets the current sort columns
+export const sortColumnsSelector = state => (state.get('sortColumns')||[])
+
+//gets the current sort direction (this is an array that corresponds to columns)
+export const sortColumnsSortDirectionSelector = state => (state.get('sortDirections')||[])
 
 //the properties that determine how things are rendered
 export const renderPropertiesSelector = state => state.get('renderProperties');
@@ -60,6 +67,7 @@ export const filteredDataSelector = createSelector(
   dataSelector,
   filterSelector,
   (data, filter) => {
+const a = sortUtils;
     return data.filter(row  => {
       return Object.keys(row.toJSON())
         .some(key => {
@@ -69,4 +77,17 @@ export const filteredDataSelector = createSelector(
   }
 )
 
+export const getSortedData = createSelector(
+  filteredDataSelector,
+  sortColumnsSelector,
+  sortColumnsSortDirectionSelector,
+  (filteredData, sortColumns, columnsSortDirection) => (
+{}
+  )
+)
 
+//get the visible data (and only the columns that are visible)
+/*export const getVisibleData = createSelector(
+  visibleColumnsSelector,
+  
+)*/
