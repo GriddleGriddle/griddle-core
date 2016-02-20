@@ -7,12 +7,32 @@ function getBasicState() {
       { one: 'one', two: 'two' },
       { one: 'three', two: 'four' }
     ],
-    renderProperties: {
+    pageProperties: {
+      property1: 'one',
+      property2: 'two',
+      pageSize: 1,
+      currentPage: 0,
+      maxPage: 2
+    }
+  });
+}
+
+function withRenderProperties(state) {
+  return state.set('renderProperties', new Immutable.fromJS({
       columnProperties: {
         one: { id: 'one', displayName: 'One', order: 2 },
         two: { id: 'two', displayName: 'Two', order: 1 }
       }
-    },
+    })
+  )
+}
+
+export function get3ColState() {
+  return Immutable.fromJS({
+    data: [
+      { one: 'one', two: 'two', three: 'three' },
+      { one: 'four', two: 'five', three: 'six' }
+    ],
     pageProperties: {
       property1: 'one',
       property2: 'two',
@@ -111,6 +131,49 @@ fdescribe('localSelectors', () => {
 
       expect(filteredData.size).toEqual(2);
       expect(filteredData.toJSON()).toEqual(state.get('data').toJSON());
+    })
+  })
+
+  describe('visible columns', () => {
+    it('gets the renderProperties', () => {
+      const state = withRenderProperties(getBasicState());
+      const renderProperties = selectors.renderPropertiesSelector(state);
+      expect(renderProperties.toJSON()).toEqual({
+        columnProperties: {
+          one: { id: 'one', displayName: 'One', order: 2 },
+          two: { id: 'two', displayName: 'Two', order: 1 }
+        }
+      });
+    })
+
+    it('gets sorted columns', () => {
+      const state = withRenderProperties(getBasicState());
+      const sortedColumnSettings = selectors.sortedColumnPropertiesSelector(state);
+      expect(sortedColumnSettings.toJSON()).toEqual({
+        two: { id: 'two', displayName: 'Two', order: 1 },
+        one: { id: 'one', displayName: 'One', order: 2 }
+      });
+    })
+
+    it('gets all columns', () => {
+      const state = getBasicState();
+
+      const allColumns = selectors.allColumnsSelector(state);
+      expect(allColumns).toEqual(['one', 'two']);
+    })
+
+    it('gets visible columns', () => {
+      const state = withRenderProperties(get3ColState());
+
+      const visibleColumns = selectors.visibleColumnsSelector(state);
+      expect(visibleColumns).toEqual(['two', 'one']);
+    });
+
+    it('gets all columns when no columns specified', () => {
+      const state = get3ColState();
+
+      const visibleColumns = selectors.visibleColumnsSelector(state);
+      expect(visibleColumns).toEqual(['one', 'two', 'three'])
     })
   })
 })
