@@ -20,8 +20,8 @@ export const filterSelector = state => state.get('filter')||'';
 //gets the current sort columns
 export const sortColumnsSelector = state => (state.get('sortColumns')||[])
 
-//gets the current sort direction (this is an array that corresponds to columns)
-export const sortColumnsSortDirectionSelector = state => (state.get('sortDirections')||[])
+//gets the current sort direction (this is an array that corresponds to columns) records are true if sortAscending
+export const sortColumnsShouldSortAscendingSelector = state => (state.get('sortDirections')||[])
 
 //the properties that determine how things are rendered
 export const renderPropertiesSelector = state => state.get('renderProperties');
@@ -80,14 +80,16 @@ const a = sortUtils;
 export const getSortedData = createSelector(
   filteredDataSelector,
   sortColumnsSelector,
-  sortColumnsSortDirectionSelector,
-  (filteredData, sortColumns, columnsSortDirection) => (
-{}
-  )
+  sortColumnsShouldSortAscendingSelector,
+  renderPropertiesSelector,
+  (filteredData, sortColumns, sortColumnsShouldSortAscending, renderProperties) => {
+    const sortType = renderProperties && renderProperties.get('columnProperties')
+    this.utils.getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
+  }
 )
 
 //get the visible data (and only the columns that are visible)
 /*export const getVisibleData = createSelector(
   visibleColumnsSelector,
-  
+
 )*/

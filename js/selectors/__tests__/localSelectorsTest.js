@@ -180,13 +180,13 @@ describe('localSelectors', () => {
   describe('visible data', () => {
     it ('gets visible data', () => {
       const state = withRenderProperties(get3ColState());
-
+console.log(selectors);
       const data = selectors.getVisibleData(state);
       expect(data).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
     })
 
     it('gets magic columns', () => {
-      const state = withRenderProperties(get3ColState()).setIn(['renderProperties', 'columnProperties', 'three'], 
+      const state = withRenderProperties(get3ColState()).setIn(['renderProperties', 'columnProperties', 'three'],
         new Immutable.Map({id: 'madeup', title: 'magic'})
       );
 
@@ -199,4 +199,3 @@ describe('localSelectors', () => {
     })
   })
 })
-

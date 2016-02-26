@@ -17,7 +17,7 @@ function getBasicState() {
   });
 }
 
-fdescribe('SortUtils', () => {
+describe('SortUtils', () => {
   it('sorts the data', () => {
     const state = getBasicState();
     const sortedData = sortUtils.getSortedData(state.get('data'), ['two'], true);
@@ -64,7 +64,13 @@ fdescribe('SortUtils', () => {
   })
 
   it('works with custom sort types', () => {
-    const state = getBasicState();
+    const state = getBasicState()
+      .set('data', Immutable.fromJS([
+        {one: 'hi', two: 'something'},
+        {one: 'yo', two: 'another'},
+        {one: 'greetings', two: 'other'},
+        {one: 'hello', two: 'final'}]))
+
 
     const newSort = (data, column, sortAscending = true) => {
       return data.sort(
@@ -87,8 +93,12 @@ fdescribe('SortUtils', () => {
     const newSortUtils = Object.assign({}, sortUtils, { sortTypes: newSortTypes });
 
     const sortedData = newSortUtils.getSortedData(state.get('data'), ['one'], true, 'secondLetter');
-    console.log(sortedData.toJSON());
-    //TODO: Finish this test -- basically want to make sure that the data is getting sorted
-    //by the second letter
+
+    expect(sortedData.toJSON()).toEqual([
+      {one: 'hello', two: 'final'},
+      {one: 'hi', two: 'something'},
+      {one: 'yo', two: 'another'},
+      {one: 'greetings', two: 'other'},
+    ])
   })
 })
