@@ -1,7 +1,6 @@
 import {
   getPageCount,
   getDataColumns,
-  getSortedColumns,
   getVisibleDataColumns,
   addKeyToRows
 } from './data-helpers';
@@ -19,7 +18,7 @@ export function getVisibleData(state) {
   const data =  getDataSet(state)
     .skip(pageSize * (currentPage-1)).take(pageSize);
   const columns = getDataColumns(state, data);
-  return getVisibleDataColumns(getSortedColumns(data, columns), columns);
+  return getVisibleDataColumns(data, columns);
 }
 
 export function getOriginalData(state) {

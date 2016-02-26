@@ -5,7 +5,7 @@ export function getVisibleData(state) {
   const data =  state.get('data');
 
   const columns = getDataColumns(state, data);
-  return getVisibleDataColumns(getSortedColumns(data, columns), columns);
+  return getVisibleDataColumns(data, columns);
 }
 
 export function updateVisibleData(state) {
@@ -69,11 +69,6 @@ export function getAllPossibleColumns(state) {
   return state.get('data').get(0).keySeq();
 }
 
-export function getSortedColumns(data, columns) {
-  return data
-    .map(item => item.sortBy((val, key) => columns.indexOf(key)));
-}
-
 //From Immutable docs - https://github.com/facebook/immutable-js/wiki/Predicates
 function keyInArray(keys) {
   var keySet = Immutable.Set(keys);
@@ -105,7 +100,8 @@ export function getVisibleDataColumns(data, columns) {
 
   const result = data.map(d => d.filter(keyInArray(columns)));
 
-  return result.mergeDeep(extra);
+  return result.mergeDeep(extra)
+    .map(item => item.sortBy((val, key) => columns.indexOf(key) > -1 ? columns.indexOf(key) :  MAX_SAFE_INTEGER ));
 }
 
 export function getDataColumns(state, data) {
