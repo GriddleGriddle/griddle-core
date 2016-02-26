@@ -11,7 +11,6 @@ import {
   getColumnTitles,
   getColumnProperties,
   getAllPossibleColumns,
-  getSortedColumns,
   getDataColumns
 } from '../data-helpers';
 
@@ -55,12 +54,26 @@ describe('data helpers', () => {
       expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
     });
 
+    it('sorts the columns', () => {
+      const state = getBasicState();
+      const sorted = getVisibleDataColumns(state.get('data'), ['two', 'one']);
+
+      expect(Object.keys(sorted.toJSON()[0])).toEqual(['two', 'one', '__metadata']);
+    });
+
     //test for the columns that are made up from thin air
     it('gets null for magic column', () => {
       const state = getBasicState();
       const results = getVisibleDataColumns(state.get('data'), ['one', 'onepointfive', 'two']);
 
       expect(results.toJSON().map(withoutMetadata)).toEqual([{two: 'two', onepointfive: null,  one: 'one'}, {two: 'four', onepointfive: null,  one: 'three'}]);
+    });
+
+    it('gets correct order for magic column', () => {
+      const state = getBasicState();
+      const results = getVisibleDataColumns(state.get('data'), ['one', 'onepointfive', 'two']);
+
+      expect(Object.keys(results.toJSON()[0])).toEqual(['one', 'onepointfive', 'two', '__metadata']);
     });
   })
 
@@ -141,15 +154,6 @@ describe('data helpers', () => {
       const possibleColumns = getAllPossibleColumns(state);
 
       expect(possibleColumns.toJSON()).toEqual(['one', 'two'])
-    });
-  });
-
-  describe('getSortedColumns', () => {
-    it('sorts the columns', () => {
-      const state = getBasicState();
-      const sorted = getSortedColumns(state.get('data'), ['two', 'one']);
-
-      expect(sorted.toJSON()).toEqual([{two: 'two', one: 'one'}, {two: 'four', one: 'three'}]);
     });
   });
 
