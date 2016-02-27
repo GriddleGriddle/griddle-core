@@ -77,14 +77,14 @@ const a = sortUtils;
   }
 )
 
-export const getSortedData = createSelector(
+export const buildSortedDataSelector = (utils) => createSelector(
   filteredDataSelector,
   sortColumnsSelector,
   sortColumnsShouldSortAscendingSelector,
   renderPropertiesSelector,
   (filteredData, sortColumns, sortColumnsShouldSortAscending, renderProperties) => {
     const sortType = renderProperties && renderProperties.get('columnProperties')
-    this.utils.getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
+    return utils.getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
   }
 )
 
