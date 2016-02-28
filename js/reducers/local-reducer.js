@@ -1,8 +1,7 @@
-'use strict';
-
 import * as types from '../constants/action-types';
 import Immutable from 'immutable';
 import reselect from 'reselect';
+import { addKeyToRows } from '../utils/dataUtils';
 
 /*
   The handler that happens when data is loaded.
@@ -13,38 +12,19 @@ import reselect from 'reselect';
     visible data
     it should sort the data if a sort is specified
 */
-export function GRIDDLE_LOADED_DATA(state, action, helpers) {
+export function GRIDDLE_LOADED_DATA(state, action) {
   const columns = action.data.length > 0 ? Object.keys(action.data[0]) : [];
 
   //set state's data to this
-  const tempState = state
-  .set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
+  return state
+  .set('data', addKeyToRows(Immutable.fromJS(action.data)))
   .set('allColumns', columns)
   .set('loading', false);
-
-  const columnProperties = tempState.get('renderProperties').get('columnProperties');
-
-  return columnProperties ?
-     helpers
-      .sortDataByColumns(tempState, helpers)
-      .setIn(['pageProperties', 'currentPage'], 1) :
-    tempState;
-
 }
 
-export function AFTER_REDUCE(state, action, helpers) {
-  const tempState = state
-    .set('visibleData', helpers.getVisibleData(state))
-    .set('originalData', helpers.getOriginalData(state))
-    .setIn(
-      ['pageProperties', 'maxPage'],
-      helpers.getPageCount(
-        helpers.getDataSetSize(state),
-        state.getIn(['pageProperties', 'pageSize'])))
-
-  return tempState
-    .set('hasNext', helpers.hasNext(tempState))
-    .set('hasPrevious', helpers.hasPrevious(tempState));
+//TODO: This should go away
+export function AFTER_REDUCE(state, action) {
+  return state;
 }
 
 /*
@@ -54,49 +34,39 @@ export function AFTER_REDUCE(state, action, helpers) {
     hasNext,
     hasPrevious
 */
-export function GRIDDLE_SET_PAGE_SIZE(state, action, helpers) {
-  const pageSizeState = state
+export function GRIDDLE_SET_PAGE_SIZE(state, action) {
+  return state
     .setIn(['pageProperties', 'currentPage'], 1)
     .setIn(['pageProperties', 'pageSize'],
       action.pageSize);
-
-   const stateWithMaxPage = pageSizeState
-      .setIn(
-        ['pageProperties', 'maxPage'],
-        helpers.getPageCount(
-          pageSizeState.get('data').size,
-          action.pageSize));
-
-      return stateWithMaxPage;
 }
 
 //TODO: Move the helper function to the method body and call this
 //      from next / previous. This will be easier since we have
 //      the AFTER_REDUCE stuff now.
-export function GRIDDLE_GET_PAGE(state, action, helpers) {
-  return(helpers
-    .getPage(state, action.pageNumber));
+export function GRIDDLE_GET_PAGE(state, action) {
+  return state.setIn(['pageProperties', 'currentPage'], action.pageNumber)
 }
 
 
-export function GRIDDLE_NEXT_PAGE(state, action, helpers) {
+export function GRIDDLE_NEXT_PAGE(state, action) {
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
   const maxPage = state.getIn(['pageProperties', 'maxPage']);
 
-  return(helpers
-    .getPage(state,
-      currentPage < maxPage ? currentPage + 1 : currentPage));
+  return currentPage < maxPage ?
+    state.setIn(['pageProperties', 'currentPage'], currentPage + 1) :
+    state;
 }
 
-export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
+export function GRIDDLE_PREVIOUS_PAGE(state, action) {
   const currentPage = state.getIn(['pageProperties', 'currentPage']);
 
-  return(helpers
-      .getPage(state,
-        currentPage > 0 ? currentPage - 1 : currentPage ));
+  return currentPage > 0 ?
+    state.setIn(['pageProperties', 'currentPage'], currentPage - 1) :
+    state
 }
 
-export function GRIDDLE_FILTERED(state, action, helpers) {
+export function GRIDDLE_FILTERED(state, action) {
   //TODO: Just set the filter and let the visible data handle what is actually shown + next / previous
   return state
     .set('filter', action.filter)
@@ -105,17 +75,12 @@ export function GRIDDLE_FILTERED(state, action, helpers) {
 
 //TODO: This is a really simple sort, for now
 //      We need to add sort type and different sort operations
-export function GRIDDLE_SORT(state, action, helpers) {
+export function GRIDDLE_SORT(state, action) {
   if(!action.sortColumns || action.sortColumns.length < 1) { return state }
 
-  // Update the sort columns
-  let tempState = helpers.updateSortColumns(state, action.sortColumns);
-
-  const columnProperties = state.get('renderProperties').get('columnProperties');
-  // Sort the data
-  return helpers
-    .sortDataByColumns(tempState, helpers)
+  return state
     .setIn(['pageProperties', 'currentPage'], 1)
+    .set('sortColumns', action.sortColumns)
 }
 
 

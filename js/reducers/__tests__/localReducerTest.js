@@ -32,6 +32,9 @@ const defaultData = [
   {one: "ichi", two: "ni", three: "san"},
 ];
 
+const withDefaultKeys = (data) => data.toJSON().map(row => ({ one: row["one"], two: row["two"], three: row["three"]}))
+
+
 describe('localDataReducer', () => {
   describe('load data', () => {
     const loadData = (options) => {
@@ -42,7 +45,7 @@ describe('localDataReducer', () => {
       const helpers = extend(Helpers, { addKeyToRows:  (state) => {return state} });
       const state = loadData({ helpers, payload: { data: defaultData }});
 
-      expect(state.get('data').toJSON()).toEqual(defaultData);
+      expect(withDefaultKeys(state.get('data'))).toEqual(defaultData);
     });
 
     it('sets all columns', () => {
@@ -65,43 +68,6 @@ describe('localDataReducer', () => {
       hasPrevious: (state) => { return true; },
       getDataSetSize: (state) => { return state.count(); }
     });
-
-    it('sets visible data', () => {
-      const visibleData = [{ one: "one", two: "two", three: "three" }];
-      const helpers = extend({}, defaultHelpers, {
-        getVisibleData: (state) => { return visibleData; },
-      });
-
-      const state = afterReduce({ helpers });
-      expect(state.get('visibleData')).toEqual(visibleData);
-    });
-
-    it('sets has next', () => {
-      const helpers = extend({}, defaultHelpers, {
-        hasNext: (state) => { return true; },
-      });
-
-      const state = afterReduce({ helpers });
-      expect(state.get('hasNext')).toEqual(true);
-    });
-
-    it('sets has previous', () => {
-      const helpers = extend({}, defaultHelpers, {
-        hasPrevious: (state) => { return true; },
-      });
-
-      const state = afterReduce({ helpers });
-      expect(state.get('hasPrevious')).toEqual(true);
-    });
-
-    it('sets max page', () => {
-      const helpers = extend({}, defaultHelpers, {
-        getPageCount: (state) => { return 3}
-      });
-
-      const state = afterReduce({ helpers });
-      expect(state.getIn(['pageProperties', 'maxPage'])).toEqual(3);
-    });
   });
 
   describe('set page size', () => {
@@ -113,14 +79,12 @@ describe('localDataReducer', () => {
       getPageCount: (state) => { return 3; }
     });
 
-
     it('sets the page size', () => {
       const state = setPageSize({ helpers: defaultHelpers,
         state: Immutable.fromJS({ data: defaultData }),
         payload: { pageSize: 10 }
       });
 
-      expect(state.getIn(['pageProperties', 'maxPage'])).toEqual(3);
       expect(state.getIn(['pageProperties', 'pageSize'])).toEqual(10);
     });
   });
@@ -145,7 +109,7 @@ describe('localDataReducer', () => {
         payload: { pageNumber: 2 }
       }, GRIDDLE_GET_PAGE);
 
-      expect(state.get('data')).toEqual(defaultPage[2]);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(2);
     });
 
     it('gets next page', () => {
@@ -153,7 +117,7 @@ describe('localDataReducer', () => {
         state: Immutable.fromJS({ pageProperties: { currentPage: 0, maxPage: 2 } }),
       }, GRIDDLE_NEXT_PAGE);
 
-      expect(state.get('data')).toEqual(defaultPage[1]);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(1);
     });
 
     it('gets last page when calling next page on last page', () => {
@@ -161,7 +125,7 @@ describe('localDataReducer', () => {
         state: Immutable.fromJS({ pageProperties: { currentPage: 2, maxPage: 2 } }),
       }, GRIDDLE_NEXT_PAGE);
 
-      expect(state.get('data')).toEqual(defaultPage[2]);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(2);
     });
 
     it('gets previous page', () => {
@@ -169,7 +133,7 @@ describe('localDataReducer', () => {
         state: Immutable.fromJS({ pageProperties: { currentPage: 1 } }),
       }, GRIDDLE_PREVIOUS_PAGE);
 
-      expect(state.get('data')).toEqual(defaultPage[0]);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(0);
     });
 
     it('gets first page when calling previous on first page', () => {
@@ -177,7 +141,7 @@ describe('localDataReducer', () => {
         state: Immutable.fromJS({ pageProperties: { currentPage: 0 } }),
       }, GRIDDLE_PREVIOUS_PAGE);
 
-      expect(state.get('data')).toEqual(defaultPage[0]);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(0);
     });
   });
 
@@ -202,22 +166,10 @@ describe('localDataReducer', () => {
       return getMethod(extend(options, { method }));
     }
 
-    it('returns the state when no sort columns are present', () => {
-      const state = reducer({}, GRIDDLE_SORT);
+    it('sets sort column', () => {
+      const state = reducer({payload: { sortColumns: ['one']}}, GRIDDLE_SORT);
 
-      expect(state.toJSON()).toEqual(initialState);
-    });
-
-    it('calls sortDataByColumns when sort column present', () => {
-      let count = 0;
-
-      const helpers = extend(Helpers,
-        { sortDataByColumns: (state, pageNumber) => new Immutable.Map({count: count++ }) });
-      const payload = { sortColumns: ['one'] };
-      const state = reducer({ helpers, payload }, GRIDDLE_SORT)
-
-      //the sortByColumns method should increment the count -- this is a cheezy shouldHaveBeenCalled
-      expect(count).toEqual(1);
+      expect(state.get('sortColumns')).toEqual(['one']);
     });
   });
 });

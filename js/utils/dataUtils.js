@@ -10,6 +10,14 @@ function keyInArray(keys) {
   }
 }
 
+//TODO: Move the test from helpers to here
+export function addKeyToRows(data) {
+  let key = 0;
+  const getKey = (() => key++);
+
+  return data.map(row => row.set('griddleKey', getKey()));
+}
+
 //, {__metadata: d.filter(keyInArray(metadataColumns)).set('index', i)}
 export function getVisibleDataColumns(data, columns) {
   if (data.size < 1) {
