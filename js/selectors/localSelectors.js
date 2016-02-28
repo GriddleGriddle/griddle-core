@@ -1,6 +1,20 @@
 import Immutable from 'immutable';
+import MAX_SAFE_INTEGER from 'max-safe-integer';
 import { createSelector } from 'reselect';
-import sortUtils from '../utils/sortUtils';
+import { getVisibleDataColumns } from '../utils/dataUtils'
+
+//oy - not a fan -- refactor asap because this is no good
+let localUtils = null;
+export const registerUtils = utils => { localUtils = utils }
+
+//this will get the utils or throw an error
+export const getUtils = () => {
+  if (localUtils) {
+    return localUtils;
+  }
+
+  console.error("Please call registerUtils with a util object when initializing the selectors");
+}
 
 //gets the full dataset currently tracked by griddle
 export const dataSelector = state => state.get('data');
@@ -31,16 +45,18 @@ export const allColumnsSelector = createSelector(
   (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
 )
 
+//gets the column property objects ordered by order
 export const sortedColumnPropertiesSelector = createSelector(
   renderPropertiesSelector,
   (renderProperties) => (
-    renderProperties && renderProperties.get('columnProperties') && renderProperties.get('columnProperties').size > 0 ?
+    renderProperties && renderProperties.get('columnProperties') && renderProperties.get('columnProperties').size !== 0 ?
       renderProperties.get('columnProperties')
-        .sortBy(col => col.get('order')||MAX_SAFE_INTEGER) :
+        .sortBy(col => (col && col.get('order'))||MAX_SAFE_INTEGER) :
       null
   )
 )
 
+//gets the visible columns
 export const visibleColumnsSelector = createSelector(
   sortedColumnPropertiesSelector,
   allColumnsSelector,
@@ -67,7 +83,6 @@ export const filteredDataSelector = createSelector(
   dataSelector,
   filterSelector,
   (data, filter) => {
-const a = sortUtils;
     return data.filter(row  => {
       return Object.keys(row.toJSON())
         .some(key => {
@@ -77,19 +92,32 @@ const a = sortUtils;
   }
 )
 
-export const buildSortedDataSelector = (utils) => createSelector(
+export const sortedDataSelector = createSelector(
   filteredDataSelector,
   sortColumnsSelector,
   sortColumnsShouldSortAscendingSelector,
   renderPropertiesSelector,
   (filteredData, sortColumns, sortColumnsShouldSortAscending, renderProperties) => {
     const sortType = renderProperties && renderProperties.get('columnProperties')
-    return utils.getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
+    return getUtils().getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
+  }
+)
+
+export const currentPageDataSelector = createSelector(
+  sortedDataSelector,
+  pageSizeSelector,
+  currentPageSelector,
+  (sortedData, pageSize, currentPage) => {
+    return sortedData
+      .skip(pageSize * (currentPage - 1))
+      .take(pageSize);
   }
 )
 
 //get the visible data (and only the columns that are visible)
-/*export const getVisibleData = createSelector(
+export const visibleDataSelector = createSelector(
+  currentPageDataSelector,
   visibleColumnsSelector,
+  (currentPageData, visibleColumns) => getVisibleDataColumns(currentPageData, visibleColumns)
+)
 
-)*/
