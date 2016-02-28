@@ -26,8 +26,16 @@ export const pageSizeSelector = state => state.getIn(['pageProperties', 'pageSiz
 export const currentPageSelector = state => state.getIn(['pageProperties', 'currentPage']);
 
 //max page number
-export const maxPageSelector = state => state.getIn(['pageProperties', 'maxPage']);
+export const maxPageSelector = createSelector(
+  pageSizeSelector,
+  dataSelector,
+  (pageSize, data) => {
+    const total = data.size;
+    const calc = total / pageSize;
 
+    return calc > Math.floor(calc) ? Math.floor(calc) + 1 : Math.floor(calc);
+  }
+)
 //what's the current selector
 export const filterSelector = state => state.get('filter')||'';
 

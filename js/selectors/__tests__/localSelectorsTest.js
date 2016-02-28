@@ -67,17 +67,15 @@ describe('localSelectors', () => {
 
   describe('hasNextSelector', () => {
     it('gets true when there are more possible pages', () => {
-      const state = initialState
-        .setIn(['pageProperties', 'currentPage'], 1)
-        .setIn(['pageProperties', 'maxPage'], 5);
+      const state = getBasicState()
+        .setIn(['pageProperties', 'currentPage'], 1);
 
       expect(selectors.hasNextSelector(state)).toEqual(true);
     })
 
     it('gets false when no more possible pages', () => {
-      const state = initialState
+      const state = getBasicState()
         .setIn(['pageProperties', 'currentPage'], 5)
-        .setIn(['pageProperties', 'maxPage'], 5);
 
       expect(selectors.hasNextSelector(state)).toEqual(false);
     })
@@ -105,8 +103,8 @@ describe('localSelectors', () => {
   });
 
   it('gets max page', () => {
-    const state = initialState.setIn(['pageProperties', 'maxPage'], 3);
-    expect(selectors.maxPageSelector(state)).toEqual(3);
+    const state = getBasicState();
+    expect(selectors.maxPageSelector(state)).toEqual(2);
   })
 
   it('gets filter', () => {
@@ -199,10 +197,6 @@ describe('localSelectors', () => {
 
       expect(sortedData.toJSON()).toEqual([{one: 'three', two: 'four'}, {one: 'one', two: 'two'}]);
     })
-
-    xit('orders "magic" columns correctly', () => {
-
-    });
 
     it('gets all columns', () => {
       const state = getBasicState();

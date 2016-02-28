@@ -15,15 +15,11 @@ import reselect from 'reselect';
 */
 export function GRIDDLE_LOADED_DATA(state, action, helpers) {
   const columns = action.data.length > 0 ? Object.keys(action.data[0]) : [];
+
   //set state's data to this
   const tempState = state
   .set('data', helpers.addKeyToRows(Immutable.fromJS(action.data)))
   .set('allColumns', columns)
-  .setIn(
-    ['pageProperties', 'maxPage'],
-    helpers.getPageCount(
-      action.data.length,
-      state.getIn(['pageProperties', 'pageSize'])))
   .set('loading', false);
 
   const columnProperties = tempState.get('renderProperties').get('columnProperties');

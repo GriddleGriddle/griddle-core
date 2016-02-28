@@ -50,17 +50,6 @@ describe('localDataReducer', () => {
       const state = loadData({ helpers, payload: { data: defaultData }});
       expect(state.get('allColumns')).toEqual(['one', 'two', 'three'])
     });
-
-    it('sets max page', () => {
-      const helpers = extend(Helpers, {
-        addKeyToRows: (state) => {return state},
-        getPageCount: (state) => { return 3}
-      });
-
-      const state = loadData({ helpers, payload: { data: defaultData }});
-
-      expect(state.getIn(['pageProperties', 'maxPage'])).toEqual(3);
-    });
   });
 
   describe('after reduce', () => {
