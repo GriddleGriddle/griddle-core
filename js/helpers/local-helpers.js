@@ -48,6 +48,21 @@ export function filterData(data, filter) {
       })
 }
 
+export function filterDataByColumns(data, filters) {
+  //filters is an immutable list
+  //go through the list and apply the filter to the data based on the filter
+  return filters.reduce((previous, current) => {
+    const column = current.get('column');
+    const filter = current.get('filter');
+
+    return previous.filter(row => row.get(column) &&
+      row.get(column)
+        .toString()
+        .toLowerCase()
+        .indexOf(filter.toLowerCase()) > -1)
+  }, data)
+}
+
 export function dateSort(data, column, sortAscending = true) {
   return data.sort(
     (original, newRecord) => {
