@@ -97,6 +97,12 @@ export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
         currentPage > 0 ? currentPage - 1 : currentPage ));
 }
 
+export function GRIDDLE_FILTERED_BY_COLUMN(state, action, helpers) {
+  return state
+    .set('columnFilters', state.get('columnFilters').push({ filter: action.filter, column: action.column }))
+    .setIn(['pageProperties', 'currentPage'], 1);
+}
+
 export function GRIDDLE_FILTERED(state, action, helpers) {
   //TODO: Just set the filter and let the visible data handle what is actually shown + next / previous
   return state
