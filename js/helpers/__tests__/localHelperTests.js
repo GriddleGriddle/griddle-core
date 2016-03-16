@@ -6,6 +6,7 @@ import {
   hasPrevious,
   getDataSet,
   filterData,
+  filterDataByColumns,
   getSortedData,
   updateSortColumns,
   sortDataByColumns,
@@ -71,6 +72,25 @@ describe('localHelpers', () => {
     });
 
     //TODO: Add test to make sure it calls filter method when there is a filter present
+    it('returns filtered data if columnFilters present', () => {
+      const state = getBasicState()
+        .set('columnFilters', Immutable.List([
+          {column: 'three', filter: 'r'}
+        ]))
+        .set('data', Immutable.fromJS([
+          {one: 'one', two: 'two', three: 'three'},
+          {one: 'four', two: 'six', three: 'seven'},
+          {one: 'ichi', two: 'ni', three: 'san'},
+          {one: 'shi', two: 'go', three: 'roku'}
+        ]));
+
+      const dataState = getDataSet(state);
+
+      expect(dataState.toJSON()).toEqual([
+        {one: 'one', two: 'two', three: 'three'},
+        {one: 'shi', two: 'go', three: 'roku'}
+      ])
+    })
   });
 
   describe('filterData', () => {
@@ -89,6 +109,43 @@ describe('localHelpers', () => {
       expect(filteredData.size).toEqual(2);
       expect(filteredData.toJSON()).toEqual(state.get('data').toJSON());
     });
+
+    //TODO: Break this test down a bit
+    it('filters by column', () => {
+      const state = getBasicState()
+        .set('data', Immutable.fromJS([
+          {one: 'one', two: 'two', three: 'three'},
+          {one: 'four', two: 'six', three: 'seven'},
+          {one: 'ichi', two: 'ni', three: 'san'},
+          {one: 'shi', two: 'go', three: 'roku'}
+        ]));
+
+      const filteredData = filterDataByColumns(state.get('data'), Immutable.List([
+        {column: 'three', filter: 'r'},
+      ]));
+
+      expect(filteredData.toJSON()).toEqual([
+        {one: 'one', two: 'two', three: 'three'},
+        {one: 'shi', two: 'go', three: 'roku'}
+      ]);
+
+      const filteredData2 = filterDataByColumns(state.get('data'), Immutable.List([
+        {column: 'three', filter: 'r'},
+        {column: 'one', filter: 's'}
+      ]))
+
+      expect(filteredData2.toJSON()).toEqual([
+        {one: 'shi', two: 'go', three: 'roku'}
+      ]);
+
+      const filteredData3 = filterDataByColumns(state.get('data'), Immutable.fromJS([
+        {column: 'three', filter: 'r'},
+        {column: 'one', filter: 's'},
+        {column: 'two', filter: 'w'}
+      ]))
+
+      expect(filteredData3.toJSON()).toEqual([]);
+    })
   });
 
   describe('getSortedData', () => {

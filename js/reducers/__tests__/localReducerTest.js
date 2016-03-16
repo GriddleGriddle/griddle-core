@@ -8,12 +8,13 @@ import LocalReducer, {
   GRIDDLE_NEXT_PAGE,
   GRIDDLE_PREVIOUS_PAGE,
   GRIDDLE_FILTERED,
+  GRIDDLE_FILTERED_BY_COLUMN,
   GRIDDLE_SORT
 } from '../local-reducer';
 
 import extend from 'lodash.assign';
 
-const initialState = {renderProperties: {columnProperties: null}};
+const initialState = {renderProperties: {columnProperties: null}, columnFilters: []};
 //TODO: Import the testHelpers instead of using this directly
 const getMethod = (options) => {
   if(!options.method) {
@@ -203,6 +204,29 @@ describe('localDataReducer', () => {
 
     it('sets the first page when filtering', () => {
       const state = reducer({ payload: { filter: 'test'}}, GRIDDLE_FILTERED);
+      expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(1);
+    })
+
+    it('sets column filter', () => {
+      const state = reducer({ payload: { filter: 'test', column: 'someColumn'}}, GRIDDLE_FILTERED_BY_COLUMN);
+      expect(state.get('columnFilters').toJSON()).toEqual([{filter: 'test', column: 'someColumn'}]);
+
+      const state2 = reducer({ payload: { filter: 'test2', column: 'someColumn2'}, state}, GRIDDLE_FILTERED_BY_COLUMN);
+      expect(state2.get('columnFilters').toJSON()).toEqual([
+        {filter: 'test', column: 'someColumn'},
+        {filter: 'test2', column: 'someColumn2'}
+      ]);
+    })
+
+    it('removes column filter when given empty filter for column', () => {
+      const state = reducer({ payload: { filter: 'test', column: 'someColumn'}}, GRIDDLE_FILTERED_BY_COLUMN);
+      const state2 = reducer({ payload: { filter: '', column: 'someColumn'}, state}, GRIDDLE_FILTERED_BY_COLUMN);
+
+      expect(state2.get('columnFilters').size).toEqual(0);
+    })
+
+    it('sets first page when filtering by column', () => {
+      const state = reducer({ payload: { filter: 'test', column: 'someColumn'}}, GRIDDLE_FILTERED_BY_COLUMN);
       expect(state.getIn(['pageProperties', 'currentPage'])).toEqual(1);
     })
   });

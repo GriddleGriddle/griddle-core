@@ -27,6 +27,14 @@ export function filterData(filter) {
   };
 }
 
+export function filterDataByColumn(filter, column) {
+  return {
+    type: types.GRIDDLE_FILTERED_BY_COLUMN,
+    filter,
+    column
+  }
+}
+
 export function setPageSize(pageSize) {
   return {
     type: types.GRIDDLE_SET_PAGE_SIZE,

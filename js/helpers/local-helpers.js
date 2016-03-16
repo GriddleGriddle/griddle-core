@@ -32,11 +32,22 @@ export function hasPrevious(state) {
 }
 
 export function getDataSet(state) {
+  let data = null;
+
+  //filtered data
   if(state.get('filter') && state.get('filter') !== '') {
-    return filterData(state.get('data'), state.get('filter'));
+    data = filterData(state.get('data'), state.get('filter'));
   }
 
-  return state.get('data');
+  //full data
+  data = data || state.get('data');
+
+  //filter data by columns
+  if(state.get('columnFilters') && state.get('columnFilters').size > 0) {
+    data = filterDataByColumns(data, state.get('columnFilters'));
+  }
+
+  return data;
 }
 
 export function filterData(data, filter) {
@@ -46,6 +57,20 @@ export function filterData(data, filter) {
           return row.get(key) && row.get(key).toString().toLowerCase().indexOf(filter.toLowerCase()) > -1
         })
       })
+}
+
+export function filterDataByColumns(data, filters) {
+  //filters is an immutable list
+  //go through the list and apply the filter to the data based on the filter
+  return filters.reduce((previous, current) => {
+    const { column, filter } = current;
+
+    return previous.filter(row => row.get(column) &&
+      row.get(column)
+        .toString()
+        .toLowerCase()
+        .indexOf(filter.toLowerCase()) > -1)
+  }, data)
 }
 
 export function dateSort(data, column, sortAscending = true) {
@@ -118,7 +143,7 @@ export function sortDataByColumns(state, helpers) {
   const allColumnProperties = state.getIn(['renderProperties', 'columnProperties']);
   const sortColumns = state.getIn(['pageProperties', 'sortColumns']);
   //TODO: Make sort for more than just the first column
-  const columnProperties = sortColumns && sortColumns.size > 0 ?
+  const columnProperties = sortColumns && sortColumns.length > 0 ?
     allColumnProperties.get(sortColumns[0]) :
     null;
 
