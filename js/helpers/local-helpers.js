@@ -63,8 +63,7 @@ export function filterDataByColumns(data, filters) {
   //filters is an immutable list
   //go through the list and apply the filter to the data based on the filter
   return filters.reduce((previous, current) => {
-    const column = current.get('column');
-    const filter = current.get('filter');
+    const { column, filter } = current;
 
     return previous.filter(row => row.get(column) &&
       row.get(column)

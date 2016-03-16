@@ -74,7 +74,7 @@ describe('localHelpers', () => {
     //TODO: Add test to make sure it calls filter method when there is a filter present
     it('returns filtered data if columnFilters present', () => {
       const state = getBasicState()
-        .set('columnFilters', Immutable.fromJS([
+        .set('columnFilters', Immutable.List([
           {column: 'three', filter: 'r'}
         ]))
         .set('data', Immutable.fromJS([
@@ -120,7 +120,7 @@ describe('localHelpers', () => {
           {one: 'shi', two: 'go', three: 'roku'}
         ]));
 
-      const filteredData = filterDataByColumns(state.get('data'), Immutable.fromJS([
+      const filteredData = filterDataByColumns(state.get('data'), Immutable.List([
         {column: 'three', filter: 'r'},
       ]));
 
@@ -129,7 +129,7 @@ describe('localHelpers', () => {
         {one: 'shi', two: 'go', three: 'roku'}
       ]);
 
-      const filteredData2 = filterDataByColumns(state.get('data'), Immutable.fromJS([
+      const filteredData2 = filterDataByColumns(state.get('data'), Immutable.List([
         {column: 'three', filter: 'r'},
         {column: 'one', filter: 's'}
       ]))

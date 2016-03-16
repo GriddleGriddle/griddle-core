@@ -100,13 +100,12 @@ export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
 export function GRIDDLE_FILTERED_BY_COLUMN(state, action, helpers) {
   const filters = state.get('columnFilters');
   const { column, filter } = action;
-  let setFilters = [];
+  let setFilters = filters
+    .filter(f => f.column !== column);
 
   //are we reseting a filter?
-  if (filter === '' && filters.some(item => item.column === column)) {
-    setFilters = filters.filter(f => f.column !== column);
-  } else {
-    setFilters = filters.concat({ filter, column });
+  if (filter !== '') {
+    setFilters = setFilters.concat({ filter, column });
   }
 
   return state
