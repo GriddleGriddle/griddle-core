@@ -210,6 +210,19 @@ describe('localDataReducer', () => {
     it('sets column filter', () => {
       const state = reducer({ payload: { filter: 'test', column: 'someColumn'}}, GRIDDLE_FILTERED_BY_COLUMN);
       expect(state.get('columnFilters').toJSON()).toEqual([{filter: 'test', column: 'someColumn'}]);
+
+      const state2 = reducer({ payload: { filter: 'test2', column: 'someColumn2'}, state}, GRIDDLE_FILTERED_BY_COLUMN);
+      expect(state2.get('columnFilters').toJSON()).toEqual([
+        {filter: 'test', column: 'someColumn'},
+        {filter: 'test2', column: 'someColumn2'}
+      ]);
+    })
+
+    it('removes column filter when given empty filter for column', () => {
+      const state = reducer({ payload: { filter: 'test', column: 'someColumn'}}, GRIDDLE_FILTERED_BY_COLUMN);
+      const state2 = reducer({ payload: { filter: '', column: 'someColumn'}, state}, GRIDDLE_FILTERED_BY_COLUMN);
+
+      expect(state2.get('columnFilters').size).toEqual(0);
     })
 
     it('sets first page when filtering by column', () => {

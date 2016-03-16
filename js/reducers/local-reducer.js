@@ -98,8 +98,19 @@ export function GRIDDLE_PREVIOUS_PAGE(state, action, helpers) {
 }
 
 export function GRIDDLE_FILTERED_BY_COLUMN(state, action, helpers) {
+  const filters = state.get('columnFilters');
+  const { column, filter } = action;
+  let setFilters = [];
+
+  //are we reseting a filter?
+  if (filter === '' && filters.some(item => item.column === column)) {
+    setFilters = filters.filter(f => f.column !== column);
+  } else {
+    setFilters = filters.concat({ filter, column });
+  }
+
   return state
-    .set('columnFilters', state.get('columnFilters').push({ filter: action.filter, column: action.column }))
+    .set('columnFilters', setFilters)
     .setIn(['pageProperties', 'currentPage'], 1);
 }
 
