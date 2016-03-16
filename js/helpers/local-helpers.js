@@ -32,11 +32,22 @@ export function hasPrevious(state) {
 }
 
 export function getDataSet(state) {
+  let data = null;
+
+  //filtered data
   if(state.get('filter') && state.get('filter') !== '') {
-    return filterData(state.get('data'), state.get('filter'));
+    data = filterData(state.get('data'), state.get('filter'));
   }
 
-  return state.get('data');
+  //full data
+  data = data || state.get('data');
+
+  //filter data by columns
+  if(state.get('columnFilters') && state.get('columnFilters').size > 0) {
+    data = filterDataByColumns(data, state.get('columnFilters'));
+  }
+
+  return data;
 }
 
 export function filterData(data, filter) {
