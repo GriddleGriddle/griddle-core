@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 import { createSelector } from 'reselect';
-import { getVisibleDataColumns } from '../utils/dataUtils'
+import { getVisibleDataColumns, getMetaData } from '../utils/dataUtils'
 
 //oy - not a fan -- refactor asap because this is no good
 let localUtils = null;
@@ -43,7 +43,7 @@ export const filterSelector = state => state.get('filter')||'';
 export const sortColumnsSelector = state => (state.get('sortColumns')||[])
 
 //gets the current sort direction (this is an array that corresponds to columns) records are true if sortAscending
-export const sortColumnsShouldSortAscendingSelector = state => (state.get('sortDirections')||[])
+export const sortColumnsShouldSortAscendingSelector = state => (state.get('sortDirections') || [])
 
 //the properties that determine how things are rendered
 export const renderPropertiesSelector = state => state.get('renderProperties');
@@ -107,7 +107,7 @@ export const sortedDataSelector = createSelector(
   renderPropertiesSelector,
   (filteredData, sortColumns, sortColumnsShouldSortAscending, renderProperties) => {
     const sortType = renderProperties && renderProperties.get('columnProperties')
-    return getUtils().getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending[0])
+    return getUtils().getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending.first())
   }
 )
 
@@ -129,3 +129,42 @@ export const visibleDataSelector = createSelector(
   (currentPageData, visibleColumns) => getVisibleDataColumns(currentPageData, visibleColumns)
 )
 
+//TODO: this needs some tests
+export const metaDataSelector = createSelector(
+  currentPageDataSelector,
+  visibleColumnsSelector,
+  (currentPageData, visibleColumns) => getMetaData(currentPageData, visibleColumns)
+)
+
+//TODO: This NEEDS tests
+export const columnTitlesSelector = createSelector(
+  visibleDataSelector,
+  metaDataSelector,
+  renderPropertiesSelector,
+  (visibleData, metaData, renderProperties) => {
+    if(visibleData.size > 0) {
+      return Object.keys(visibleData.get(0).toJSON()).map(k =>
+        renderProperties.get('columnProperties').get(k).get('displayName') || k
+      )
+    }
+
+    return [];
+  }
+)
+
+export const gridStateSelector = createSelector(
+  visibleDataSelector,
+  metaDataSelector,
+  currentPageDataSelector,
+  renderPropertiesSelector,
+  columnTitlesSelector,
+  allColumnsSelector,
+  (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns) => ({
+    visibleData,
+    metaData,
+    currentPageData,
+    renderProperties,
+    columnTitles,
+    allColumns
+  })
+)

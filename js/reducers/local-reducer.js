@@ -78,9 +78,16 @@ export function GRIDDLE_FILTERED(state, action) {
 export function GRIDDLE_SORT(state, action) {
   if(!action.sortColumns || action.sortColumns.length < 1) { return state }
 
+  const sortDirections = state.get('sortDirections').size !== 0 && (state.get('sortDirections').size > 0 &&
+    state.get('sortDirections').first() === true &&
+    state.get('sortColumns')[0] === action.sortColumns[0]) ?
+      Immutable.List([!state.get('sortDirections').first()]) :
+      Immutable.List([true]);
+
   return state
     .setIn(['pageProperties', 'currentPage'], 1)
     .set('sortColumns', action.sortColumns)
+    .set('sortDirections', sortDirections)
 }
 
 
