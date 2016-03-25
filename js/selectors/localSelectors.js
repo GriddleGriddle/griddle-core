@@ -143,6 +143,12 @@ export const hiddenColumnsSelector = createSelector(
   }
 )
 
+export const renderableColumnsSelector = createSelector(
+  visibleColumnsSelector,
+  hiddenColumnsSelector,
+  (visibleColumns, hiddenColumns) => [...visibleColumns, ...hiddenColumns]
+)
+
 //TODO: this needs some tests
 export const hiddenDataSelector = createSelector(
   currentPageDataSelector,
@@ -184,12 +190,14 @@ export const gridStateSelector = createSelector(
   renderPropertiesSelector,
   columnTitlesSelector,
   allColumnsSelector,
-  (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns) => ({
+  renderableColumnsSelector,
+  (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns, renderableColumns) => ({
     visibleData,
     metaData,
     currentPageData,
     renderProperties,
     columnTitles,
-    allColumns
+    allColumns,
+    renderableColumns
   })
 )

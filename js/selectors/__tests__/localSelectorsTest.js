@@ -165,6 +165,21 @@ describe('localSelectors', () => {
     });
   })
 
+  describe('renderable columns', () => {
+    it('gets renderable columns', () => {
+      const state = get3ColState()
+        .set('metadataColumns', Immutable.List(['two']))
+        .set('renderProperties', new Immutable.fromJS({
+          columnProperties: {
+            one: { id: 'one', displayName: 'One', order: 2 },
+          }
+        }))
+
+      const renderableColumns = selectors.renderableColumnsSelector(state)
+      expect(renderableColumns).toEqual(['one', 'three'])
+    })
+  })
+
   describe('visible columns', () => {
     it('gets the renderProperties', () => {
       const state = withRenderProperties(getBasicState());
