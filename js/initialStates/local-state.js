@@ -5,6 +5,7 @@ export default Immutable.fromJS({
     pageSize: 10,
     currentPage: 1,
   },
+  metadataColumns: [],
   filter: '',
   sortColumns: [],
   sortDirections: []

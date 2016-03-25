@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 import { createSelector } from 'reselect';
-import { getVisibleDataColumns, getMetaData } from '../utils/dataUtils'
+import { getVisibleDataColumns, getDataForColumns } from '../utils/dataUtils'
 
 //oy - not a fan -- refactor asap because this is no good
 let localUtils = null;
@@ -52,6 +52,9 @@ export const allColumnsSelector = createSelector(
   dataSelector,
   (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
 )
+
+//gets the metadata columns or nothing
+export const metaDataColumnsSelector = state => (state.get('metadataColumns') || [])
 
 //gets the column property objects ordered by order
 export const sortedColumnPropertiesSelector = createSelector(
@@ -129,11 +132,33 @@ export const visibleDataSelector = createSelector(
   (currentPageData, visibleColumns) => getVisibleDataColumns(currentPageData, visibleColumns)
 )
 
+export const hiddenColumnsSelector = createSelector(
+  visibleColumnsSelector,
+  allColumnsSelector,
+  metaDataColumnsSelector,
+  (visibleColumns, allColumns, metaDataColumns) => {
+    const removeColumns = [...visibleColumns, ...metaDataColumns];
+
+    return allColumns.filter(c => removeColumns.indexOf(c) === -1);
+  }
+)
+
+//TODO: this needs some tests
+export const hiddenDataSelector = createSelector(
+  currentPageDataSelector,
+  visibleColumnsSelector,
+  allColumnsSelector,
+  metaDataColumnsSelector,
+  (currentPageData, visibleColumns, allColumns, metaDataColumns) => {
+    return getDataForColumns(currentPageData, keys)
+  }
+)
+
 //TODO: this needs some tests
 export const metaDataSelector = createSelector(
   currentPageDataSelector,
-  visibleColumnsSelector,
-  (currentPageData, visibleColumns) => getMetaData(currentPageData, visibleColumns)
+  metaDataColumnsSelector,
+  (currentPageData, metaDataColumns) => { return getDataForColumns(currentPageData, metaDataColumns) }
 )
 
 //TODO: This NEEDS tests

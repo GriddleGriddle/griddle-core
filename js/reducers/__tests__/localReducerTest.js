@@ -13,7 +13,12 @@ import LocalReducer, {
 
 import extend from 'lodash.assign';
 
-const initialState = {renderProperties: {columnProperties: null}};
+const initialState = {
+  renderProperties: {columnProperties: null},
+  sortDirections: [],
+  sortColumns: []
+};
+
 //TODO: Import the testHelpers instead of using this directly
 const getMethod = (options) => {
   if(!options.method) {

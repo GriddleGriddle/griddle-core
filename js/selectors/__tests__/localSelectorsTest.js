@@ -18,7 +18,9 @@ function getBasicState() {
       pageSize: 1,
       currentPage: 0,
       maxPage: 2
-    }
+    },
+    sortColumns: [],
+    sortDirections: []
   });
 }
 
@@ -44,7 +46,9 @@ export function get3ColState() {
       pageSize: 1,
       currentPage: 0,
       maxPage: 2
-    }
+    },
+    sortColumns: [],
+    sortDirections: []
   });
 }
 
@@ -135,6 +139,30 @@ describe('localSelectors', () => {
       expect(filteredData.size).toEqual(2);
       expect(filteredData.toJSON()).toEqual(state.get('data').toJSON());
     })
+  })
+
+  describe ('with metadata columns', () => {
+    it('gets metadata columns', () => {
+      const state = get3ColState().set('metadataColumns', Immutable.List(['two']));
+      const metaDataColumns = selectors.metaDataColumnsSelector(state);
+      expect(metaDataColumns.toJSON()).toEqual(['two'])
+    })
+  })
+
+  describe ('hidden columns', () => {
+    it('gets hidden columns without visible / metadata columns', () => {
+      const state = withRenderProperties(get3ColState()
+        .set('metadataColumns', Immutable.List(['two'])));
+
+      const hidden = selectors.hiddenColumnsSelector(state)
+      expect(hidden).toEqual(['three'])
+    });
+
+    it('returns empty when none', () => {
+      const state = withRenderProperties(getBasicState())
+      const hidden = selectors.hiddenColumnsSelector(state)
+      expect(hidden).toEqual([]);
+    });
   })
 
   describe('visible columns', () => {

@@ -18,15 +18,14 @@ export function addKeyToRows(data) {
   return data.map(row => row.set('griddleKey', getKey()));
 }
 
-export function getMetaData(data, nonMetaColumns) {
+export function getDataForColumns(data, columns) {
   if (data.size < 1) {
     return data;
   }
 
   const dataColumns = data.get(0).keySeq().toArray();
-
-  const columns = dataColumns.filter(item => nonMetaColumns.indexOf(item) < 0);
-  return data.map(d => d.filter(keyInArray(columns)));
+  const resultColumns = dataColumns.filter(item => columns.indexOf(item) >= 0);
+  return data.map(d => d.filter(keyInArray(resultColumns)));
 }
 
 //, {__metadata: d.filter(keyInArray(metadataColumns)).set('index', i)}
