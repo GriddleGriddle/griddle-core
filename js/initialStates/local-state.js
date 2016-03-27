@@ -5,7 +5,7 @@ export default Immutable.fromJS({
     pageSize: 10,
     currentPage: 1,
   },
-  metadataColumns: [],
+  metadataColumns: ['griddleKey'],
   filter: '',
   sortColumns: [],
   sortDirections: []
