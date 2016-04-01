@@ -3,19 +3,6 @@ import MAX_SAFE_INTEGER from 'max-safe-integer';
 import { createSelector } from 'reselect';
 import { getVisibleDataColumns, getDataForColumns } from '../utils/dataUtils'
 
-//oy - not a fan -- refactor asap because this is no good
-let localUtils = null;
-export const registerUtils = utils => { localUtils = utils }
-
-//this will get the utils or throw an error
-export const getUtils = () => {
-  if (localUtils) {
-    return localUtils;
-  }
-
-  console.error("Please call registerUtils with a util object when initializing the selectors");
-}
-
 //gets the full dataset currently tracked by griddle
 export const dataSelector = state => state.get('data');
 
@@ -103,33 +90,16 @@ export const filteredDataSelector = createSelector(
   }
 )
 
-export const sortedDataSelector = createSelector(
-  filteredDataSelector,
-  sortColumnsSelector,
-  sortColumnsShouldSortAscendingSelector,
-  renderPropertiesSelector,
-  (filteredData, sortColumns, sortColumnsShouldSortAscending, renderProperties) => {
-    const sortType = renderProperties && renderProperties.get('columnProperties')
-    return getUtils().getSortedData(filteredData, sortColumns, sortColumnsShouldSortAscending.first())
-  }
+//get the visible data (and only the columns that are visible)
+export const visibleDataSelector = createSelector(
+  dataSelector,
+  visibleColumnsSelector,
+  (data, visibleColumns) => getVisibleDataColumns(data, visibleColumns)
 )
 
 export const currentPageDataSelector = createSelector(
-  sortedDataSelector,
-  pageSizeSelector,
-  currentPageSelector,
-  (sortedData, pageSize, currentPage) => {
-    return sortedData
-      .skip(pageSize * (currentPage - 1))
-      .take(pageSize);
-  }
-)
-
-//get the visible data (and only the columns that are visible)
-export const visibleDataSelector = createSelector(
-  currentPageDataSelector,
-  visibleColumnsSelector,
-  (currentPageData, visibleColumns) => getVisibleDataColumns(currentPageData, visibleColumns)
+  visibleDataSelector,
+  (visibleData) => visibleData
 )
 
 export const hiddenColumnsSelector = createSelector(
