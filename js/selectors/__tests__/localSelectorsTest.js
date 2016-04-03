@@ -1,9 +1,8 @@
 import Immutable from 'immutable';
-import * as selectors from '../localSelectors';
+import selectorFactory from '../localSelectors';
 import sortUtils from '../../utils/sortUtils';
-
 //TODO: this needs to go away
-selectors.registerUtils(sortUtils)
+const selectors = selectorFactory(sortUtils);
 
 
 function getBasicState() {
@@ -52,7 +51,7 @@ export function get3ColState() {
   });
 }
 
-describe('localSelectors', () => {
+fdescribe('localSelectors', () => {
   var initialState;
 
   beforeEach(() => {
@@ -73,7 +72,7 @@ describe('localSelectors', () => {
     it('gets true when there are more possible pages', () => {
       const state = getBasicState()
         .setIn(['pageProperties', 'currentPage'], 1);
-
+debugger;
       expect(selectors.hasNextSelector(state)).toEqual(true);
     })
 
