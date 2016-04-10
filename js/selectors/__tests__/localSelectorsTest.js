@@ -278,7 +278,7 @@ debugger;
       expect(Object.keys(data.toJSON()[0])).toEqual(['two', 'one'])
     })
 
-    it('gets magic columns', () => {
+    fit('gets magic columns', () => {
       const state = withRenderProperties(getBasicState())
         .mergeDeepIn(['renderProperties', 'columnProperties'], { onepointfive: null });
 
