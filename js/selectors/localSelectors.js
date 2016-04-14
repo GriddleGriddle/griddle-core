@@ -1,13 +1,7 @@
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
-import { createSelector } from 'reselect';
 import { getVisibleDataColumns, getDataForColumns } from '../utils/dataUtils'
-
-const createGriddleSelector = (context, ...args) => {
-  const boundArguments = args.map(a => typeof a === 'function' ? a.bind(context) : a);
-  const selector = createSelector(...boundArguments);
-  return selector;
-}
+import { createGriddleSelector } from '../utils/selectorUtils';
 
 export default function(utils) {
   return {
