@@ -1,9 +1,10 @@
 import Immutable from 'immutable';
-import selectorFactory from '../localSelectors';
+import dataSelectorFactory from '../dataSelectors';
+import localSelectorFactory from '../localSelectors';
 import sortUtils from '../../utils/sortUtils';
-//TODO: this needs to go away
-const selectors = selectorFactory(sortUtils);
 
+//This simulates what Griddle should be doing with plugins
+const selectors = Object.assign({}, dataSelectorFactory(sortUtils), localSelectorFactory(sortUtils));
 
 function getBasicState() {
   return Immutable.fromJS({

@@ -5,15 +5,6 @@ import { createGriddleSelector } from '../utils/selectorUtils';
 
 export default function(utils) {
   return {
-    //gets the full dataset currently tracked by griddle
-    dataSelector: state => state.get('data'),
-
-    //gets the number of records to display
-    pageSizeSelector: state => state.getIn(['pageProperties', 'pageSize']),
-
-    //what's the current page
-    currentPageSelector: state => state.getIn(['pageProperties', 'currentPage']),
-
     //max page number
     maxPageSelector: function (state, props) {
         return createGriddleSelector(
@@ -28,29 +19,6 @@ export default function(utils) {
         }
       )(state, props)
     },
-
-    //what's the current selector
-    filterSelector: state => state.get('filter')||'',
-
-    //gets the current sort columns
-    sortColumnsSelector: state => (state.get('sortColumns')||[]),
-
-    //gets the current sort direction (this is an array that corresponds to columns) records are true if sortAscending
-    sortColumnsShouldSortAscendingSelector: state => (state.get('sortDirections') || []),
-
-    //the properties that determine how things are rendered
-    renderPropertiesSelector: state => state.get('renderProperties'),
-
-    allColumnsSelector: function(state, props) {
-      return createGriddleSelector(
-        this,
-        this.dataSelector,
-        (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
-      )(state, props)
-    },
-
-    //gets the metadata columns or nothing
-    metaDataColumnsSelector: state => (state.get('metadataColumns') || []),
 
     //gets the column property objects ordered by order
     sortedColumnPropertiesSelector: function(state, props) {
