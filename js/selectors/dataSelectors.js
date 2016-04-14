@@ -1,79 +1,95 @@
 import Immutable from 'immutable';
 import MAX_SAFE_INTEGER from 'max-safe-integer';
 import { getVisibleDataColumns, getDataForColumns } from '../utils/dataUtils'
-import { createSelector } from 'reselect';
+import { createGriddleSelector } from '../utils/selectorUtils';
 
-//gets the full dataset currently tracked by griddle
-export const dataSelector = state => state.get('data');
+export default function(utils) {
+  return {
+    //gets the full dataset currently tracked by griddle
+    dataSelector: state => state.get('data'),
 
-//gets the number of records to display
-export const pageSizeSelector = state => state.getIn(['pageProperties', 'pageSize']);
+    //gets the number of records to display
+    pageSizeSelector: state => state.getIn(['pageProperties', 'pageSize']),
 
-//what's the current page
-export const currentPageSelector = state => state.getIn(['pageProperties', 'currentPage']);
+    //what's the current page
+    currentPageSelector: state => state.getIn(['pageProperties', 'currentPage']),
 
-//max page number
-export const maxPageSelector = state => state.getIn(['pageProperties', 'maxPage']);
+    //max page number
+    maxPageSelector: state => state.getIn(['pageProperties', 'maxPage']),
 
-//what's the current selector
-export const filterSelector = state => state.get('filter')||'';
+    //what's the current selector
+    filterSelector: state => state.get('filter') || '',
 
-//gets the current sort columns
-export const sortColumnsSelector = state => (state.get('sortColumns')||[])
+    //gets the current sort columns
+    sortColumnsSelector: state => (state.get('sortColumns')||[]),
 
-//gets the current sort direction (this is an array that corresponds to columns) records are true if sortAscending
-export const sortColumnsShouldSortAscendingSelector = state => (state.get('sortDirections') || [])
+    //gets the current sort direction (this is an array that corresponds to columns) records are true if sortAscending
+    sortColumnsShouldSortAscendingSelector: state => (state.get('sortDirections') || []),
 
-//the properties that determine how things are rendered
-export const renderPropertiesSelector = state => state.get('renderProperties');
+    //the properties that determine how things are rendered
+    renderPropertiesSelector: state => state.get('renderProperties'),
 
-export const allColumnsSelector = createSelector(
-  dataSelector,
-  (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
-)
+    allColumnsSelector: function(state, props) {
+      return createGriddleSelector(
+        this,
+        this.dataSelector,
+        (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
+      )(state, props)
+    },
 
-//gets the metadata columns or nothing
-export const metaDataColumnsSelector = state => (state.get('metadataColumns') || [])
+    //gets the metadata columns or nothing
+    metaDataColumnsSelector: state => (state.get('metadataColumns') || []),
 
-//is there a next page
-export const hasNextSelector = createSelector(
-  currentPageSelector,
-  maxPageSelector,
-  (currentPage, maxPage) => (maxPage > currentPage)
-)
+    //is there a next page
+    hasNextSelector: function(state, props) {
+      return createGriddleSelector(
+        this,
+        this.currentPageSelector,
+        this.maxPageSelector,
+        (currentPage, maxPage) => (maxPage > currentPage)
+      )(state, props);
+    },
 
-//is there a previous page?
-export const hasPreviousSelector = state => (state.getIn(['pageProperties', 'currentPage']) > 1);
+    //is there a previous page?
+    hasPreviousSelector: state => (state.getIn(['pageProperties', 'currentPage']) > 1),
 
-export const metaDataSelector = state => state.get('metaData')
+    metaDataSelector: state => state.get('metaData'),
 
-export const columnTitlesSelector = createSelector(
-  dataSelector,
-  metaDataSelector,
-  renderPropertiesSelector,
-  (visibleData, metaData, renderProperties) => {
-    if(visibleData.size > 0) {
-      return Object.keys(visibleData.get(0).toJSON()).map(k =>
-        renderProperties.get('columnProperties').get(k).get('displayName') || k
+    columnTitlesSelector: function(state, props) {
+      return createGriddleSelector(
+        this,
+        this.dataSelector,
+        this.metaDataSelector,
+        this.renderPropertiesSelector,
+        (visibleData, metaData, renderProperties) => {
+          if(visibleData.size > 0) {
+            return Object.keys(visibleData.get(0).toJSON()).map(k =>
+              renderProperties.get('columnProperties').get(k).get('displayName') || k
+            )
+          }
+
+          return [];
+        }
+      );
+    },
+
+    griddleStateSelector: function(state, props) {
+      return createSelector(
+        this,
+        this.dataSelector,
+        this.metaDataSelector,
+        this.renderPropertiesSelector,
+        this.columnTitlesSelector,
+        this.allColumnsSelector,
+        (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns, renderableColumns) => ({
+          visibleData,
+          metaData,
+          currentPageData,
+          renderProperties,
+          columnTitles,
+          allColumns,
+        })
       )
     }
-
-    return [];
   }
-)
-
-export const griddleStateSelector = createSelector(
-  dataSelector,
-  metaDataSelector,
-  renderPropertiesSelector,
-  columnTitlesSelector,
-  allColumnsSelector,
-  (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns, renderableColumns) => ({
-    visibleData,
-    metaData,
-    currentPageData,
-    renderProperties,
-    columnTitles,
-    allColumns,
-  })
-)
+}

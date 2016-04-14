@@ -1,6 +1,8 @@
 import Immutable from 'immutable';
-import * as selectors from '../dataSelectors';
 import sortUtils from '../../utils/sortUtils';
+
+import selectorFactory from '../dataSelectors';
+const selectors = selectorFactory(sortUtils);
 
 function getBasicState() {
   return Immutable.fromJS({
