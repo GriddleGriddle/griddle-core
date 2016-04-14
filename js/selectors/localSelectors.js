@@ -6,7 +6,6 @@ import { getVisibleDataColumns, getDataForColumns } from '../utils/dataUtils'
 const createGriddleSelector = (context, ...args) => {
   const boundArguments = args.map(a => typeof a === 'function' ? a.bind(context) : a);
   const selector = createSelector(...boundArguments);
-  debugger;
   return selector;
 }
 
@@ -24,6 +23,7 @@ export default function(utils) {
     //max page number
     maxPageSelector: function (state, props) {
         return createGriddleSelector(
+        this,
         this.pageSizeSelector,
         this.dataSelector,
         (pageSize, data) => {
@@ -49,6 +49,7 @@ export default function(utils) {
 
     allColumnsSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.dataSelector,
         (data) => (data.size === 0 ? [] : data.get(0).keySeq().toJSON())
       )(state, props)
@@ -60,6 +61,7 @@ export default function(utils) {
     //gets the column property objects ordered by order
     sortedColumnPropertiesSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.renderPropertiesSelector,
         (renderProperties) => (
           renderProperties && renderProperties.get('columnProperties') && renderProperties.get('columnProperties').size !== 0 ?
@@ -73,6 +75,7 @@ export default function(utils) {
     //gets the visible columns
     visibleColumnsSelector: function (state, props) {
       return createGriddleSelector(
+        this,
         this.sortedColumnPropertiesSelector,
         this.allColumnsSelector,
         (sortedColumnProperties, allColumns) => (
@@ -87,6 +90,7 @@ export default function(utils) {
     //is there a next page
     hasNextSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.currentPageSelector.bind(this),
         this.maxPageSelector.bind(this),
         (currentPage, maxPage) => (currentPage < maxPage)
@@ -99,6 +103,7 @@ export default function(utils) {
     //get the filtered data
     filteredDataSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.dataSelector,
         this.filterSelector,
         (data, filter) => {
@@ -113,7 +118,8 @@ export default function(utils) {
     },
 
     sortedDataSelector: function(state, props) {
-      createSelector(
+      return createGriddleSelector(
+        this,
         this.filteredDataSelector,
         this.sortColumnsSelector,
         this.sortColumnsShouldSortAscendingSelector,
@@ -126,8 +132,8 @@ export default function(utils) {
     },
 
     currentPageDataSelector: function(state, props) {
-      debugger;
-      createSelector(
+      return createGriddleSelector(
+        this,
         this.sortedDataSelector,
         this.pageSizeSelector,
         this.currentPageSelector,
@@ -151,6 +157,7 @@ export default function(utils) {
 
     hiddenColumnsSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.visibleColumnsSelector,
         this.allColumnsSelector,
         this.metaDataColumnsSelector,
@@ -159,11 +166,12 @@ export default function(utils) {
 
           return allColumns.filter(c => removeColumns.indexOf(c) === -1);
         }
-      )
+      )(state, props)
     },
 
     renderableColumnsSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.visibleColumnsSelector,
         this.hiddenColumnsSelector,
         (visibleColumns, hiddenColumns) => [...visibleColumns, ...hiddenColumns]
@@ -173,6 +181,7 @@ export default function(utils) {
     //TODO: this needs some tests
     hiddenDataSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.currentPageDataSelector,
         this.visibleColumnsSelector,
         this.allColumnsSelector,
@@ -186,6 +195,7 @@ export default function(utils) {
     //TODO: this needs some tests
     metaDataSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.currentPageDataSelector,
         this.metaDataColumnsSelector,
         (currentPageData, metaDataColumns) => { return getDataForColumns(currentPageData, metaDataColumns) }
@@ -195,6 +205,7 @@ export default function(utils) {
     //TODO: This NEEDS tests
     columnTitlesSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.visibleDataSelector,
         this.metaDataSelector,
         this.renderPropertiesSelector,
@@ -212,6 +223,7 @@ export default function(utils) {
 
     griddleStateSelector: function(state, props) {
       return createGriddleSelector(
+        this,
         this.visibleDataSelector,
         this.metaDataSelector,
         this.currentPageDataSelector,
@@ -232,4 +244,3 @@ export default function(utils) {
     },
   }
 }
-

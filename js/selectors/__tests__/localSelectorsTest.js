@@ -51,7 +51,7 @@ export function get3ColState() {
   });
 }
 
-fdescribe('localSelectors', () => {
+describe('localSelectors', () => {
   var initialState;
 
   beforeEach(() => {
@@ -72,7 +72,7 @@ fdescribe('localSelectors', () => {
     it('gets true when there are more possible pages', () => {
       const state = getBasicState()
         .setIn(['pageProperties', 'currentPage'], 1);
-debugger;
+
       expect(selectors.hasNextSelector(state)).toEqual(true);
     })
 
@@ -278,10 +278,9 @@ debugger;
       expect(Object.keys(data.toJSON()[0])).toEqual(['two', 'one'])
     })
 
-    fit('gets magic columns', () => {
+    it('gets magic columns', () => {
       const state = withRenderProperties(getBasicState())
         .mergeDeepIn(['renderProperties', 'columnProperties'], { onepointfive: null });
-
 
       const data = selectors.visibleDataSelector(state);
 
@@ -289,6 +288,5 @@ debugger;
         {two: 'two', onepointfive: null,  one: 'one'},
       ]);
     })
-
   })
 })
