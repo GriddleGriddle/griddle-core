@@ -1,3 +1,5 @@
-import * as localSelectors from './localSelectors';
+import localSelectors from './localSelectors';
+import dataSelectors from './dataSelectors';
 
-export { localSelectors as localSelectors }
+export { localSelectors as local }
+export { dataSelectors as data }

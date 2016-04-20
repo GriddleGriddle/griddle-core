@@ -49,7 +49,6 @@ export function getReducersByWordEnding(reducers, ending) {
       reducer[keyWithoutEnding] = wrapReducer(currentReducer, previousReducer);
     }
 
-    //override anything in previous (since this now calls previous to make sure we have helpers from both);
     return extend(previous, reducer);
   }, {});
 }
@@ -66,7 +65,7 @@ export function getAfterReducers(reducers) {
 export function wrapReducer(next, previous) {
   //if previous reducer exists -- return the result of wrapper as state to next
   return previous && typeof(previous) === 'function' && typeof(next) === 'function' ?
-    (state, action, helpers) => next(previous(state, action, helpers), action, helpers) :
+    (state, action, selectors) => next(previous(state, action, selectors), action, selectors) :
     next;
 }
 
@@ -122,8 +121,7 @@ export function buildReducerWithHooks(reducers, reducer) {
   return extend(reducer, retVal);
 }
 
-//TODO: maybe add helpers in here too and override them on add. idk
-export default function buildGriddleReducer(initialStates, reducers, helpers) {
+export default function buildGriddleReducer(initialStates, reducers) {
     const beforeReducers = getBeforeReducers(reducers);
     const afterReducers = getAfterReducers(reducers);
     const griddleReducers = combineAndOverrideReducers(reducers);
@@ -132,12 +130,11 @@ export default function buildGriddleReducer(initialStates, reducers, helpers) {
     const finalReducer = wrappedReducers;
 
     const griddleState = combineInitialState(initialStates);
-    const griddleHelpers = combineAndOverrideReducers(helpers);
 
     //TODO: Decrease the inception
-    return function griddleReducer(state = griddleState, action, helpers = griddleHelpers) {
+    return function griddleReducer(state = griddleState, action) {
       return finalReducer[action.type] ?
-        finalReducer[action.type](state, action, helpers) :
+        finalReducer[action.type](state, action) :
         state;
     }
 }

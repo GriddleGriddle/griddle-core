@@ -1,5 +1,4 @@
 import Immutable from 'immutable';
-import * as Helpers from '../../helpers/local-helpers';
 import LocalReducer, {
   GRIDDLE_LOADED_DATA,
   AFTER_REDUCE,
@@ -25,9 +24,9 @@ const getMethod = (options) => {
     throw "Need a method to call"
   }
 
-  const combined = extend({state: Immutable.fromJS(initialState), payload: {}, helpers: {}, method: null}, options);
-  const { state, payload, helpers, method } = combined;
-  return method.call(this, state, payload, helpers);
+  const combined = extend({state: Immutable.fromJS(initialState), payload: {}, method: null}, options);
+  const { state, payload, method } = combined;
+  return method.call(this, state, payload);
 }
 
 const defaultData = [
@@ -47,15 +46,13 @@ describe('localDataReducer', () => {
     }
 
     it('sets the data', () => {
-      const helpers = extend(Helpers, { addKeyToRows:  (state) => {return state} });
-      const state = loadData({ helpers, payload: { data: defaultData }});
+      const state = loadData({ payload: { data: defaultData }});
 
       expect(withDefaultKeys(state.get('data'))).toEqual(defaultData);
     });
 
     it('sets all columns', () => {
-      const helpers = extend(Helpers, { addKeyToRows:  (state) => {return state} });
-      const state = loadData({ helpers, payload: { data: defaultData }});
+      const state = loadData({ payload: { data: defaultData }});
       expect(state.get('allColumns')).toEqual(['one', 'two', 'three'])
     });
   });
@@ -64,15 +61,6 @@ describe('localDataReducer', () => {
     const afterReduce = (options) => {
       return getMethod(extend(options, {method: AFTER_REDUCE}));
     }
-
-    const defaultHelpers = extend(Helpers, {
-      getDataSet: (state) => { return state; },
-      getVisibleData: (state) => { return state; },
-      getOriginalData: (state) => { return state; },
-      hasNext: (state) => { return true; },
-      hasPrevious: (state) => { return true; },
-      getDataSetSize: (state) => { return state.count(); }
-    });
   });
 
   describe('set page size', () => {
@@ -80,12 +68,8 @@ describe('localDataReducer', () => {
       return getMethod(extend(options, { method: GRIDDLE_SET_PAGE_SIZE }));
     }
 
-    const defaultHelpers = extend(Helpers, {
-      getPageCount: (state) => { return 3; }
-    });
-
     it('sets the page size', () => {
-      const state = setPageSize({ helpers: defaultHelpers,
+      const state = setPageSize({
         state: Immutable.fromJS({ data: defaultData }),
         payload: { pageSize: 10 }
       });
@@ -105,11 +89,8 @@ describe('localDataReducer', () => {
       {one: 'ichi', two: 'ni', three: 'san'}
     ];
 
-    const defaultHelpers = extend(Helpers,
-      { getPage: (state, pageNumber) => state.set('data', defaultPage[pageNumber]) });
-
     it('gets a page of data', () => {
-      const state = reducer({ helpers: defaultHelpers,
+      const state = reducer({
         state: Immutable.fromJS({}),
         payload: { pageNumber: 2 }
       }, GRIDDLE_GET_PAGE);
@@ -118,7 +99,7 @@ describe('localDataReducer', () => {
     });
 
     it('gets next page', () => {
-      const state = reducer({ helpers: defaultHelpers,
+      const state = reducer({
         state: Immutable.fromJS({ pageProperties: { currentPage: 0, maxPage: 2 } }),
       }, GRIDDLE_NEXT_PAGE);
 
@@ -126,7 +107,7 @@ describe('localDataReducer', () => {
     });
 
     it('gets last page when calling next page on last page', () => {
-      const state = reducer({ helpers: defaultHelpers,
+      const state = reducer({
         state: Immutable.fromJS({ pageProperties: { currentPage: 2, maxPage: 2 } }),
       }, GRIDDLE_NEXT_PAGE);
 
@@ -134,7 +115,7 @@ describe('localDataReducer', () => {
     });
 
     it('gets previous page', () => {
-      const state = reducer({ helpers: defaultHelpers,
+      const state = reducer({
         state: Immutable.fromJS({ pageProperties: { currentPage: 1 } }),
       }, GRIDDLE_PREVIOUS_PAGE);
 
@@ -142,7 +123,7 @@ describe('localDataReducer', () => {
     });
 
     it('gets first page when calling previous on first page', () => {
-      const state = reducer({ helpers: defaultHelpers,
+      const state = reducer({
         state: Immutable.fromJS({ pageProperties: { currentPage: 0 } }),
       }, GRIDDLE_PREVIOUS_PAGE);
 

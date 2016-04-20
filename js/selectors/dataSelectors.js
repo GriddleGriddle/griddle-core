@@ -74,22 +74,37 @@ export default function(utils) {
     },
 
     griddleStateSelector: function(state, props) {
-      return createSelector(
+      return createGriddleSelector(
         this,
         this.dataSelector,
         this.metaDataSelector,
         this.renderPropertiesSelector,
         this.columnTitlesSelector,
         this.allColumnsSelector,
-        (visibleData, metaData, currentPageData, renderProperties, columnTitles, allColumns, renderableColumns) => ({
+        (visibleData, metaData, renderProperties, columnTitles, allColumns) => ({
           visibleData,
           metaData,
-          currentPageData,
           renderProperties,
           columnTitles,
           allColumns,
         })
       )
-    }
-  }
+    },
+
+    jsonDataSelector: function(state, props) {
+      return createGriddleSelector(
+        this,
+        this.dataSelector,
+        (data) => data.toJSON()
+      )(state, props)
+    },
+
+    outputSelectors: [
+      { selectorName: 'jsonDataSelector', outputName: 'data' },
+      { selectorName: 'metaDataSelector', outputName: 'metaData' },
+      { selectorName: 'renderPropertiesSelector', outputName: 'renderProperties' },
+      { selectorName: 'columnTitlesSelector', outputName: 'columnTitles' },
+      { selectorName: 'allColumnsSelector', outputName: 'allColumns' }
+    ]
+}
 }
