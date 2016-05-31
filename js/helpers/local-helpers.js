@@ -143,7 +143,7 @@ export function sortDataByColumns(state, helpers) {
   const allColumnProperties = state.getIn(['renderProperties', 'columnProperties']);
   const sortColumns = state.getIn(['pageProperties', 'sortColumns']);
   //TODO: Make sort for more than just the first column
-  const columnProperties = sortColumns && sortColumns.length > 0 ?
+  const columnProperties = sortColumns && (sortColumns.size || sortColumns.length) > 0 ?
     allColumnProperties.get(sortColumns[0]) :
     null;
 
